@@ -1,10 +1,17 @@
 name: CI
 
+# 品質チェック (Lint / Format / 型チェック / テスト / E2E) の CI。
+# 本来は pull_request で回すが、リポジトリ移管後に一部 PR で pull_request イベントが
+# ワークフローを起動しない事象があったため、push でも走らせて確実に検証する。
+# 二重実行は concurrency (同一ブランチは進行中の古い実行をキャンセル) で抑える。
+# build ジョブだけは従来どおりフォーク由来 PR のときのみ実行する (下記 if。二重ビルド回避)。
 on:
   push:
-    branches:
-      - main
   pull_request:
+
+concurrency:
+  group: ci-${{ github.head_ref || github.ref_name }}
+  cancel-in-progress: true
 
 jobs:
   quality:
