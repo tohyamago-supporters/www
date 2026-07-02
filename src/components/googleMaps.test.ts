@@ -8,7 +8,7 @@ import {
 } from './googleMaps'
 
 type GoogleGlobal = {
-  google?: { maps: { importLibrary: (name: string) => Promise<unknown> } }
+  google?: { maps: { Map: unknown; Marker: unknown; InfoWindow: unknown } }
 }
 
 describe('mapSearchUrl / directionsUrl', () => {
@@ -37,15 +37,18 @@ describe('googleMapsLoaderUrl', () => {
     expect(url).not.toContain('libraries=')
     expect(url).not.toContain('language=')
     expect(url).not.toContain('region=')
+    expect(url).not.toContain('callback=')
   })
 
-  it('libraries・language・region は指定時のみ載せる', () => {
+  it('libraries・language・region・callback は指定時のみ載せる', () => {
     const url = googleMapsLoaderUrl('abc', {
       libraries: ['marker', 'places'],
       language: 'ja',
       region: 'JP',
+      callback: 'onReady',
     })
     expect(url).toContain('libraries=marker%2Cplaces')
+    expect(url).toContain('callback=onReady')
     expect(url).toContain('language=ja')
     expect(url).toContain('region=JP')
   })
@@ -102,30 +105,28 @@ describe('loadGoogleMaps', () => {
     delete (globalThis as unknown as GoogleGlobal).google
   })
 
-  // importLibrary で maps / marker ライブラリを返す google.maps を用意する。
-  function installGoogleWithLibs() {
+  // Map / Marker / InfoWindow クラスを備えた google.maps を用意する。
+  function installGoogleClasses() {
     class Map {}
     class Marker {}
     class InfoWindow {}
-    const importLibrary = vi.fn((name: string) => {
-      if (name === 'maps') return Promise.resolve({ Map, InfoWindow })
-      if (name === 'marker') return Promise.resolve({ Marker })
-      return Promise.resolve({})
-    })
     ;(globalThis as unknown as GoogleGlobal).google = {
-      maps: { importLibrary },
+      maps: { Map, Marker, InfoWindow },
     }
-    return { Map, Marker, InfoWindow, importLibrary }
+    return { Map, Marker, InfoWindow }
   }
 
-  it('スクリプトを挿入し、load 後に importLibrary でクラスを解決する', async () => {
+  it('スクリプトを挿入し、callback 発火後にクラスを解決する', async () => {
     const { loadGoogleMaps } = await import('./googleMaps')
     const promise = loadGoogleMaps('KEY')
     expect(scripts).toHaveLength(1)
     expect(scripts[0].src).toContain('key=KEY')
 
-    const g = installGoogleWithLibs()
-    scripts[0].dispatchEvent(new Event('load'))
+    // Google の初期化完了 callback を発火させる
+    const cbName = new URL(scripts[0].src).searchParams.get('callback')
+    expect(cbName).toBeTruthy()
+    const g = installGoogleClasses()
+    ;(window as unknown as Record<string, () => void>)[cbName as string]()
 
     const api = await promise
     expect(api.Map).toBe(g.Map)
@@ -133,8 +134,8 @@ describe('loadGoogleMaps', () => {
     expect(api.InfoWindow).toBe(g.InfoWindow)
   })
 
-  it('ブートストラップ済みなら再挿入せず解決する', async () => {
-    const g = installGoogleWithLibs()
+  it('既に読み込み済みなら再挿入せず解決する', async () => {
+    const g = installGoogleClasses()
     const { loadGoogleMaps } = await import('./googleMaps')
 
     const api = await loadGoogleMaps('KEY')

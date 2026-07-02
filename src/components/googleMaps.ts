@@ -30,6 +30,9 @@ export interface LoaderOptions {
   language?: string
   region?: string
   libraries?: readonly string[]
+  // 準備完了時に呼ばれるグローバル関数名。loading=async のときは callback を
+  // 指定し、その発火 (= 初期化完了) を待ってから google.maps.* を使う。
+  callback?: string
 }
 
 export function googleMapsLoaderUrl(
@@ -46,6 +49,7 @@ export function googleMapsLoaderUrl(
   }
   if (options.language) params.set('language', options.language)
   if (options.region) params.set('region', options.region)
+  if (options.callback) params.set('callback', options.callback)
   return `https://maps.googleapis.com/maps/api/js?${params.toString()}`
 }
 
@@ -103,15 +107,16 @@ export const MAP_STYLES: google.maps.MapTypeStyle[] = [
   },
 ]
 
-// 地図描画に使う Maps JavaScript API のクラス群。`loading=async` で読み込むと
-// スクリプト読込直後には google.maps.Map 等がまだ生えておらず (importLibrary で
-// 取り出すのが前提)、直接 new すると例外になる。そこで importLibrary で解決した
-// コンストラクタをまとめて返し、呼び出し側は new api.Map(...) のように使う。
+// 地図描画に使う Maps JavaScript API のクラス群。呼び出し側は new api.Map(...)
+// のように使う。
 export interface GoogleMapsApi {
   Map: typeof google.maps.Map
   Marker: typeof google.maps.Marker
   InfoWindow: typeof google.maps.InfoWindow
 }
+
+// 準備完了コールバックのグローバル関数名 (loading=async の初期化完了通知)。
+const CALLBACK_NAME = '__accessMapGmapsInit__'
 
 // 同一ページ内での多重読み込みを防ぐためのキャッシュ。複数の島から呼ばれても
 // <script> は 1 度だけ挿入し、同じ Promise を共有する。
@@ -119,9 +124,10 @@ let loaderPromise: Promise<GoogleMapsApi> | null = null
 
 /**
  * Maps JavaScript API を一度だけ読み込み、描画に使うクラス (Map / Marker /
- * InfoWindow) を解決して返す。`loading=async` のブートストラップを挿入したうえで
- * importLibrary でクラスを取り出すため、読込直後の未初期化による new 失敗を避けられる。
- * 失敗時は reject し、キャッシュを捨てて再試行できるようにする。
+ * InfoWindow) を解決して返す。`loading=async` では読込直後まだクラスが生えて
+ * いないため、Google 推奨どおり callback (初期化完了通知) の発火を待ってから
+ * google.maps.* を参照する。失敗時は reject し、キャッシュを捨てて再試行できる
+ * ようにする。
  *
  * @param apiKey ブラウザ用 API キー
  * @param doc テスト用に差し替え可能な document (既定は実 document)
@@ -132,18 +138,20 @@ export function loadGoogleMaps(
 ): Promise<GoogleMapsApi> {
   if (loaderPromise) return loaderPromise
 
-  loaderPromise = loadBootstrap(apiKey, doc)
-    .then(() =>
-      Promise.all([
-        google.maps.importLibrary('maps'),
-        google.maps.importLibrary('marker'),
-      ]),
-    )
-    .then(([mapsLib, markerLib]) => ({
-      Map: mapsLib.Map,
-      InfoWindow: mapsLib.InfoWindow,
-      Marker: markerLib.Marker,
-    }))
+  loaderPromise = ensureLoaded(apiKey, doc)
+    .then(() => {
+      if (
+        typeof google === 'undefined' ||
+        typeof google.maps?.Map !== 'function'
+      ) {
+        throw new Error('Google Maps の初期化に失敗しました')
+      }
+      return {
+        Map: google.maps.Map,
+        Marker: google.maps.Marker,
+        InfoWindow: google.maps.InfoWindow,
+      }
+    })
     .catch((error: unknown) => {
       loaderPromise = null // 失敗時は次回リトライできるよう捨てる
       throw error
@@ -151,29 +159,25 @@ export function loadGoogleMaps(
   return loaderPromise
 }
 
-// Maps JavaScript API のブートストラップ (google.maps.importLibrary を定義する
-// ローダ) を一度だけ <script> で挿入する。既に定義済みなら即時解決する。
-function loadBootstrap(apiKey: string, doc: Document): Promise<void> {
-  if (
-    typeof google !== 'undefined' &&
-    typeof google.maps?.importLibrary === 'function'
-  ) {
+// Maps JavaScript API の <script> を一度だけ挿入し、初期化完了 (callback 発火)
+// を待つ。既に読み込み済みなら即時解決する。
+function ensureLoaded(apiKey: string, doc: Document): Promise<void> {
+  if (typeof google !== 'undefined' && typeof google.maps?.Map === 'function') {
     return Promise.resolve()
   }
   return new Promise((resolve, reject) => {
+    const globals = window as typeof window & Record<string, unknown>
+    globals[CALLBACK_NAME] = () => {
+      delete globals[CALLBACK_NAME]
+      resolve()
+    }
     const script = doc.createElement('script')
-    script.src = googleMapsLoaderUrl(apiKey, { language: 'ja', region: 'JP' })
-    script.async = true
-    script.addEventListener('load', () => {
-      if (
-        typeof google !== 'undefined' &&
-        typeof google.maps?.importLibrary === 'function'
-      ) {
-        resolve()
-      } else {
-        reject(new Error('Google Maps の初期化に失敗しました'))
-      }
+    script.src = googleMapsLoaderUrl(apiKey, {
+      language: 'ja',
+      region: 'JP',
+      callback: CALLBACK_NAME,
     })
+    script.async = true
     script.addEventListener('error', () => {
       reject(new Error('Google Maps スクリプトの読み込みに失敗しました'))
     })
