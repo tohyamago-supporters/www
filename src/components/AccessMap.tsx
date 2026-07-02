@@ -29,11 +29,29 @@ export default function AccessMap({
 }: Props) {
   const containerRef = useRef<HTMLDivElement>(null)
   const [status, setStatus] = useState<'loading' | 'ready' | 'error'>('loading')
+  const [detail, setDetail] = useState<string | null>(null)
 
   useEffect(() => {
     const el = containerRef.current
     if (!el) return
     let cancelled = false
+
+    const fail = (message: string) => {
+      if (cancelled) return
+      console.error('[AccessMap]', message)
+      setDetail(message)
+      setStatus('error')
+    }
+
+    // Google はキー/リファラ/使用API制限/未有効化/課金などの「認証」失敗時に
+    // window.gm_authFailure を呼ぶ。これが発火したら原因はコードではなくキー設定側、
+    // と切り分けられる (地図の読込自体は成功していても呼ばれる)。
+    const w = window as typeof window & { gm_authFailure?: () => void }
+    const prevAuthFailure = w.gm_authFailure
+    w.gm_authFailure = () =>
+      fail(
+        '認証エラー: APIキーの制限（HTTPリファラ / 使用API）や、APIの有効化・課金設定をご確認ください',
+      )
 
     loadGoogleMaps(apiKey)
       .then((maps) => {
@@ -62,12 +80,13 @@ export default function AccessMap({
         }
         setStatus('ready')
       })
-      .catch(() => {
-        if (!cancelled) setStatus('error')
-      })
+      .catch((error: unknown) =>
+        fail(error instanceof Error ? error.message : String(error)),
+      )
 
     return () => {
       cancelled = true
+      w.gm_authFailure = prevAuthFailure
     }
   }, [apiKey, center, zoom, places, openName])
 
@@ -87,6 +106,7 @@ export default function AccessMap({
       {status === 'error' && (
         <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-primary-soft/10 px-4 text-center text-sm text-body/80">
           <p>地図を表示できませんでした。</p>
+          {detail && <p className="max-w-xs text-xs text-body/60">{detail}</p>}
           <a
             href={mapSearchUrl(places[0]?.query ?? '下栗の里')}
             target="_blank"

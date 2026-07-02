@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { render, screen, waitFor } from '@testing-library/react'
+import { act, render, screen, waitFor } from '@testing-library/react'
 import AccessMap from './AccessMap'
 import {
   loadGoogleMaps,
@@ -57,6 +57,8 @@ function makeFakeMaps() {
 
 beforeEach(() => {
   mockedLoad.mockReset()
+  // 診断用の console.error はテスト出力を汚さないよう抑制する。
+  vi.spyOn(console, 'error').mockImplementation(() => {})
 })
 
 describe('AccessMap', () => {
@@ -116,7 +118,28 @@ describe('AccessMap', () => {
         screen.getByText('地図を表示できませんでした。'),
       ).toBeInTheDocument(),
     )
+    // 失敗理由 (エラーメッセージ) を画面にも出す
+    expect(screen.getByText('boom')).toBeInTheDocument()
     const link = screen.getByRole('link', { name: 'Googleマップで開く' })
     expect(link).toHaveAttribute('href', mapSearchUrl('下栗1296'))
+  })
+
+  it('gm_authFailure 発火で認証エラーの案内を出す', async () => {
+    mockedLoad.mockReturnValue(new Promise(() => {})) // ロードは保留のまま
+    render(
+      <AccessMap
+        apiKey="K"
+        center={{ lat: 35.3, lng: 137.9 }}
+        places={[place]}
+      />,
+    )
+
+    const w = window as typeof window & { gm_authFailure?: () => void }
+    expect(typeof w.gm_authFailure).toBe('function')
+    await act(async () => {
+      w.gm_authFailure?.()
+    })
+
+    expect(screen.getByText(/認証エラー/)).toBeInTheDocument()
   })
 })
