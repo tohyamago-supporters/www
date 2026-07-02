@@ -7,7 +7,9 @@ import {
   type MapPlace,
 } from './googleMaps'
 
-type GoogleGlobal = { google?: { maps: typeof google.maps } }
+type GoogleGlobal = {
+  google?: { maps: { importLibrary: (name: string) => Promise<unknown> } }
+}
 
 describe('mapSearchUrl / directionsUrl', () => {
   it('検索 URL は query をエンコードして載せる', () => {
@@ -100,26 +102,44 @@ describe('loadGoogleMaps', () => {
     delete (globalThis as unknown as GoogleGlobal).google
   })
 
-  it('スクリプトを挿入し、load 後に google.maps で解決する', async () => {
+  // importLibrary で maps / marker ライブラリを返す google.maps を用意する。
+  function installGoogleWithLibs() {
+    class Map {}
+    class Marker {}
+    class InfoWindow {}
+    const importLibrary = vi.fn((name: string) => {
+      if (name === 'maps') return Promise.resolve({ Map, InfoWindow })
+      if (name === 'marker') return Promise.resolve({ Marker })
+      return Promise.resolve({})
+    })
+    ;(globalThis as unknown as GoogleGlobal).google = {
+      maps: { importLibrary },
+    }
+    return { Map, Marker, InfoWindow, importLibrary }
+  }
+
+  it('スクリプトを挿入し、load 後に importLibrary でクラスを解決する', async () => {
     const { loadGoogleMaps } = await import('./googleMaps')
     const promise = loadGoogleMaps('KEY')
     expect(scripts).toHaveLength(1)
     expect(scripts[0].src).toContain('key=KEY')
 
-    const fakeMaps = {} as unknown as typeof google.maps
-    ;(globalThis as unknown as GoogleGlobal).google = { maps: fakeMaps }
+    const g = installGoogleWithLibs()
     scripts[0].dispatchEvent(new Event('load'))
 
-    await expect(promise).resolves.toBe(fakeMaps)
+    const api = await promise
+    expect(api.Map).toBe(g.Map)
+    expect(api.Marker).toBe(g.Marker)
+    expect(api.InfoWindow).toBe(g.InfoWindow)
   })
 
-  it('既に読み込み済みなら再挿入せず即時解決する', async () => {
+  it('ブートストラップ済みなら再挿入せず解決する', async () => {
+    const g = installGoogleWithLibs()
     const { loadGoogleMaps } = await import('./googleMaps')
-    const fakeMaps = {} as unknown as typeof google.maps
-    ;(globalThis as unknown as GoogleGlobal).google = { maps: fakeMaps }
 
-    await expect(loadGoogleMaps('KEY')).resolves.toBe(fakeMaps)
+    const api = await loadGoogleMaps('KEY')
     expect(scripts).toHaveLength(0)
+    expect(api.Marker).toBe(g.Marker)
   })
 
   it('多重呼び出しでもスクリプトは 1 度だけ挿入し、同じ Promise を返す', async () => {

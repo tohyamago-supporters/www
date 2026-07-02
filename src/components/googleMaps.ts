@@ -103,14 +103,25 @@ export const MAP_STYLES: google.maps.MapTypeStyle[] = [
   },
 ]
 
+// 地図描画に使う Maps JavaScript API のクラス群。`loading=async` で読み込むと
+// スクリプト読込直後には google.maps.Map 等がまだ生えておらず (importLibrary で
+// 取り出すのが前提)、直接 new すると例外になる。そこで importLibrary で解決した
+// コンストラクタをまとめて返し、呼び出し側は new api.Map(...) のように使う。
+export interface GoogleMapsApi {
+  Map: typeof google.maps.Map
+  Marker: typeof google.maps.Marker
+  InfoWindow: typeof google.maps.InfoWindow
+}
+
 // 同一ページ内での多重読み込みを防ぐためのキャッシュ。複数の島から呼ばれても
 // <script> は 1 度だけ挿入し、同じ Promise を共有する。
-let loaderPromise: Promise<typeof google.maps> | null = null
+let loaderPromise: Promise<GoogleMapsApi> | null = null
 
 /**
- * Maps JavaScript API を一度だけ読み込み、google.maps 名前空間で解決する。
- * 既に読み込み済みなら即時解決。読み込み失敗時は reject し、キャッシュを捨てて
- * 再試行できるようにする。
+ * Maps JavaScript API を一度だけ読み込み、描画に使うクラス (Map / Marker /
+ * InfoWindow) を解決して返す。`loading=async` のブートストラップを挿入したうえで
+ * importLibrary でクラスを取り出すため、読込直後の未初期化による new 失敗を避けられる。
+ * 失敗時は reject し、キャッシュを捨てて再試行できるようにする。
  *
  * @param apiKey ブラウザ用 API キー
  * @param doc テスト用に差し替え可能な document (既定は実 document)
@@ -118,29 +129,54 @@ let loaderPromise: Promise<typeof google.maps> | null = null
 export function loadGoogleMaps(
   apiKey: string,
   doc: Document = document,
-): Promise<typeof google.maps> {
-  if (typeof google !== 'undefined' && google.maps) {
-    return Promise.resolve(google.maps)
-  }
+): Promise<GoogleMapsApi> {
   if (loaderPromise) return loaderPromise
 
-  loaderPromise = new Promise((resolve, reject) => {
+  loaderPromise = loadBootstrap(apiKey, doc)
+    .then(() =>
+      Promise.all([
+        google.maps.importLibrary('maps'),
+        google.maps.importLibrary('marker'),
+      ]),
+    )
+    .then(([mapsLib, markerLib]) => ({
+      Map: mapsLib.Map,
+      InfoWindow: mapsLib.InfoWindow,
+      Marker: markerLib.Marker,
+    }))
+    .catch((error: unknown) => {
+      loaderPromise = null // 失敗時は次回リトライできるよう捨てる
+      throw error
+    })
+  return loaderPromise
+}
+
+// Maps JavaScript API のブートストラップ (google.maps.importLibrary を定義する
+// ローダ) を一度だけ <script> で挿入する。既に定義済みなら即時解決する。
+function loadBootstrap(apiKey: string, doc: Document): Promise<void> {
+  if (
+    typeof google !== 'undefined' &&
+    typeof google.maps?.importLibrary === 'function'
+  ) {
+    return Promise.resolve()
+  }
+  return new Promise((resolve, reject) => {
     const script = doc.createElement('script')
     script.src = googleMapsLoaderUrl(apiKey, { language: 'ja', region: 'JP' })
     script.async = true
     script.addEventListener('load', () => {
-      if (typeof google !== 'undefined' && google.maps) {
-        resolve(google.maps)
+      if (
+        typeof google !== 'undefined' &&
+        typeof google.maps?.importLibrary === 'function'
+      ) {
+        resolve()
       } else {
-        loaderPromise = null
         reject(new Error('Google Maps の初期化に失敗しました'))
       }
     })
     script.addEventListener('error', () => {
-      loaderPromise = null
       reject(new Error('Google Maps スクリプトの読み込みに失敗しました'))
     })
     doc.head.appendChild(script)
   })
-  return loaderPromise
 }

@@ -1,7 +1,12 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, waitFor } from '@testing-library/react'
 import AccessMap from './AccessMap'
-import { loadGoogleMaps, mapSearchUrl, type MapPlace } from './googleMaps'
+import {
+  loadGoogleMaps,
+  mapSearchUrl,
+  type GoogleMapsApi,
+  type MapPlace,
+} from './googleMaps'
 
 // 実スクリプトを読み込まずに、ローダの解決/失敗だけを差し替える。
 vi.mock('./googleMaps', async (importOriginal) => {
@@ -46,7 +51,7 @@ function makeFakeMaps() {
     Map: FakeMap,
     Marker: FakeMarker,
     InfoWindow: FakeInfoWindow,
-  } as unknown as typeof google.maps
+  } as unknown as GoogleMapsApi
   return { maps, mapCtor, markerCtor, addListener, setContent, open }
 }
 
