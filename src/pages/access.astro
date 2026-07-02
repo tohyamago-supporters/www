@@ -181,7 +181,7 @@ const routes = [
   },
 ]
 
-// 食事処。当会の参加者がよく利用する 3 軒をおすすめとして主に紹介する。
+// 食事処。当会の参加者がよく利用する 2 軒をおすすめとして主に紹介する。
 // （営業時間・定休日は変わることがあるため、お出かけ前に各施設の最新情報を確認する旨を添える）
 // lat/lng は地図ピン用。★要確認: 現状は概略値。正確な値は Google マップで対象を
 // 右クリック →「緯度・経度をコピー」で取得して差し替える（リンクは map クエリで
@@ -206,16 +206,6 @@ const restaurants = [
     map: '長野県飯田市上村程野 豊坂屋',
     lat: 35.3966, // ★要確認
     lng: 137.9585, // ★要確認
-  },
-  {
-    name: 'はんば亭',
-    area: '下栗',
-    desc: '天空の里ビューポイントへの入口に建つそば処。手打ちそば定食や、荏胡麻味噌の下栗いも田楽が人気です。',
-    info: 'TEL 0260-36-1005／11:00〜15:00 ごろ（水・木は休みのことが多い）',
-    detail: 'https://tohyamago.com/archives/1152',
-    map: '長野県飯田市上村下栗1296 はんば亭',
-    lat: 35.3744, // ★要確認
-    lng: 137.9836, // ★要確認
   },
 ]
 
@@ -542,10 +532,10 @@ const mapPlaces: MapPlace[] = [
     <section class="mb-16">
       <SectionHeading as="h2" align="left" class="mb-2">食べる</SectionHeading>
       <p class="mb-6 leading-loose text-body">
-        活動の合間や前後に立ち寄れる、地元の食事処です。参加者がよく利用する 3
+        活動の合間や前後に立ち寄れる、地元の食事処です。参加者がよく利用する 2
         軒をご紹介します。郷土の味で、ひと息ついてください。
       </p>
-      <div class="grid gap-6 md:grid-cols-3">
+      <div class="grid gap-6 md:grid-cols-2">
         {
           restaurants.map((r) => (
             <Card class="flex h-full flex-col border-t-4 border-t-accent px-6 py-6">
@@ -668,7 +658,7 @@ const mapPlaces: MapPlace[] = [
         >道のりも、旅のうち</SectionHeading
       >
       <p class="mx-auto max-w-xl leading-loose text-body">
-        遠いぶんだけ、たどり着いたときの景色は格別です。ルートや時刻表でご不明な点があれば、お気軽にお問い合わせください。あなたのお越しを、遠山郷でお待ちしています。
+        遠いぶんだけ、たどり着いたときの景色は格別です。ルートや時刻表でご不明な点があれば、お問い合わせください。あなたのお越しを、遠山郷でお待ちしています。
       </p>
       <div class="mt-8 flex flex-wrap justify-center gap-3">
         <Button href={ACTIVO_URL}>ボランティア募集を見る</Button>
