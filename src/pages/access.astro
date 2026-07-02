@@ -36,6 +36,7 @@ const destinationPlace: MapPlace = {
   lng: 137.9842,
   address: '長野県飯田市上村下栗',
   query: DEST_QUERY,
+  category: 'destination',
 }
 const mapCenter = {
   lat: destinationPlace.lat,
@@ -182,6 +183,9 @@ const routes = [
 
 // 食事処。当会の参加者がよく利用する 3 軒をおすすめとして主に紹介する。
 // （営業時間・定休日は変わることがあるため、お出かけ前に各施設の最新情報を確認する旨を添える）
+// lat/lng は地図ピン用。★要確認: 現状は概略値。正確な値は Google マップで対象を
+// 右クリック →「緯度・経度をコピー」で取得して差し替える（リンクは map クエリで
+// 開くため多少ずれても着地は正確）。
 const restaurants = [
   {
     name: '食事処 いっ福',
@@ -190,6 +194,8 @@ const restaurants = [
     info: 'TEL 0260-36-2613（飯田市上村下栗）／不定休で営業時間もおおらか。お出かけ前に一度お電話を',
     detail: 'https://tohyamago.com/archives/14052',
     map: '長野県飯田市上村下栗 いっ福',
+    lat: 35.3722, // ★要確認
+    lng: 137.982, // ★要確認
   },
   {
     name: '豊坂屋',
@@ -198,6 +204,8 @@ const restaurants = [
     info: 'TEL 0260-31-0506／10:00〜16:00（L.O.15:30、夜は要相談）。営業日はInstagramの営業カレンダーをご確認ください（飯田市上村程野）',
     detail: 'https://www.instagram.com/toyosakaya.129/',
     map: '長野県飯田市上村程野 豊坂屋',
+    lat: 35.3966, // ★要確認
+    lng: 137.9585, // ★要確認
   },
   {
     name: 'はんば亭',
@@ -206,10 +214,13 @@ const restaurants = [
     info: 'TEL 0260-36-1005／11:00〜15:00 ごろ（水・木は休みのことが多い）',
     detail: 'https://tohyamago.com/archives/1152',
     map: '長野県飯田市上村下栗1296 はんば亭',
+    lat: 35.3744, // ★要確認
+    lng: 137.9836, // ★要確認
   },
 ]
 
 // 宿泊施設。こちらも参加者がよく利用する 3 軒をおすすめとして主に紹介する。
+// lat/lng は上記「食事処」と同様、★要確認の概略値。
 const stays = [
   {
     name: 'ゲストハウス太陽堂',
@@ -218,6 +229,8 @@ const stays = [
     info: 'ドミトリー1泊4,000円〜／個室1名8,200円〜（飯田市南信濃和田・和田バス停から徒歩5分）',
     detail: 'https://tohyamago-taiyodo.com/',
     map: '長野県飯田市南信濃和田1496-2 遠山郷ゲストハウス太陽堂',
+    lat: 35.2896, // ★要確認
+    lng: 137.8993, // ★要確認
   },
   {
     name: 'かぐら山荘',
@@ -226,6 +239,8 @@ const stays = [
     info: 'TEL 0260-34-5777（飯田市南信濃・かぐらの湯すぐ）',
     detail: 'https://kagurasansou.com/',
     map: '遠山郷 かぐら山荘',
+    lat: 35.2872, // ★要確認
+    lng: 137.8935, // ★要確認
   },
   {
     name: '高原ロッジ下栗',
@@ -234,7 +249,35 @@ const stays = [
     info: 'TEL 0260-36-2758（飯田市上村下栗）',
     detail: 'https://www.tiroljapan.com/',
     map: '長野県飯田市上村下栗 高原ロッジ下栗',
+    lat: 35.3712, // ★要確認
+    lng: 137.9812, // ★要確認
   },
+]
+
+// 地図に立てるピン一覧: 目的地 + 食事処 + 宿。カテゴリで色分けし、AccessMap 側で
+// 全ピンが収まるよう自動フィットする。
+const mapPlaces: MapPlace[] = [
+  destinationPlace,
+  ...restaurants.map(
+    (r): MapPlace => ({
+      name: r.name,
+      lat: r.lat,
+      lng: r.lng,
+      address: `${r.area}（食事処）`,
+      query: r.map,
+      category: 'food',
+    }),
+  ),
+  ...stays.map(
+    (s): MapPlace => ({
+      name: s.name,
+      lat: s.lat,
+      lng: s.lng,
+      address: `${s.area}（宿）`,
+      query: s.map,
+      category: 'stay',
+    }),
+  ),
 ]
 ---
 
@@ -413,7 +456,7 @@ const stays = [
                   apiKey={mapsApiKey}
                   center={mapCenter}
                   zoom={13}
-                  places={[destinationPlace]}
+                  places={mapPlaces}
                   openName={destinationPlace.name}
                 />
                 <noscript>
@@ -438,11 +481,44 @@ const stays = [
           }
         </div>
         <div class="px-6 py-6 md:px-8">
+          {
+            mapsApiKey && (
+              <ul
+                class="mb-4 flex flex-wrap gap-x-5 gap-y-2 text-sm text-body"
+                aria-label="地図の凡例"
+              >
+                <li class="flex items-center gap-2">
+                  <span
+                    class="inline-block h-3 w-3 rounded-full ring-2 ring-white"
+                    style="background:#c2410c"
+                    aria-hidden="true"
+                  />
+                  目的地（下栗の里）
+                </li>
+                <li class="flex items-center gap-2">
+                  <span
+                    class="inline-block h-3 w-3 rounded-full ring-2 ring-white"
+                    style="background:#b45309"
+                    aria-hidden="true"
+                  />
+                  食事処
+                </li>
+                <li class="flex items-center gap-2">
+                  <span
+                    class="inline-block h-3 w-3 rounded-full ring-2 ring-white"
+                    style="background:#1f6f43"
+                    aria-hidden="true"
+                  />
+                  宿
+                </li>
+              </ul>
+            )
+          }
           <p class="leading-loose text-body">
-            地図の中心が <span class="font-medium text-primary-deep"
-              >下栗の里</span
-            >
-            です。{
+            <span class="font-medium text-primary-deep">下栗の里</span
+            >と、周辺の
+            <span class="font-medium text-primary-deep">食事処・宿</span
+            >をピンで示しています。{
               mapsApiKey && (
                 <>ピンをタップすると、住所や経路リンクが開きます。</>
               )

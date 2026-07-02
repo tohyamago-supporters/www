@@ -14,7 +14,10 @@ export function directionsUrl(query: string, travelmode = 'driving'): string {
   return `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(query)}&travelmode=${travelmode}`
 }
 
-// 地図に立てるピン (目的地など) 1 件分の情報。
+// ピンの種別。色分け・凡例に使う。
+export type PlaceCategory = 'destination' | 'food' | 'stay'
+
+// 地図に立てるピン (目的地・食事処・宿など) 1 件分の情報。
 export interface MapPlace {
   name: string
   lat: number
@@ -23,6 +26,18 @@ export interface MapPlace {
   // 地図 / 経路リンクに使う検索クエリ (通常は住所か施設名)。座標が多少ずれても
   // このクエリで開けば正しい場所に着地する。
   query: string
+  category?: PlaceCategory
+}
+
+// カテゴリ別のピン配色。目的地は大きめ・差し色、食事はアンバー、宿はグリーン。
+// 凡例 (access.astro) と色を合わせること。
+export const MARKER_STYLE: Record<
+  PlaceCategory,
+  { color: string; scale: number }
+> = {
+  destination: { color: '#c2410c', scale: 9 },
+  food: { color: '#b45309', scale: 6.5 },
+  stay: { color: '#1f6f43', scale: 6.5 },
 }
 
 // Maps JavaScript API ローダ <script> の URL を組み立てる純粋関数。
@@ -113,6 +128,8 @@ export interface GoogleMapsApi {
   Map: typeof google.maps.Map
   Marker: typeof google.maps.Marker
   InfoWindow: typeof google.maps.InfoWindow
+  LatLngBounds: typeof google.maps.LatLngBounds
+  SymbolPath: typeof google.maps.SymbolPath
 }
 
 // 準備完了コールバックのグローバル関数名 (loading=async の初期化完了通知)。
@@ -150,6 +167,8 @@ export function loadGoogleMaps(
         Map: google.maps.Map,
         Marker: google.maps.Marker,
         InfoWindow: google.maps.InfoWindow,
+        LatLngBounds: google.maps.LatLngBounds,
+        SymbolPath: google.maps.SymbolPath,
       }
     })
     .catch((error: unknown) => {

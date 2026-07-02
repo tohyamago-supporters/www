@@ -30,8 +30,14 @@ function makeFakeMaps() {
   const open = vi.fn()
   const mapCtor = vi.fn()
   const markerCtor = vi.fn()
+  const fitBounds = vi.fn()
+  const boundsExtend = vi.fn()
 
   class FakeMap {
+    fitBounds = fitBounds
+    addListener = vi.fn(() => ({ remove: vi.fn() }))
+    getZoom = () => 12
+    setZoom = vi.fn()
     constructor(...args: unknown[]) {
       mapCtor(...args)
     }
@@ -46,13 +52,27 @@ function makeFakeMaps() {
     setContent = setContent
     open = open
   }
+  class FakeLatLngBounds {
+    extend = boundsExtend
+  }
 
   const maps = {
     Map: FakeMap,
     Marker: FakeMarker,
     InfoWindow: FakeInfoWindow,
+    LatLngBounds: FakeLatLngBounds,
+    SymbolPath: { CIRCLE: 0 },
   } as unknown as GoogleMapsApi
-  return { maps, mapCtor, markerCtor, addListener, setContent, open }
+  return {
+    maps,
+    mapCtor,
+    markerCtor,
+    addListener,
+    setContent,
+    open,
+    fitBounds,
+    boundsExtend,
+  }
 }
 
 beforeEach(() => {
@@ -98,9 +118,37 @@ describe('AccessMap', () => {
     // openName のピンははじめから情報ウィンドウを開く
     expect(f.setContent).toHaveBeenCalledTimes(1)
     expect(f.open).toHaveBeenCalledTimes(1)
+    // 単一ピンでは自動フィットしない
+    expect(f.fitBounds).not.toHaveBeenCalled()
     expect(
       screen.queryByText('地図を読み込んでいます…'),
     ).not.toBeInTheDocument()
+  })
+
+  it('複数スポットは全ピンを立て、fitBounds で全体を収める', async () => {
+    const f = makeFakeMaps()
+    mockedLoad.mockResolvedValue(f.maps)
+    const places: MapPlace[] = [
+      { ...place, category: 'destination' },
+      {
+        name: 'かぐら山荘',
+        lat: 35.29,
+        lng: 137.9,
+        query: '遠山郷 かぐら山荘',
+        category: 'stay',
+      },
+    ]
+    render(
+      <AccessMap
+        apiKey="K"
+        center={{ lat: 35.3, lng: 137.9 }}
+        places={places}
+      />,
+    )
+
+    await waitFor(() => expect(f.markerCtor).toHaveBeenCalledTimes(2))
+    expect(f.boundsExtend).toHaveBeenCalledTimes(2)
+    expect(f.fitBounds).toHaveBeenCalledTimes(1)
   })
 
   it('読み込み失敗でフォールバックのリンクを出す', async () => {

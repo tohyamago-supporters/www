@@ -3,6 +3,7 @@ import {
   loadGoogleMaps,
   mapSearchUrl,
   MAP_STYLES,
+  MARKER_STYLE,
   placeInfoWindowContent,
   type MapPlace,
 } from './googleMaps'
@@ -65,18 +66,39 @@ export default function AccessMap({
           gestureHandling: 'cooperative',
         })
         const infoWindow = new maps.InfoWindow()
+        const bounds = new maps.LatLngBounds()
         for (const place of places) {
+          const position = { lat: place.lat, lng: place.lng }
+          const style = MARKER_STYLE[place.category ?? 'destination']
           const marker = new maps.Marker({
             map,
-            position: { lat: place.lat, lng: place.lng },
+            position,
             title: place.name,
+            icon: {
+              path: maps.SymbolPath.CIRCLE,
+              fillColor: style.color,
+              fillOpacity: 1,
+              strokeColor: '#ffffff',
+              strokeWeight: 2,
+              scale: style.scale,
+            },
           })
+          bounds.extend(position)
           const open = () => {
             infoWindow.setContent(placeInfoWindowContent(place))
             infoWindow.open({ map, anchor: marker })
           }
           marker.addListener('click', open)
           if (openName && place.name === openName) open()
+        }
+        // 複数ピンは全体が画面に収まるよう自動でフィット (近すぎる時の寄りすぎは抑制)
+        if (places.length > 1) {
+          map.fitBounds(bounds, 48)
+          const listener = map.addListener('idle', () => {
+            const z = map.getZoom()
+            if (z !== undefined && z > 15) map.setZoom(15)
+            listener.remove()
+          })
         }
         setStatus('ready')
       })
