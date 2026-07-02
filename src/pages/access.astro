@@ -290,7 +290,7 @@ const mapPlaces: MapPlace[] = [
     <span
       class="mx-auto mb-4 flex w-fit items-center rounded-full bg-primary-deep px-4 py-1 font-serif text-sm tracking-wide text-white"
     >
-      アクセス案内
+      食事・宿泊・交通
     </span>
     <h1
       class="font-serif text-3xl font-medium leading-snug text-primary md:text-4xl"
@@ -319,6 +319,34 @@ const mapPlaces: MapPlace[] = [
       <Button href="/join" variant="outline">はじめての方へ</Button>
     </div>
   </section>
+
+  <!-- セクション早見ナビ (ヒーロー直下・各セクションへジャンプ) -->
+  <nav
+    aria-label="ページ内の目次"
+    class="sticky top-16 z-30 border-b border-primary/10 bg-base/95 backdrop-blur"
+  >
+    <Container size="wide" class="py-3">
+      <ul class="flex flex-wrap justify-center gap-2 sm:gap-3">
+        {
+          [
+            { href: '#routes', label: '交通（行き方）' },
+            { href: '#map', label: '地図' },
+            { href: '#eat', label: '食事' },
+            { href: '#stay', label: '宿泊' },
+          ].map((item) => (
+            <li>
+              <a
+                href={item.href}
+                class="inline-flex items-center rounded-full border border-primary/15 bg-surface px-4 py-1.5 text-sm font-medium text-primary-deep transition-colors hover:border-primary/40 hover:bg-primary-soft/15 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+              >
+                {item.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </Container>
+  </nav>
 
   <Container size="wide" class="py-12 md:py-16">
     <!-- はじめに (集合場所の注意) -->
@@ -351,7 +379,7 @@ const mapPlaces: MapPlace[] = [
     </section>
 
     <!-- 行き方を選ぶ -->
-    <section id="routes" class="mb-16 scroll-mt-24">
+    <section id="routes" class="mb-16 scroll-mt-32">
       <SectionHeading as="h2" align="left" class="mb-4"
         >行き方を選ぶ</SectionHeading
       >
@@ -438,7 +466,7 @@ const mapPlaces: MapPlace[] = [
     </section>
 
     <!-- 地図とルート -->
-    <section class="mb-16">
+    <section id="map" class="mb-16 scroll-mt-32">
       <SectionHeading as="h2" align="left" class="mb-6"
         >地図とルート</SectionHeading
       >
@@ -535,7 +563,7 @@ const mapPlaces: MapPlace[] = [
     </section>
 
     <!-- 食べる -->
-    <section class="mb-16">
+    <section id="eat" class="mb-16 scroll-mt-32">
       <SectionHeading as="h2" align="left" class="mb-2">食べる</SectionHeading>
       <p class="mb-6 leading-loose text-body">
         活動の合間や前後に立ち寄れる、地元の食事処です。参加者がよく利用する 2
@@ -596,7 +624,7 @@ const mapPlaces: MapPlace[] = [
     </section>
 
     <!-- 泊まる -->
-    <section class="mb-16">
+    <section id="stay" class="mb-16 scroll-mt-32">
       <SectionHeading as="h2" align="left" class="mb-2">泊まる</SectionHeading>
       <p class="mb-6 leading-loose text-body">
         遠方からお越しの方や、連日の活動には宿泊が便利です。参加者がよく利用する
