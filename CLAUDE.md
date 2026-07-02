@@ -4,7 +4,7 @@
 
 ## ホスティング
 
-Cloudflare Pages にデプロイする静的サイト。デプロイは **Cloudflare ダッシュボードの GitHub 連携 (Workers Builds)** を使用し、`main` への push や PR の作成で自動的にビルド・公開される。GitHub Actions (`ci.yml`) は品質チェック (Lint / Format / 型チェック / テスト) を行う CI として動作し、デプロイは行わない。フルビルド検証は通常 Cloudflare のプレビュー/本番ビルドが担うため、`ci.yml` の `build` ジョブは **Cloudflare が自動ビルドしないフォーク由来の PR のときだけ**実行する（二重ビルド回避）。品質チェック系ジョブは **`pull_request` と `push` の両方**で走らせる（リポジトリ移管後に一部 PR で `pull_request` イベントがワークフローを起動しない事象があったため、`push` を保険にする）。同一ブランチの二重実行は `concurrency`（進行中の古い実行をキャンセル）で抑制する。
+Cloudflare Pages にデプロイする静的サイト。デプロイは **Cloudflare ダッシュボードの GitHub 連携 (Workers Builds)** を使用し、`main` への push や PR の作成で自動的にビルド・公開される。GitHub Actions (`ci.yml`) は品質チェック (Lint / Format / 型チェック / テスト) を行う CI として動作し、デプロイは行わない。フルビルド検証は通常 Cloudflare のプレビュー/本番ビルドが担うため、`ci.yml` の `build` ジョブは **Cloudflare が自動ビルドしないフォーク由来の PR のときだけ**実行する（二重ビルド回避）。品質チェック系ジョブは **`pull_request` と `push` の両方**で走らせる（リポジトリ移管後に一部 PR で `pull_request` イベントがワークフローを起動しない事象があったため、`push` を保険にする）。`concurrency` グループは **イベント種別ごとに分ける**（`ci-<event>-<branch>`）。こうすると同一コミットで `push` と `pull_request` が同時起動しても相互キャンセルされず、両方 green で完走する（片方が `cancelled` になって必須チェック扱いでマージがブロックされるのを防ぐ）。同一イベントの連続 push では進行中の古い実行だけをキャンセルして無駄を省く。
 
 ### 環境変数の本番 / プレビュー切り分け (ビルド時にブランチ判定)
 
