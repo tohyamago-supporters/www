@@ -30,6 +30,7 @@ function makeFakeMaps() {
   const open = vi.fn()
   const mapCtor = vi.fn()
   const markerCtor = vi.fn()
+  const polygonCtor = vi.fn()
   const fitBounds = vi.fn()
   const boundsExtend = vi.fn()
 
@@ -52,6 +53,11 @@ function makeFakeMaps() {
     setContent = setContent
     open = open
   }
+  class FakePolygon {
+    constructor(...args: unknown[]) {
+      polygonCtor(...args)
+    }
+  }
   class FakeLatLngBounds {
     extend = boundsExtend
   }
@@ -60,6 +66,7 @@ function makeFakeMaps() {
     Map: FakeMap,
     Marker: FakeMarker,
     InfoWindow: FakeInfoWindow,
+    Polygon: FakePolygon,
     LatLngBounds: FakeLatLngBounds,
     SymbolPath: { CIRCLE: 0 },
   } as unknown as GoogleMapsApi
@@ -67,6 +74,7 @@ function makeFakeMaps() {
     maps,
     mapCtor,
     markerCtor,
+    polygonCtor,
     addListener,
     setContent,
     open,
@@ -148,6 +156,29 @@ describe('AccessMap', () => {
 
     await waitFor(() => expect(f.markerCtor).toHaveBeenCalledTimes(2))
     expect(f.boundsExtend).toHaveBeenCalledTimes(2)
+    expect(f.fitBounds).toHaveBeenCalledTimes(1)
+  })
+
+  it('area 指定でポリゴンを描き、範囲に含めて自動フィットする', async () => {
+    const f = makeFakeMaps()
+    mockedLoad.mockResolvedValue(f.maps)
+    const area = [
+      { lat: 35.42, lng: 138.02 },
+      { lat: 35.36, lng: 138.06 },
+      { lat: 35.29, lng: 137.95 },
+    ]
+    render(
+      <AccessMap
+        apiKey="K"
+        center={{ lat: 35.34, lng: 137.97 }}
+        places={[place]}
+        area={area}
+      />,
+    )
+
+    await waitFor(() => expect(f.polygonCtor).toHaveBeenCalledTimes(1))
+    // ポリゴンの3頂点 + ピン1件を範囲に含める
+    expect(f.boundsExtend).toHaveBeenCalledTimes(4)
     expect(f.fitBounds).toHaveBeenCalledTimes(1)
   })
 

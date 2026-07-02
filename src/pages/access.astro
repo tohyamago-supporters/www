@@ -26,22 +26,21 @@ import mountsImage from '~/assets/mounts.jpg'
 
 const ACTIVO_URL = 'https://activo.jp/s/a/119414'
 
-// 下栗の里 (主な活動エリア)。集合場所は応募後に案内する。
+// 行き方の目的地・経路リンクは主な活動エリアの下栗を基準にする。集合場所は応募後に案内。
 const DEST_QUERY = '長野県飯田市上村下栗1296'
-const destinationPlace: MapPlace = {
-  name: '下栗の里',
-  // 「日本のチロル」と呼ばれる下栗集落の中心付近。ピンの細かなずれは下の
-  // リンク (住所クエリ) で吸収するため、地図は周辺を俯瞰できる縮尺で見せる。
-  lat: 35.3748,
-  lng: 137.9842,
-  address: '長野県飯田市上村下栗',
-  query: DEST_QUERY,
-  category: 'destination',
-}
-const mapCenter = {
-  lat: destinationPlace.lat,
-  lng: destinationPlace.lng,
-}
+
+// 遠山郷エリア (旧上村＋旧南信濃村) を面で示すための頂点。各地区の代表点のうち
+// 外周にあたる 4 地区で凸多角形を作り「このあたり一帯が遠山郷」と示す (行政界その
+// ものではない概略。和田は内側のため頂点からは省く)。座標は各地区の Google マップ位置。
+const toyamagoArea = [
+  { lat: 35.4214658, lng: 138.0208484 }, // 旧上村
+  { lat: 35.3658123, lng: 138.0605108 }, // 旧南信濃村 木沢
+  { lat: 35.292325, lng: 137.9515096 }, // 旧南信濃村 八重河内
+  { lat: 35.3057109, lng: 137.8872038 }, // 旧南信濃村 南和田
+]
+
+// 地図の初期中心 (自動フィット前の一時的な中心)。遠山郷のおおよその中央。
+const mapCenter = { lat: 35.343, lng: 137.977 }
 
 // Maps JavaScript API のブラウザキー。設定があればインタラクティブ地図 (AccessMap)
 // を、無ければ API キー不要の埋め込み iframe をフォールバックとして表示する。
@@ -183,9 +182,7 @@ const routes = [
 
 // 食事処。当会の参加者がよく利用する 2 軒をおすすめとして主に紹介する。
 // （営業時間・定休日は変わることがあるため、お出かけ前に各施設の最新情報を確認する旨を添える）
-// lat/lng は地図ピン用。★要確認: 現状は概略値。正確な値は Google マップで対象を
-// 右クリック →「緯度・経度をコピー」で取得して差し替える（リンクは map クエリで
-// 開くため多少ずれても着地は正確）。
+// lat/lng は地図ピン用 (Google マップ上の各施設位置)。
 const restaurants = [
   {
     name: '食事処 いっ福',
@@ -194,8 +191,8 @@ const restaurants = [
     info: 'TEL 0260-36-2613（飯田市上村下栗）／不定休で営業時間もおおらか。お出かけ前に一度お電話を',
     detail: 'https://tohyamago.com/archives/14052',
     map: '長野県飯田市上村下栗 いっ福',
-    lat: 35.3722, // ★要確認
-    lng: 137.982, // ★要確認
+    lat: 35.3730318,
+    lng: 137.983029,
   },
   {
     name: '豊坂屋',
@@ -204,13 +201,13 @@ const restaurants = [
     info: 'TEL 0260-31-0506／10:00〜16:00（L.O.15:30、夜は要相談）。営業日はInstagramの営業カレンダーをご確認ください（飯田市上村程野）',
     detail: 'https://www.instagram.com/toyosakaya.129/',
     map: '長野県飯田市上村程野 豊坂屋',
-    lat: 35.3966, // ★要確認
-    lng: 137.9585, // ★要確認
+    lat: 35.4337973,
+    lng: 137.9866986,
   },
 ]
 
 // 宿泊施設。こちらも参加者がよく利用する 3 軒をおすすめとして主に紹介する。
-// lat/lng は上記「食事処」と同様、★要確認の概略値。
+// lat/lng は地図ピン用 (Google マップ上の各施設位置)。
 const stays = [
   {
     name: 'ゲストハウス太陽堂',
@@ -219,8 +216,8 @@ const stays = [
     info: 'ドミトリー1泊4,000円〜／個室1名8,200円〜（飯田市南信濃和田・和田バス停から徒歩5分）',
     detail: 'https://tohyamago-taiyodo.com/',
     map: '長野県飯田市南信濃和田1496-2 遠山郷ゲストハウス太陽堂',
-    lat: 35.2896, // ★要確認
-    lng: 137.8993, // ★要確認
+    lat: 35.3196412,
+    lng: 137.9321702,
   },
   {
     name: 'かぐら山荘',
@@ -229,8 +226,8 @@ const stays = [
     info: 'TEL 0260-34-5777（飯田市南信濃・かぐらの湯すぐ）',
     detail: 'https://kagurasansou.com/',
     map: '遠山郷 かぐら山荘',
-    lat: 35.2872, // ★要確認
-    lng: 137.8935, // ★要確認
+    lat: 35.3206307,
+    lng: 137.9296818,
   },
   {
     name: '高原ロッジ下栗',
@@ -239,15 +236,14 @@ const stays = [
     info: 'TEL 0260-36-2758（飯田市上村下栗）',
     detail: 'https://www.tiroljapan.com/',
     map: '長野県飯田市上村下栗 高原ロッジ下栗',
-    lat: 35.3712, // ★要確認
-    lng: 137.9812, // ★要確認
+    lat: 35.3745308,
+    lng: 137.9821829,
   },
 ]
 
 // 地図に立てるピン一覧: 目的地 + 食事処 + 宿。カテゴリで色分けし、AccessMap 側で
 // 全ピンが収まるよう自動フィットする。
 const mapPlaces: MapPlace[] = [
-  destinationPlace,
   ...restaurants.map(
     (r): MapPlace => ({
       name: r.name,
@@ -445,9 +441,9 @@ const mapPlaces: MapPlace[] = [
                   client:only="react"
                   apiKey={mapsApiKey}
                   center={mapCenter}
-                  zoom={13}
+                  zoom={11}
                   places={mapPlaces}
-                  openName={destinationPlace.name}
+                  area={toyamagoArea}
                 />
                 <noscript>
                   <iframe
@@ -479,11 +475,11 @@ const mapPlaces: MapPlace[] = [
               >
                 <li class="flex items-center gap-2">
                   <span
-                    class="inline-block h-3 w-3 rounded-full ring-2 ring-white"
-                    style="background:#c2410c"
+                    class="inline-block h-3 w-4 rounded-sm border"
+                    style="background:rgba(47,125,79,0.15);border-color:#1f6f43"
                     aria-hidden="true"
                   />
-                  目的地（下栗の里）
+                  遠山郷エリア（旧上村・旧南信濃）
                 </li>
                 <li class="flex items-center gap-2">
                   <span
@@ -505,10 +501,10 @@ const mapPlaces: MapPlace[] = [
             )
           }
           <p class="leading-loose text-body">
-            <span class="font-medium text-primary-deep">下栗の里</span
-            >と、周辺の
+            緑の面が <span class="font-medium text-primary-deep">遠山郷</span
+            >（旧上村・旧南信濃を合わせた地域）のおおよその範囲で、主な活動エリアの下栗もこの中にあります。周辺の
             <span class="font-medium text-primary-deep">食事処・宿</span
-            >をピンで示しています。{
+            >をピンで示しました。{
               mapsApiKey && (
                 <>ピンをタップすると、住所や経路リンクが開きます。</>
               )

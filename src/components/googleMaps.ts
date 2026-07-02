@@ -40,6 +40,16 @@ export const MARKER_STYLE: Record<
   stay: { color: '#1f6f43', scale: 6.5 },
 }
 
+// エリア (遠山郷) をふんわり示す面のスタイル。凡例の色と合わせること。
+export const AREA_STYLE: google.maps.PolygonOptions = {
+  strokeColor: '#1f6f43',
+  strokeOpacity: 0.7,
+  strokeWeight: 2,
+  fillColor: '#2f7d4f',
+  fillOpacity: 0.12,
+  clickable: false,
+}
+
 // Maps JavaScript API ローダ <script> の URL を組み立てる純粋関数。
 export interface LoaderOptions {
   language?: string
@@ -128,6 +138,7 @@ export interface GoogleMapsApi {
   Map: typeof google.maps.Map
   Marker: typeof google.maps.Marker
   InfoWindow: typeof google.maps.InfoWindow
+  Polygon: typeof google.maps.Polygon
   LatLngBounds: typeof google.maps.LatLngBounds
   SymbolPath: typeof google.maps.SymbolPath
 }
@@ -167,6 +178,7 @@ export function loadGoogleMaps(
         Map: google.maps.Map,
         Marker: google.maps.Marker,
         InfoWindow: google.maps.InfoWindow,
+        Polygon: google.maps.Polygon,
         LatLngBounds: google.maps.LatLngBounds,
         SymbolPath: google.maps.SymbolPath,
       }

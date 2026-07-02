@@ -4,6 +4,7 @@ import {
   mapSearchUrl,
   MAP_STYLES,
   MARKER_STYLE,
+  AREA_STYLE,
   placeInfoWindowContent,
   type MapPlace,
 } from './googleMaps'
@@ -13,6 +14,8 @@ interface Props {
   center: google.maps.LatLngLiteral
   zoom?: number
   places: MapPlace[]
+  // 面 (遠山郷エリア) を示すポリゴンの頂点。指定時は塗りつぶし面を描く。
+  area?: google.maps.LatLngLiteral[]
   // 最初から情報ウィンドウを開いておくピンの名前 (通常は目的地)。
   openName?: string
 }
@@ -26,6 +29,7 @@ export default function AccessMap({
   center,
   zoom = 13,
   places,
+  area,
   openName,
 }: Props) {
   const containerRef = useRef<HTMLDivElement>(null)
@@ -67,6 +71,11 @@ export default function AccessMap({
         })
         const infoWindow = new maps.InfoWindow()
         const bounds = new maps.LatLngBounds()
+        // エリア (遠山郷) の面を描き、範囲にも含める
+        if (area && area.length > 0) {
+          new maps.Polygon({ ...AREA_STYLE, paths: area, map })
+          for (const point of area) bounds.extend(point)
+        }
         for (const place of places) {
           const position = { lat: place.lat, lng: place.lng }
           const style = MARKER_STYLE[place.category ?? 'destination']
@@ -91,8 +100,8 @@ export default function AccessMap({
           marker.addListener('click', open)
           if (openName && place.name === openName) open()
         }
-        // 複数ピンは全体が画面に収まるよう自動でフィット (近すぎる時の寄りすぎは抑制)
-        if (places.length > 1) {
+        // 複数ピンやエリアがある時は全体が画面に収まるよう自動フィット (寄りすぎは抑制)
+        if (places.length > 1 || (area && area.length > 0)) {
           map.fitBounds(bounds, 48)
           const listener = map.addListener('idle', () => {
             const z = map.getZoom()
@@ -110,7 +119,7 @@ export default function AccessMap({
       cancelled = true
       w.gm_authFailure = prevAuthFailure
     }
-  }, [apiKey, center, zoom, places, openName])
+  }, [apiKey, center, zoom, places, area, openName])
 
   return (
     <div className="relative h-full w-full">
