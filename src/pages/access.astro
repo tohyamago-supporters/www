@@ -275,6 +275,16 @@ const mapPlaces: MapPlace[] = [
     }),
   ),
 ]
+
+// 「食事・宿泊・交通」タブ (accessTabs.ts / global.css と対応)。各パネルは連続した
+// 読み物ではないため、縦スクロールではなく横スライドのタブで一つずつ見せる。
+// id は panel-<id> / tab-<id> の対応に使う。並びが下の tabpanel と一致すること。
+const tabs = [
+  { id: 'routes', label: '行き方' },
+  { id: 'map', label: '地図' },
+  { id: 'eat', label: '食事' },
+  { id: 'stay', label: '宿泊' },
+]
 ---
 
 <BaseLayout
@@ -315,38 +325,10 @@ const mapPlaces: MapPlace[] = [
       />
     </div>
     <div class="mt-8 flex flex-wrap justify-center gap-3">
-      <Button href="#routes">行き方を見る</Button>
+      <Button href="#access-tabs">行き方を見る</Button>
       <Button href="/join" variant="outline">はじめての方へ</Button>
     </div>
   </section>
-
-  <!-- セクション早見ナビ (ヒーロー直下・各セクションへジャンプ) -->
-  <nav
-    aria-label="ページ内の目次"
-    class="sticky top-16 z-30 border-b border-primary/10 bg-base/95 backdrop-blur"
-  >
-    <Container size="wide" class="py-3">
-      <ul class="flex flex-wrap justify-center gap-2 sm:gap-3">
-        {
-          [
-            { href: '#routes', label: '交通（行き方）' },
-            { href: '#map', label: '地図' },
-            { href: '#eat', label: '食事' },
-            { href: '#stay', label: '宿泊' },
-          ].map((item) => (
-            <li>
-              <a
-                href={item.href}
-                class="inline-flex items-center rounded-full border border-primary/15 bg-surface px-4 py-1.5 text-sm font-medium text-primary-deep transition-colors hover:border-primary/40 hover:bg-primary-soft/15 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
-              >
-                {item.label}
-              </a>
-            </li>
-          ))
-        }
-      </ul>
-    </Container>
-  </nav>
 
   <Container size="wide" class="py-12 md:py-16">
     <!-- はじめに (集合場所の注意) -->
@@ -378,311 +360,377 @@ const mapPlaces: MapPlace[] = [
       </Card>
     </section>
 
-    <!-- 行き方を選ぶ -->
-    <section id="routes" class="mb-16 scroll-mt-32">
-      <SectionHeading as="h2" align="left" class="mb-4"
-        >行き方を選ぶ</SectionHeading
+    <!-- 食事・宿泊・交通 タブ (横スライド。JS 無効時は各パネルを縦に全表示) -->
+    <div id="access-tabs" data-access-tabs class="mb-16 scroll-mt-24">
+      <div
+        role="tablist"
+        aria-label="食事・宿泊・交通の切り替え"
+        class="access-tabs__tablist sticky top-16 z-30 flex-wrap justify-center gap-2 border-b border-primary/10 bg-base/95 py-3 backdrop-blur sm:gap-3"
       >
-      <p class="mb-6 leading-loose text-body">
-        目的に合う行き方をお選びください。各カードに、主要な出発地（名古屋・東京）からの所要時間の目安と、参考になる時刻表リンクをまとめています。所要時間・時刻は時期や便で変わるため、おおよその目安としてご覧のうえ、出発前に各社の最新情報をご確認ください。
-      </p>
-      <div class="grid gap-6 md:grid-cols-2">
         {
-          routes.map((route) => (
-            <Card class="flex h-full flex-col border-t-4 border-t-primary-soft px-6 py-6 md:px-8">
-              <div class="flex flex-wrap items-center gap-2">
-                <span class="rounded-full bg-primary-deep px-3 py-0.5 text-[0.7rem] font-medium tracking-wide text-white">
-                  {route.badge}
-                </span>
-                {route.recommend && (
-                  <span class="rounded-full bg-accent-strong px-2.5 py-0.5 text-[0.65rem] font-medium tracking-wide text-white">
-                    おすすめ
-                  </span>
-                )}
-              </div>
-              <h3 class="mt-3 font-serif text-lg font-medium text-primary">
-                {route.title}
-              </h3>
-              <p class="mt-2 leading-relaxed text-body">{route.summary}</p>
-              <ol class="mt-4 space-y-3">
-                {route.steps.map((step, i) => (
-                  <li class="flex gap-3 leading-relaxed text-body">
-                    <span
-                      class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary-soft/30 text-sm font-medium text-primary-deep"
-                      aria-hidden="true"
-                    >
-                      {i + 1}
-                    </span>
-                    <span>{step}</span>
-                  </li>
-                ))}
-              </ol>
-              {route.origins.length > 0 && (
-                <div class="mt-5 rounded-xl bg-primary-soft/10 px-4 py-3">
-                  <p class="text-xs font-medium tracking-wide text-primary-deep">
-                    起点別の目安
-                  </p>
-                  <dl class="mt-2 space-y-2 text-sm leading-relaxed text-body">
-                    {route.origins.map((o) => (
-                      <div class="flex gap-3">
-                        <dt class="w-16 shrink-0 font-medium text-primary-deep">
-                          {o.from}
-                        </dt>
-                        <dd>{o.time}</dd>
+          tabs.map((t, i) => (
+            <button
+              type="button"
+              role="tab"
+              id={`tab-${t.id}`}
+              aria-controls={`panel-${t.id}`}
+              aria-selected={i === 0 ? 'true' : 'false'}
+              tabindex={i === 0 ? 0 : -1}
+              class="access-tabs__tab inline-flex items-center rounded-full border border-primary/15 bg-surface px-4 py-1.5 text-sm font-medium text-primary-deep transition-colors hover:border-primary/40 hover:bg-primary-soft/15 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary aria-selected:border-transparent aria-selected:bg-primary-deep aria-selected:text-white"
+            >
+              {t.label}
+            </button>
+          ))
+        }
+      </div>
+      <div class="access-tabs__viewport">
+        <div class="access-tabs__track" data-active="0">
+          <!-- 行き方を選ぶ -->
+          <section
+            role="tabpanel"
+            id="panel-routes"
+            aria-labelledby="tab-routes"
+            tabindex="0"
+            class="access-tabs__panel pt-8"
+          >
+            <SectionHeading as="h2" align="left" class="mb-4"
+              >行き方を選ぶ</SectionHeading
+            >
+            <p class="mb-6 leading-loose text-body">
+              目的に合う行き方をお選びください。各カードに、主要な出発地（名古屋・東京）からの所要時間の目安と、参考になる時刻表リンクをまとめています。所要時間・時刻は時期や便で変わるため、おおよその目安としてご覧のうえ、出発前に各社の最新情報をご確認ください。
+            </p>
+            <div class="grid gap-6 md:grid-cols-2">
+              {
+                routes.map((route) => (
+                  <Card class="flex h-full flex-col border-t-4 border-t-primary-soft px-6 py-6 md:px-8">
+                    <div class="flex flex-wrap items-center gap-2">
+                      <span class="rounded-full bg-primary-deep px-3 py-0.5 text-[0.7rem] font-medium tracking-wide text-white">
+                        {route.badge}
+                      </span>
+                      {route.recommend && (
+                        <span class="rounded-full bg-accent-strong px-2.5 py-0.5 text-[0.65rem] font-medium tracking-wide text-white">
+                          おすすめ
+                        </span>
+                      )}
+                    </div>
+                    <h3 class="mt-3 font-serif text-lg font-medium text-primary">
+                      {route.title}
+                    </h3>
+                    <p class="mt-2 leading-relaxed text-body">
+                      {route.summary}
+                    </p>
+                    <ol class="mt-4 space-y-3">
+                      {route.steps.map((step, i) => (
+                        <li class="flex gap-3 leading-relaxed text-body">
+                          <span
+                            class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary-soft/30 text-sm font-medium text-primary-deep"
+                            aria-hidden="true"
+                          >
+                            {i + 1}
+                          </span>
+                          <span>{step}</span>
+                        </li>
+                      ))}
+                    </ol>
+                    {route.origins.length > 0 && (
+                      <div class="mt-5 rounded-xl bg-primary-soft/10 px-4 py-3">
+                        <p class="text-xs font-medium tracking-wide text-primary-deep">
+                          起点別の目安
+                        </p>
+                        <dl class="mt-2 space-y-2 text-sm leading-relaxed text-body">
+                          {route.origins.map((o) => (
+                            <div class="flex gap-3">
+                              <dt class="w-16 shrink-0 font-medium text-primary-deep">
+                                {o.from}
+                              </dt>
+                              <dd>{o.time}</dd>
+                            </div>
+                          ))}
+                        </dl>
                       </div>
-                    ))}
-                  </dl>
-                </div>
-              )}
-              {route.timetables.length > 0 && (
-                <div class="mt-4">
-                  <p class="text-xs font-medium tracking-wide text-primary-deep">
-                    時刻表（参考）
-                  </p>
-                  <ul class="mt-2 space-y-2">
-                    {route.timetables.map((t) => (
-                      <li class="leading-relaxed">
-                        <a
-                          href={t.href}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          class="text-sm font-medium text-accent-strong underline decoration-accent/40 underline-offset-4 hover:decoration-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
-                        >
-                          {t.label}
-                        </a>
-                        <span class="block text-xs text-body/80">{t.note}</span>
+                    )}
+                    {route.timetables.length > 0 && (
+                      <div class="mt-4">
+                        <p class="text-xs font-medium tracking-wide text-primary-deep">
+                          時刻表（参考）
+                        </p>
+                        <ul class="mt-2 space-y-2">
+                          {route.timetables.map((t) => (
+                            <li class="leading-relaxed">
+                              <a
+                                href={t.href}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                class="text-sm font-medium text-accent-strong underline decoration-accent/40 underline-offset-4 hover:decoration-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+                              >
+                                {t.label}
+                              </a>
+                              <span class="block text-xs text-body/80">
+                                {t.note}
+                              </span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                    <p class="mt-4 rounded-xl bg-sunlight-soft/40 px-4 py-3 text-sm leading-relaxed text-body/90">
+                      {route.note}
+                    </p>
+                  </Card>
+                ))
+              }
+            </div>
+          </section>
+
+          <!-- 地図とルート -->
+          <section
+            role="tabpanel"
+            id="panel-map"
+            aria-labelledby="tab-map"
+            tabindex="0"
+            class="access-tabs__panel pt-8"
+          >
+            <SectionHeading as="h2" align="left" class="mb-6"
+              >地図とルート</SectionHeading
+            >
+            <Card class="overflow-hidden border-t-4 border-t-sky">
+              <div class="aspect-video w-full bg-primary-soft/10">
+                {
+                  mapsApiKey ? (
+                    <>
+                      <AccessMap
+                        client:only="react"
+                        apiKey={mapsApiKey}
+                        center={mapCenter}
+                        zoom={11}
+                        places={mapPlaces}
+                        area={toyamagoArea}
+                      />
+                      <noscript>
+                        <iframe
+                          title="下栗の里と周辺の地図"
+                          src={mapEmbedUrl}
+                          loading="lazy"
+                          referrerpolicy="no-referrer-when-downgrade"
+                          class="h-full w-full border-0"
+                        />
+                      </noscript>
+                    </>
+                  ) : (
+                    <iframe
+                      title="下栗の里と周辺の地図"
+                      src={mapEmbedUrl}
+                      loading="lazy"
+                      referrerpolicy="no-referrer-when-downgrade"
+                      class="h-full w-full border-0"
+                    />
+                  )
+                }
+              </div>
+              <div class="px-6 py-6 md:px-8">
+                {
+                  mapsApiKey && (
+                    <ul
+                      class="mb-4 flex flex-wrap gap-x-5 gap-y-2 text-sm text-body"
+                      aria-label="地図の凡例"
+                    >
+                      <li class="flex items-center gap-2">
+                        <span
+                          class="inline-block h-3 w-4 rounded-sm border"
+                          style="background:rgba(47,125,79,0.15);border-color:#1f6f43"
+                          aria-hidden="true"
+                        />
+                        遠山郷エリア（旧上村・旧南信濃）
                       </li>
-                    ))}
-                  </ul>
+                      <li class="flex items-center gap-2">
+                        <span
+                          class="inline-block h-3 w-3 rounded-full ring-2 ring-white"
+                          style="background:#b45309"
+                          aria-hidden="true"
+                        />
+                        食事処
+                      </li>
+                      <li class="flex items-center gap-2">
+                        <span
+                          class="inline-block h-3 w-3 rounded-full ring-2 ring-white"
+                          style="background:#1f6f43"
+                          aria-hidden="true"
+                        />
+                        宿
+                      </li>
+                    </ul>
+                  )
+                }
+                <p class="leading-loose text-body">
+                  緑の面が <span class="font-medium text-primary-deep"
+                    >遠山郷</span
+                  >（旧上村・旧南信濃を合わせた地域）のおおよその範囲で、主な活動エリアの下栗もこの中にあります。周辺の
+                  <span class="font-medium text-primary-deep">食事処・宿</span
+                  >をピンで示しました。{
+                    mapsApiKey && (
+                      <>ピンをタップすると、住所や経路リンクが開きます。</>
+                    )
+                  }自家用車では、三遠南信道「程野IC」から国道152号へ出て、<span
+                    class="font-medium text-primary-deep"
+                    >上村小学校の手前を左折</span
+                  >し、山道を登ります。下のボタンから、お使いの出発地を起点にした道順（ルート）を確認できます。
+                </p>
+                <div class="mt-5 flex flex-wrap gap-3">
+                  <Button href={destDirectionsUrl}
+                    >Googleマップでルートを調べる</Button
+                  >
+                  <Button href={mapUrl(DEST_QUERY)} variant="outline"
+                    >地図を大きく開く</Button
+                  >
                 </div>
-              )}
-              <p class="mt-4 rounded-xl bg-sunlight-soft/40 px-4 py-3 text-sm leading-relaxed text-body/90">
-                {route.note}
-              </p>
+              </div>
             </Card>
-          ))
-        }
-      </div>
-    </section>
+          </section>
 
-    <!-- 地図とルート -->
-    <section id="map" class="mb-16 scroll-mt-32">
-      <SectionHeading as="h2" align="left" class="mb-6"
-        >地図とルート</SectionHeading
-      >
-      <Card class="overflow-hidden border-t-4 border-t-sky">
-        <div class="aspect-video w-full bg-primary-soft/10">
-          {
-            mapsApiKey ? (
-              <>
-                <AccessMap
-                  client:only="react"
-                  apiKey={mapsApiKey}
-                  center={mapCenter}
-                  zoom={11}
-                  places={mapPlaces}
-                  area={toyamagoArea}
-                />
-                <noscript>
-                  <iframe
-                    title="下栗の里と周辺の地図"
-                    src={mapEmbedUrl}
-                    loading="lazy"
-                    referrerpolicy="no-referrer-when-downgrade"
-                    class="h-full w-full border-0"
-                  />
-                </noscript>
-              </>
-            ) : (
-              <iframe
-                title="下栗の里と周辺の地図"
-                src={mapEmbedUrl}
-                loading="lazy"
-                referrerpolicy="no-referrer-when-downgrade"
-                class="h-full w-full border-0"
-              />
-            )
-          }
-        </div>
-        <div class="px-6 py-6 md:px-8">
-          {
-            mapsApiKey && (
-              <ul
-                class="mb-4 flex flex-wrap gap-x-5 gap-y-2 text-sm text-body"
-                aria-label="地図の凡例"
+          <!-- 食べる -->
+          <section
+            role="tabpanel"
+            id="panel-eat"
+            aria-labelledby="tab-eat"
+            tabindex="0"
+            class="access-tabs__panel pt-8"
+          >
+            <SectionHeading as="h2" align="left" class="mb-2"
+              >食べる</SectionHeading
+            >
+            <p class="mb-6 leading-loose text-body">
+              活動の合間や前後に立ち寄れる、地元の食事処です。参加者がよく利用する
+              2 軒をご紹介します。郷土の味で、ひと息ついてください。
+            </p>
+            <div class="grid gap-6 md:grid-cols-2">
+              {
+                restaurants.map((r) => (
+                  <Card class="flex h-full flex-col border-t-4 border-t-accent px-6 py-6">
+                    <div class="flex items-center gap-2">
+                      <h3 class="font-serif text-lg font-medium text-primary">
+                        {r.name}
+                      </h3>
+                      <span class="rounded-full bg-primary-deep px-2.5 py-0.5 text-[0.65rem] font-medium tracking-wide text-white">
+                        {r.area}
+                      </span>
+                    </div>
+                    <p class="mt-3 grow leading-relaxed text-body">{r.desc}</p>
+                    {r.info && (
+                      <p class="mt-3 text-sm text-body/80">{r.info}</p>
+                    )}
+                    <div class="mt-4 flex flex-wrap gap-2 text-sm">
+                      <a
+                        href={r.detail}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="font-medium text-accent-strong underline decoration-accent/40 underline-offset-4 hover:decoration-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+                      >
+                        詳しく見る
+                      </a>
+                      <span aria-hidden="true" class="text-body/30">
+                        ／
+                      </span>
+                      <a
+                        href={mapUrl(r.map)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="font-medium text-primary underline decoration-primary/30 underline-offset-4 hover:decoration-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+                      >
+                        地図
+                      </a>
+                    </div>
+                  </Card>
+                ))
+              }
+            </div>
+            <p class="mt-4 text-sm leading-relaxed text-body/80">
+              営業時間や定休日は変わることがあります。お出かけ前に各施設の最新情報をご確認ください。このほかの飲食店は{
+                ' '
+              }
+              <a
+                href="https://tohyamago.com/archives/category/stay_and_eat/restaurant"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="font-medium text-accent-strong underline decoration-accent/40 underline-offset-4 hover:decoration-accent"
+                >遠山郷観光協会「食べる」</a
               >
-                <li class="flex items-center gap-2">
-                  <span
-                    class="inline-block h-3 w-4 rounded-sm border"
-                    style="background:rgba(47,125,79,0.15);border-color:#1f6f43"
-                    aria-hidden="true"
-                  />
-                  遠山郷エリア（旧上村・旧南信濃）
-                </li>
-                <li class="flex items-center gap-2">
-                  <span
-                    class="inline-block h-3 w-3 rounded-full ring-2 ring-white"
-                    style="background:#b45309"
-                    aria-hidden="true"
-                  />
-                  食事処
-                </li>
-                <li class="flex items-center gap-2">
-                  <span
-                    class="inline-block h-3 w-3 rounded-full ring-2 ring-white"
-                    style="background:#1f6f43"
-                    aria-hidden="true"
-                  />
-                  宿
-                </li>
-              </ul>
-            )
-          }
-          <p class="leading-loose text-body">
-            緑の面が <span class="font-medium text-primary-deep">遠山郷</span
-            >（旧上村・旧南信濃を合わせた地域）のおおよその範囲で、主な活動エリアの下栗もこの中にあります。周辺の
-            <span class="font-medium text-primary-deep">食事処・宿</span
-            >をピンで示しました。{
-              mapsApiKey && (
-                <>ピンをタップすると、住所や経路リンクが開きます。</>
-              )
-            }自家用車では、三遠南信道「程野IC」から国道152号へ出て、<span
-              class="font-medium text-primary-deep">上村小学校の手前を左折</span
-            >し、山道を登ります。下のボタンから、お使いの出発地を起点にした道順（ルート）を確認できます。
-          </p>
-          <div class="mt-5 flex flex-wrap gap-3">
-            <Button href={destDirectionsUrl}
-              >Googleマップでルートを調べる</Button
+              もあわせてご覧ください。
+            </p>
+          </section>
+
+          <!-- 泊まる -->
+          <section
+            role="tabpanel"
+            id="panel-stay"
+            aria-labelledby="tab-stay"
+            tabindex="0"
+            class="access-tabs__panel pt-8"
+          >
+            <SectionHeading as="h2" align="left" class="mb-2"
+              >泊まる</SectionHeading
             >
-            <Button href={mapUrl(DEST_QUERY)} variant="outline"
-              >地図を大きく開く</Button
-            >
-          </div>
+            <p class="mb-6 leading-loose text-body">
+              遠方からお越しの方や、連日の活動には宿泊が便利です。参加者がよく利用する
+              3 軒をご紹介します。山あいの夜と朝は、それだけで思い出になります。
+            </p>
+            <div class="grid gap-6 md:grid-cols-3">
+              {
+                stays.map((s) => (
+                  <Card class="flex h-full flex-col border-t-4 border-t-primary-soft px-6 py-6">
+                    <div class="flex items-center gap-2">
+                      <h3 class="font-serif text-lg font-medium text-primary">
+                        {s.name}
+                      </h3>
+                      <span class="rounded-full bg-primary-deep px-2.5 py-0.5 text-[0.65rem] font-medium tracking-wide text-white">
+                        {s.area}
+                      </span>
+                    </div>
+                    <p class="mt-3 grow leading-relaxed text-body">{s.desc}</p>
+                    {s.info && (
+                      <p class="mt-3 text-sm text-body/80">{s.info}</p>
+                    )}
+                    <div class="mt-4 flex flex-wrap gap-2 text-sm">
+                      <a
+                        href={s.detail}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="font-medium text-accent-strong underline decoration-accent/40 underline-offset-4 hover:decoration-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+                      >
+                        詳しく見る
+                      </a>
+                      <span aria-hidden="true" class="text-body/30">
+                        ／
+                      </span>
+                      <a
+                        href={mapUrl(s.map)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="font-medium text-primary underline decoration-primary/30 underline-offset-4 hover:decoration-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+                      >
+                        地図
+                      </a>
+                    </div>
+                  </Card>
+                ))
+              }
+            </div>
+            <p class="mt-4 text-sm leading-relaxed text-body/80">
+              料金やプランは変わることがあります。ご予約前に各施設の最新情報をご確認ください。このほかの宿は{
+                ' '
+              }
+              <a
+                href="https://tohyamago.com/archives/category/stay_and_eat/stay"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="font-medium text-accent-strong underline decoration-accent/40 underline-offset-4 hover:decoration-accent"
+                >遠山郷観光協会「泊まる」</a
+              >
+              もあわせてご覧ください。
+            </p>
+          </section>
         </div>
-      </Card>
-    </section>
-
-    <!-- 食べる -->
-    <section id="eat" class="mb-16 scroll-mt-32">
-      <SectionHeading as="h2" align="left" class="mb-2">食べる</SectionHeading>
-      <p class="mb-6 leading-loose text-body">
-        活動の合間や前後に立ち寄れる、地元の食事処です。参加者がよく利用する 2
-        軒をご紹介します。郷土の味で、ひと息ついてください。
-      </p>
-      <div class="grid gap-6 md:grid-cols-2">
-        {
-          restaurants.map((r) => (
-            <Card class="flex h-full flex-col border-t-4 border-t-accent px-6 py-6">
-              <div class="flex items-center gap-2">
-                <h3 class="font-serif text-lg font-medium text-primary">
-                  {r.name}
-                </h3>
-                <span class="rounded-full bg-primary-deep px-2.5 py-0.5 text-[0.65rem] font-medium tracking-wide text-white">
-                  {r.area}
-                </span>
-              </div>
-              <p class="mt-3 grow leading-relaxed text-body">{r.desc}</p>
-              {r.info && <p class="mt-3 text-sm text-body/80">{r.info}</p>}
-              <div class="mt-4 flex flex-wrap gap-2 text-sm">
-                <a
-                  href={r.detail}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  class="font-medium text-accent-strong underline decoration-accent/40 underline-offset-4 hover:decoration-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
-                >
-                  詳しく見る
-                </a>
-                <span aria-hidden="true" class="text-body/30">
-                  ／
-                </span>
-                <a
-                  href={mapUrl(r.map)}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  class="font-medium text-primary underline decoration-primary/30 underline-offset-4 hover:decoration-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
-                >
-                  地図
-                </a>
-              </div>
-            </Card>
-          ))
-        }
       </div>
-      <p class="mt-4 text-sm leading-relaxed text-body/80">
-        営業時間や定休日は変わることがあります。お出かけ前に各施設の最新情報をご確認ください。このほかの飲食店は{
-          ' '
-        }
-        <a
-          href="https://tohyamago.com/archives/category/stay_and_eat/restaurant"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="font-medium text-accent-strong underline decoration-accent/40 underline-offset-4 hover:decoration-accent"
-          >遠山郷観光協会「食べる」</a
-        >
-        もあわせてご覧ください。
-      </p>
-    </section>
-
-    <!-- 泊まる -->
-    <section id="stay" class="mb-16 scroll-mt-32">
-      <SectionHeading as="h2" align="left" class="mb-2">泊まる</SectionHeading>
-      <p class="mb-6 leading-loose text-body">
-        遠方からお越しの方や、連日の活動には宿泊が便利です。参加者がよく利用する
-        3 軒をご紹介します。山あいの夜と朝は、それだけで思い出になります。
-      </p>
-      <div class="grid gap-6 md:grid-cols-3">
-        {
-          stays.map((s) => (
-            <Card class="flex h-full flex-col border-t-4 border-t-primary-soft px-6 py-6">
-              <div class="flex items-center gap-2">
-                <h3 class="font-serif text-lg font-medium text-primary">
-                  {s.name}
-                </h3>
-                <span class="rounded-full bg-primary-deep px-2.5 py-0.5 text-[0.65rem] font-medium tracking-wide text-white">
-                  {s.area}
-                </span>
-              </div>
-              <p class="mt-3 grow leading-relaxed text-body">{s.desc}</p>
-              {s.info && <p class="mt-3 text-sm text-body/80">{s.info}</p>}
-              <div class="mt-4 flex flex-wrap gap-2 text-sm">
-                <a
-                  href={s.detail}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  class="font-medium text-accent-strong underline decoration-accent/40 underline-offset-4 hover:decoration-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
-                >
-                  詳しく見る
-                </a>
-                <span aria-hidden="true" class="text-body/30">
-                  ／
-                </span>
-                <a
-                  href={mapUrl(s.map)}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  class="font-medium text-primary underline decoration-primary/30 underline-offset-4 hover:decoration-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
-                >
-                  地図
-                </a>
-              </div>
-            </Card>
-          ))
-        }
-      </div>
-      <p class="mt-4 text-sm leading-relaxed text-body/80">
-        料金やプランは変わることがあります。ご予約前に各施設の最新情報をご確認ください。このほかの宿は{
-          ' '
-        }
-        <a
-          href="https://tohyamago.com/archives/category/stay_and_eat/stay"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="font-medium text-accent-strong underline decoration-accent/40 underline-offset-4 hover:decoration-accent"
-          >遠山郷観光協会「泊まる」</a
-        >
-        もあわせてご覧ください。
-      </p>
-    </section>
+    </div>
 
     <!-- CTA -->
     <section
@@ -701,3 +749,40 @@ const mapPlaces: MapPlace[] = [
     </section>
   </Container>
 </BaseLayout>
+
+<script>
+  import {
+    queryAccessTabs,
+    activateTab,
+    activeIndex,
+    nextIndex,
+    syncHeight,
+  } from '~/components/accessTabs'
+
+  const root = document.querySelector<HTMLElement>('[data-access-tabs]')
+  const els = root && queryAccessTabs(root)
+  if (els) {
+    els.tabs.forEach((tab, i) => {
+      tab.addEventListener('click', () => activateTab(els, i))
+      tab.addEventListener('keydown', (event) => {
+        const target = nextIndex(i, els.tabs.length, event.key)
+        if (target === null) return
+        event.preventDefault()
+        activateTab(els, target)
+        els.tabs[target].focus()
+      })
+    })
+
+    // 初期選択 (行き方) を確定し、高さを合わせる
+    activateTab(els, 0)
+
+    // 画像・地図の遅延ロードやフォント適用で高さが変わっても追従させる
+    if (typeof ResizeObserver !== 'undefined') {
+      const observer = new ResizeObserver(() =>
+        syncHeight(els, activeIndex(els)),
+      )
+      els.panels.forEach((panel) => observer.observe(panel))
+    }
+    window.addEventListener('resize', () => syncHeight(els, activeIndex(els)))
+  }
+</script>
