@@ -64,7 +64,7 @@ jobs:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
       # success 時のみアーティファクト化 (test が失敗すれば coverage ジョブも走らない)
       - name: Upload coverage report artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: coverage-report
           path: coverage/cobertura-coverage.xml
