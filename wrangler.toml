@@ -1,4 +1,4 @@
-name = "tohyamago"
+name = "www"
 compatibility_date = "2026-01-01"
 
 # プロダクション環境はカスタムドメインでのみ公開し、workers.dev のルートは無効化する
