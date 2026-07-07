@@ -21,12 +21,12 @@
     "test:e2e": "playwright test"
   },
   "dependencies": {
-    "@astrojs/markdown-remark": "^7.2.0",
-    "@astrojs/react": "^6.0.0",
+    "@astrojs/markdown-remark": "^7.2.1",
+    "@astrojs/react": "^6.0.1",
     "@astrojs/sitemap": "^3.7.3",
     "@pdftron/pdfjs-express-viewer": "^8.7.5",
     "@tailwindcss/vite": "^4.3.2",
-    "astro": "^7.0.3",
+    "astro": "^7.0.6",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
     "remark-breaks": "^4.0.0",
