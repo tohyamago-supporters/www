@@ -1,0 +1,212 @@
+---
+import BaseLayout from '~/layouts/BaseLayout.astro'
+import BlurImage from '~/components/BlurImage.astro'
+import Container from '~/components/Container.astro'
+import SectionHeading from '~/components/SectionHeading.astro'
+import Card from '~/components/Card.astro'
+import Button from '~/components/Button.astro'
+import AccessMapCard from '~/components/AccessMapCard.astro'
+import { mapSearchUrl as mapUrl } from '~/components/googleMaps'
+import { restaurants, stays } from '~/components/accessData'
+import farmImage from '~/assets/farm.jpg'
+
+/*
+ * 食べる・泊まる (/eat-stay)。交通案内 (/access) から食事・宿の案内を分離した独立ページ。
+ * 活動の合間・前後に立ち寄れる地元の食事処と、遠方・連泊の来訪者向けの宿を、参加者が
+ * よく使う店・宿にしぼって紹介する。地図は交通案内と同じもの (周辺の食事処・宿ピン) を
+ * 共有コンポーネント AccessMapCard で表示する。
+ */
+
+const ACTIVO_URL = 'https://activo.jp/s/a/119414'
+---
+
+<BaseLayout
+  title="食べる・泊まる"
+  description="遠山郷・下栗の里で活動の合間に立ち寄れる食事処と、遠方・連泊の来訪者向けの宿をまとめました。参加者がよく利用するお店・宿と、周辺の地図をご紹介します。"
+  image={farmImage}
+  imageAlt="遠山郷の畑と山並み"
+>
+  <!-- ヒーロー -->
+  <section
+    class="relative overflow-hidden bg-gradient-to-b from-sunlight-soft/60 via-base to-base px-4 pt-12 pb-10 text-center sm:pt-16"
+  >
+    <span
+      class="mx-auto mb-4 flex w-fit items-center rounded-full bg-primary-deep px-4 py-1 font-serif text-sm tracking-wide text-white"
+    >
+      食べる・泊まる
+    </span>
+    <h1
+      class="font-serif text-3xl font-medium leading-snug text-primary md:text-4xl"
+    >
+      遠山郷の、味と宿
+    </h1>
+    <p
+      class="mx-auto mt-5 max-w-xl text-left leading-loose text-body sm:text-center"
+    >
+      活動の合間に味わう郷土の料理も、山あいの静かな夜も、遠山郷での時間のひとつです。参加者がよく立ち寄る食事処と宿を、周辺の地図とあわせてご紹介します。
+    </p>
+    <div class="mx-auto mt-8 w-full max-w-3xl">
+      <BlurImage
+        src={farmImage}
+        alt="遠山郷の畑と山並み"
+        loading="eager"
+        fetchpriority="high"
+        fade={false}
+        sizes="(min-width: 768px) 768px, 100vw"
+        class="aspect-video w-full overflow-hidden rounded-3xl shadow-lg ring-1 ring-primary/10"
+        imgClass="h-full! w-full object-cover"
+      />
+    </div>
+    <div class="mt-8 flex flex-wrap justify-center gap-3">
+      <Button href="#eat">食べる</Button>
+      <Button href="#stay" variant="outline">泊まる</Button>
+    </div>
+  </section>
+
+  <Container size="wide" class="py-12 md:py-16">
+    <!-- 食べる -->
+    <section id="eat" class="mb-16 scroll-mt-24">
+      <SectionHeading as="h2" align="left" class="mb-2">食べる</SectionHeading>
+      <p class="mb-6 leading-loose text-body">
+        活動の合間や前後に立ち寄れる、地元の食事処です。参加者がよく利用する 2
+        軒をご紹介します。郷土の味で、ひと息ついてください。
+      </p>
+      <div class="grid gap-6 md:grid-cols-2">
+        {
+          restaurants.map((r) => (
+            <Card class="flex h-full flex-col border-t-4 border-t-accent px-6 py-6">
+              <div class="flex items-center gap-2">
+                <h3 class="font-serif text-lg font-medium text-primary">
+                  {r.name}
+                </h3>
+                <span class="rounded-full bg-primary-deep px-2.5 py-0.5 text-[0.65rem] font-medium tracking-wide text-white">
+                  {r.area}
+                </span>
+              </div>
+              <p class="mt-3 grow leading-relaxed text-body">{r.desc}</p>
+              {r.info && <p class="mt-3 text-sm text-body/80">{r.info}</p>}
+              <div class="mt-4 flex flex-wrap gap-2 text-sm">
+                <a
+                  href={r.detail}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="font-medium text-accent-strong underline decoration-accent/40 underline-offset-4 hover:decoration-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+                >
+                  詳しく見る
+                </a>
+                <span aria-hidden="true" class="text-body/30">
+                  ／
+                </span>
+                <a
+                  href={mapUrl(r.map)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="font-medium text-primary underline decoration-primary/30 underline-offset-4 hover:decoration-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+                >
+                  地図
+                </a>
+              </div>
+            </Card>
+          ))
+        }
+      </div>
+      <p class="mt-4 text-sm leading-relaxed text-body/80">
+        営業時間や定休日は変わることがあります。お出かけ前に各施設の最新情報をご確認ください。このほかの飲食店は{
+          ' '
+        }
+        <a
+          href="https://tohyamago.com/archives/category/stay_and_eat/restaurant"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="font-medium text-accent-strong underline decoration-accent/40 underline-offset-4 hover:decoration-accent"
+          >遠山郷観光協会「食べる」</a
+        >
+        もあわせてご覧ください。
+      </p>
+    </section>
+
+    <!-- 泊まる -->
+    <section id="stay" class="mb-16 scroll-mt-24">
+      <SectionHeading as="h2" align="left" class="mb-2">泊まる</SectionHeading>
+      <p class="mb-6 leading-loose text-body">
+        遠方からお越しの方や、連日の活動には宿泊が便利です。参加者がよく利用する
+        3 軒をご紹介します。山あいの夜と朝は、それだけで思い出になります。
+      </p>
+      <div class="grid gap-6 md:grid-cols-3">
+        {
+          stays.map((s) => (
+            <Card class="flex h-full flex-col border-t-4 border-t-primary-soft px-6 py-6">
+              <div class="flex items-center gap-2">
+                <h3 class="font-serif text-lg font-medium text-primary">
+                  {s.name}
+                </h3>
+                <span class="rounded-full bg-primary-deep px-2.5 py-0.5 text-[0.65rem] font-medium tracking-wide text-white">
+                  {s.area}
+                </span>
+              </div>
+              <p class="mt-3 grow leading-relaxed text-body">{s.desc}</p>
+              {s.info && <p class="mt-3 text-sm text-body/80">{s.info}</p>}
+              <div class="mt-4 flex flex-wrap gap-2 text-sm">
+                <a
+                  href={s.detail}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="font-medium text-accent-strong underline decoration-accent/40 underline-offset-4 hover:decoration-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+                >
+                  詳しく見る
+                </a>
+                <span aria-hidden="true" class="text-body/30">
+                  ／
+                </span>
+                <a
+                  href={mapUrl(s.map)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="font-medium text-primary underline decoration-primary/30 underline-offset-4 hover:decoration-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+                >
+                  地図
+                </a>
+              </div>
+            </Card>
+          ))
+        }
+      </div>
+      <p class="mt-4 text-sm leading-relaxed text-body/80">
+        料金やプランは変わることがあります。ご予約前に各施設の最新情報をご確認ください。このほかの宿は{
+          ' '
+        }
+        <a
+          href="https://tohyamago.com/archives/category/stay_and_eat/stay"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="font-medium text-accent-strong underline decoration-accent/40 underline-offset-4 hover:decoration-accent"
+          >遠山郷観光協会「泊まる」</a
+        >
+        もあわせてご覧ください。
+      </p>
+    </section>
+
+    <!-- 地図 -->
+    <section class="mb-16">
+      <AccessMapCard heading="地図" />
+    </section>
+
+    <!-- CTA -->
+    <section
+      class="rounded-3xl border border-primary/10 bg-gradient-to-br from-sunlight-soft/60 to-surface px-6 py-10 text-center md:px-12"
+    >
+      <SectionHeading as="h2" align="center" class="mb-4"
+        >まずは、現地までの行き方から</SectionHeading
+      >
+      <p class="mx-auto max-w-xl leading-loose text-body">
+        遠山郷までの電車・バス・車それぞれの行き方は、交通案内のページにまとめています。あわせてご覧ください。
+      </p>
+      <div class="mt-8 flex flex-wrap justify-center gap-3">
+        <Button href="/access">交通案内を見る</Button>
+        <Button href={ACTIVO_URL} variant="outline"
+          >ボランティア募集を見る</Button
+        >
+      </div>
+    </section>
+  </Container>
+</BaseLayout>
