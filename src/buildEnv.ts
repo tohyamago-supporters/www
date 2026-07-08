@@ -19,6 +19,9 @@ export const PRODUCTION_BRANCH = 'main'
 export const BUILD_ENV_KEYS = [
   'GA_MEASUREMENT_ID',
   'PDFJS_EXPRESS_VIEWER',
+  // Maps JavaScript API のブラウザキー (公開キー。HTTP リファラ制限で保護する)。
+  // /access のインタラクティブ地図で使う。未設定ならキーレス埋め込みにフォールバック。
+  'GOOGLE_MAPS_API_KEY',
 ] as const
 
 /**

@@ -225,3 +225,38 @@ describe('initSiteHeaderNav — モバイルパネル', () => {
     expect(document.activeElement).toBe(menuToggle)
   })
 })
+
+describe('initSiteHeaderNav — スコープに要素を渡す', () => {
+  beforeEach(() => {
+    document.body.innerHTML = ''
+  })
+
+  // 既定は document だが、Element を渡すとその配下だけを初期化し、
+  // ownerDocument からドキュメント全体のハンドラ (外側クリック等) を張れること。
+  it('渡した要素の配下でドロップダウンが動作する', () => {
+    document.body.innerHTML = `
+      <header id="scoped">
+        <ul>
+          <li class="group" data-name="know">
+            <button data-dropdown-trigger aria-expanded="false">活動を知る</button>
+            <ul><li><a href="/purpose">活動趣旨</a></li></ul>
+          </li>
+        </ul>
+      </header>
+    `
+    const header = document.getElementById('scoped')!
+    initSiteHeaderNav(header)
+
+    const li = header.querySelector<HTMLLIElement>('li[data-name="know"]')!
+    const btn = li.querySelector<HTMLButtonElement>('[data-dropdown-trigger]')!
+
+    firePointer(li, 'pointerenter', 'mouse')
+    expect(li.hasAttribute('data-open')).toBe(true)
+    expect(btn.getAttribute('aria-expanded')).toBe('true')
+
+    // ownerDocument に張られた外側クリックのハンドラで閉じる
+    document.body.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+    expect(li.hasAttribute('data-open')).toBe(false)
+    expect(btn.getAttribute('aria-expanded')).toBe('false')
+  })
+})

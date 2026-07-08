@@ -4,7 +4,7 @@
 
 ## ホスティング
 
-Cloudflare Pages にデプロイする静的サイト。デプロイは **Cloudflare ダッシュボードの GitHub 連携 (Workers Builds)** を使用し、`main` への push や PR の作成で自動的にビルド・公開される。GitHub Actions (`ci.yml`) は品質チェック (Lint / Format / 型チェック / テスト) を行う CI として動作し、デプロイは行わない。フルビルド検証は通常 Cloudflare のプレビュー/本番ビルドが担うため、`ci.yml` の `build` ジョブは **Cloudflare が自動ビルドしないフォーク由来の PR のときだけ**実行する（二重ビルド回避）。
+Cloudflare Pages にデプロイする静的サイト。デプロイは **Cloudflare ダッシュボードの GitHub 連携 (Workers Builds)** を使用し、`main` への push や PR の作成で自動的にビルド・公開される。GitHub Actions (`ci.yml`) は品質チェック (Lint / Format / 型チェック / テスト) を行う CI として動作し、デプロイは行わない。フルビルド検証は通常 Cloudflare のプレビュー/本番ビルドが担うため、`ci.yml` の `build` ジョブは **Cloudflare が自動ビルドしないフォーク由来の PR のときだけ**実行する（二重ビルド回避）。品質チェック系ジョブは **`pull_request` と `push` の両方**で走らせる（リポジトリ移管後に一部 PR で `pull_request` イベントがワークフローを起動しない事象があったため、`push` を保険にする）。`concurrency` グループは **イベント種別ごとに分ける**（`ci-<event>-<branch>`）。こうすると同一コミットで `push` と `pull_request` が同時起動しても相互キャンセルされず、両方 green で完走する（片方が `cancelled` になって必須チェック扱いでマージがブロックされるのを防ぐ）。同一イベントの連続 push では進行中の古い実行だけをキャンセルして無駄を省く。
 
 ### 環境変数の本番 / プレビュー切り分け (ビルド時にブランチ判定)
 
@@ -350,12 +350,13 @@ const events = defineCollection({
 
 ## 環境変数
 
-| 変数名                 | 用途                                                                                                                                               |
-| ---------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `PDFJS_EXPRESS_VIEWER` | PDF.js Express ビューワーライセンスキー                                                                                                            |
-| `GA_MEASUREMENT_ID`    | Google Analytics 測定 ID（例: `G-XXXXXXXXXX`）。`BaseLayout.astro` が設定時のみ gtag.js を出力。未設定なら計測タグなし（ローカル開発・プレビュー） |
+| 変数名                 | 用途                                                                                                                                                                                                           |
+| ---------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `PDFJS_EXPRESS_VIEWER` | PDF.js Express ビューワーライセンスキー                                                                                                                                                                        |
+| `GA_MEASUREMENT_ID`    | Google Analytics 測定 ID（例: `G-XXXXXXXXXX`）。`BaseLayout.astro` が設定時のみ gtag.js を出力。未設定なら計測タグなし（ローカル開発・プレビュー）                                                             |
+| `GOOGLE_MAPS_API_KEY`  | Maps JavaScript API のブラウザキー。`/access` のインタラクティブ地図（`AccessMap.tsx`）で使う。設定時のみ JS 地図を出し、未設定なら API キー不要の埋め込み iframe にフォールバック（ローカル開発・プレビュー） |
 
-いずれも秘匿情報ではない（`GA_MEASUREMENT_ID` は公開される測定 ID、`PDFJS_EXPRESS_VIEWER` はドメイン固定のビューワーキー）ため、**シークレットではなく通常の「変数」として扱う**。
+いずれも秘匿情報ではない（`GA_MEASUREMENT_ID` は公開される測定 ID、`PDFJS_EXPRESS_VIEWER` はドメイン固定のビューワーキー、`GOOGLE_MAPS_API_KEY` は HTTP リファラ制限で保護する公開のブラウザキー）ため、**シークレットではなく通常の「変数」として扱う**。`GOOGLE_MAPS_API_KEY` は Google Cloud 側で「HTTP リファラ（本番・プレビューのドメイン）」と「Maps JavaScript API」に利用を絞っておく。
 
 - **デプロイ時（Cloudflare）**: 静的生成でビルド時に HTML へ焼き込むため、**Settings > Build > 「Build variables and secrets」**（＝ビルド変数。ランタイム用の Variables & Secrets ではない）に `<NAME>_PRODUCTION` / `<NAME>_PREVIEW` の形で登録し、ビルド時にブランチで出し分ける（上記「環境変数の本番 / プレビュー切り分け」参照）。プレビューに出したくない変数は `_PREVIEW` を未設定にする。
 - **CI（GitHub Actions）**: `ci.yml` のビルド検証・E2E は値を必要としない（テストが GA/PDF ビューワーの値に依存しないため）。素の名前が未設定なら `import.meta.env.*` は undefined になるだけでビルドは成功する。必要になった場合のみ GitHub Actions の **Variables（`vars`）** に素の名前で登録する（`resolveBuildEnv` は素の名前を最優先する）。

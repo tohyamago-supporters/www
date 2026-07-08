@@ -1,0 +1,338 @@
+---
+import BaseLayout from '~/layouts/BaseLayout.astro'
+import BlurImage from '~/components/BlurImage.astro'
+import Container from '~/components/Container.astro'
+import SectionHeading from '~/components/SectionHeading.astro'
+import Card from '~/components/Card.astro'
+import Button from '~/components/Button.astro'
+import AccessMapCard from '~/components/AccessMapCard.astro'
+import { mapSearchUrl as mapUrl } from '~/components/googleMaps'
+import mountsImage from '~/assets/mounts.jpg'
+
+/*
+ * 交通案内 (/access)。README ロードマップの優先課題「アクセス案内」に対応。
+ * 遠山郷は新幹線も高速道路の出口も遠い秘境で、移動が参加の最大の障壁になる。
+ * そこで「電車＋レンタカー / 高速バス＋レンタカー / 自家用車 / 路線バス」の
+ * 主要 4 ルートと、起点別 (名古屋・東京) の目安、時刻表リンク、周辺の地図をまとめ、
+ * 初めての来訪者が移動を具体的にイメージできるようにする。
+ * (現地の食事・宿は別ページ「食べる・泊まる」/eat-stay に分離した)
+ *
+ * 注意: 集合場所は活動の時期・内容で変わるため、最終的な行き先は応募後の案内に従う。
+ * 当ページは「遠山郷／下栗の里までの一般的な行き方」を示す入口として用意する。
+ */
+
+const ACTIVO_URL = 'https://activo.jp/s/a/119414'
+
+// 主要ルート (4 種)。おすすめ度の高い順に並べる。
+// 公共交通は本数が限られるため、いずれも最後はレンタカー / タクシーで現地へ向かう。
+// 当会の送迎はあくまで最後の手段で、安易に頼る前提では案内しない。
+//
+// 各ルートに「起点別の目安 (origins)」と「時刻表リンク (timetables)」を内包し、
+// 行き方カード 1 枚でその手段の所要時間と参照先まで完結させる (旧・独立セクションを統合)。
+// - origins.time は代表的な便の一例 / おおよそのトータル時間。改定で変わるため目安。
+// - 車は時刻表が無いため timetables は空。路線バスは起点別の目安を出さない (上町まで＋タクシー前提)。
+const routes = [
+  {
+    id: 'car',
+    badge: '自家用車',
+    recommend: true,
+    title: '中央道・三遠南信道で下栗へ',
+    summary:
+      '乗り換えなしで現地まで行け、現地でも自由に動けるため、山あいの遠山郷にはいちばんおすすめの方法です。高速を降りてからは細い山道が続くので、時間に余裕をもってお越しください。',
+    steps: [
+      '中央自動車道「飯田IC」または「座光寺スマートIC」で高速を降ります。',
+      '三遠南信自動車道に入り、「程野IC」で降ります。',
+      '国道152号へ出て、上村小学校の手前を左折。あとは道なりに山道を登ると下栗の里です。',
+    ],
+    origins: [
+      {
+        from: '名古屋から',
+        time: 'トータル約3時間（中央道〜三遠南信道〜下栗）',
+      },
+      {
+        from: '東京から',
+        time: 'トータル約4時間半〜5時間（中央道〜三遠南信道〜下栗）',
+      },
+    ],
+    timetables: [],
+    note: '下栗周辺は道幅が狭く、すれ違いに注意が必要です。譲り合ってゆっくり走行してください。冬季は積雪・凍結に備えてください。',
+  },
+  {
+    id: 'train',
+    badge: '電車 ＋ レンタカー',
+    recommend: false,
+    title: 'JR飯田線で飯田駅へ',
+    summary:
+      '豊橋または豊川で JR 飯田線に乗り換え、飯田駅で降りてレンタカーで遠山郷へ。公共交通でお越しの場合に分かりやすいルートです。',
+    steps: [
+      '名古屋・東京方面から、まず東海道新幹線などで豊橋駅へ。',
+      '豊橋駅（または豊川駅）で JR 飯田線に乗り換え、飯田駅まで。特急「伊那路」なら豊橋〜飯田はおよそ 2 時間半（1 日 2 往復）。普通列車もありますが本数・所要時間にご注意ください。',
+      '飯田駅周辺でレンタカーを借り、遠山郷（下栗）へ。飯田市街から下栗まではおよそ 1 時間の山道です。',
+    ],
+    origins: [
+      {
+        from: '名古屋から',
+        time: '名古屋 →〔東海道線・新幹線で約30分〜1時間〕→ 豊橋 10:09発「特急 伊那路1号」→ 飯田 12:41着',
+      },
+      {
+        from: '東京から',
+        time: '東京 →〔新幹線で約1時間20分〕→ 豊橋 10:09発「特急 伊那路1号」→ 飯田 12:41着',
+      },
+    ],
+    timetables: [
+      {
+        label: 'JR飯田線 特急「伊那路」時刻表',
+        href: 'https://ekitan.com/transit/express/train/exm-114569',
+        note: '豊橋・豊川〜飯田。日中に着くのは伊那路1号のみ。',
+      },
+    ],
+    note: '飯田線は本数が少ない区間です。日中に飯田へ着く特急「伊那路」は1日1本（伊那路1号）だけで、乗り遅れると次は夜着の伊那路3号（豊橋 18:20発）になります。乗り換え時刻は事前にご確認ください。',
+  },
+  {
+    id: 'bus',
+    badge: '高速バス ＋ レンタカー',
+    recommend: false,
+    title: '中央道の高速バスで伊賀良へ',
+    summary:
+      '新宿・名古屋から高速バスで「伊賀良（いがら）」へ。バス停周辺でレンタカーを借りて遠山郷へ向かいます。座って移動でき、運賃も控えめです。',
+    steps: [
+      '新宿（バスタ新宿）または名古屋から、中央道経由の高速バスに乗車。',
+      '「伊賀良」バス停で下車（新宿からおよそ 4 時間、名古屋からはより短時間）。飯田 IC のすぐ近くです。',
+      '伊賀良・飯田 IC 周辺でレンタカーを借り、遠山郷（下栗）へ。',
+    ],
+    origins: [
+      {
+        from: '名古屋から',
+        time: '名鉄バスセンター 8:00発 → 伊賀良 約9:55／飯田駅前 10:01着（最速 約2時間）',
+      },
+      {
+        from: '東京から',
+        time: 'バスタ新宿 6:55発 → 伊賀良 10:48着（始発・最速 約3時間50分）',
+      },
+    ],
+    timetables: [
+      {
+        label: '中央高速バス 新宿〜飯田（伊賀良に停車）',
+        href: 'https://www.highwaybus.com/gp/info/timeTbl?lineGroupNo=1&lineId=130',
+        note: 'バスタ新宿〜飯田。伊賀良で下車。',
+      },
+      {
+        label: '名鉄バス 名古屋⇔飯田',
+        href: 'https://www.meitetsu-bus.co.jp/express/iida',
+        note: '名古屋方面からの高速バス。',
+      },
+    ],
+    note: '便によって停車するバス停が異なります。「伊賀良」に停まる便かどうか、予約時にご確認ください。',
+  },
+  {
+    id: 'localbus',
+    badge: '路線バス（上町）',
+    recommend: false,
+    title: '路線バスで上町まで（上級者向け）',
+    summary:
+      'レンタカーを使わない場合は、飯田駅前から信南交通の遠山郷線で「上町（かみまち）」へ。ただし上町から下栗の集落までは距離があり、最後は自力（タクシー・徒歩・自転車など）での移動になります。',
+    steps: [
+      '飯田駅前から信南交通「遠山郷線」に乗車し、「上町」バス停で下車。',
+      '上町から下栗の集落までは山道を約 7〜8km・標高差およそ 500m 登ります（徒歩でおよそ 2 時間。自転車で登る方もいます）。',
+      'タクシーなら上町から約 15 分です。宿泊先によっては送迎が受けられる場合もあるため、予約時にご確認ください。',
+    ],
+    origins: [],
+    timetables: [
+      {
+        label: '信南交通 遠山郷線（路線バス・飯田駅前〜上町ほか）',
+        href: 'https://www.shinnan.co.jp/sb/time_E1_01.html',
+        note: '飯田駅前から上町方面の路線バス時刻表。',
+      },
+      {
+        label: '南信州公共交通（遠山郷線 E1）',
+        href: 'https://kk.minami.nagano.jp/sheet/bus/e1/',
+        note: '遠山郷エリアのバス路線まとめ。',
+      },
+    ],
+    note: '路線バスは本数が限られ、現地までの移動手段を自分で確保する必要があります。どうしても手段が見つからない場合に限り、当会へご相談ください（送迎の確約はできません）。',
+  },
+]
+---
+
+<BaseLayout
+  title="交通案内"
+  description="遠山郷・下栗の里への行き方。電車＋レンタカー／高速バス＋レンタカー／自家用車／路線バスの主要ルートと、起点別（名古屋・東京）の目安・時刻表、周辺の地図をまとめました。"
+  image={mountsImage}
+  imageAlt="遠山郷の山並み"
+>
+  <!-- ヒーロー -->
+  <section
+    class="relative overflow-hidden bg-gradient-to-b from-sky-soft via-base to-base px-4 pt-12 pb-10 text-center sm:pt-16"
+  >
+    <span
+      class="mx-auto mb-4 flex w-fit items-center rounded-full bg-primary-deep px-4 py-1 font-serif text-sm tracking-wide text-white"
+    >
+      交通案内
+    </span>
+    <h1
+      class="font-serif text-3xl font-medium leading-snug text-primary md:text-4xl"
+    >
+      秘境への、行き方ガイド
+    </h1>
+    <p
+      class="mx-auto mt-5 max-w-xl text-left leading-loose text-body sm:text-center"
+    >
+      遠山郷は、新幹線の駅も高速道路の出口も遠い、山あいの里。たどり着くまでの道のりも、この土地らしさのひとつです。はじめての方が迷わないよう、主な行き方と周辺の地図をまとめました。
+    </p>
+    <div class="mx-auto mt-8 w-full max-w-3xl">
+      <BlurImage
+        src={mountsImage}
+        alt="遠山郷の山並み"
+        loading="eager"
+        fetchpriority="high"
+        fade={false}
+        sizes="(min-width: 768px) 768px, 100vw"
+        class="aspect-video w-full overflow-hidden rounded-3xl shadow-lg ring-1 ring-primary/10"
+        imgClass="h-full! w-full object-cover"
+      />
+    </div>
+    <div class="mt-8 flex flex-wrap justify-center gap-3">
+      <Button href="#routes">行き方を見る</Button>
+      <Button href="/eat-stay" variant="outline">食べる・泊まる</Button>
+    </div>
+  </section>
+
+  <Container size="wide" class="py-12 md:py-16">
+    <!-- はじめに (集合場所の注意) -->
+    <section class="mb-16">
+      <Card class="border-l-4 border-l-sky px-6 py-6 md:px-8">
+        <div class="space-y-4 leading-loose text-body">
+          <p class="indent-4">
+            活動は <span class="font-medium text-primary-deep"
+              >長野県飯田市の遠山郷</span
+            >
+            を中心に行っています。現在は「日本のチロル」とも呼ばれる
+            <span class="font-medium text-primary-deep">下栗の里</span>
+            での農作業が中心ですが、活動場所は時期や内容によって変わります。<span
+              class="font-medium text-primary-deep"
+              >当日の集合場所は、応募後にご案内します。</span
+            >このページは、まず遠山郷・下栗までたどり着くための一般的な行き方としてご覧ください。
+          </p>
+          <p class="indent-4">
+            山あいのため公共交通の便は限られ、<span
+              class="font-medium text-primary-deep">お車が便利な地域</span
+            >です。現地までの移動は、レンタカーやタクシーでご自身で向かっていただくのが基本となります。どうしても手段が見つからない場合に限り当会でご相談に応じますが、送迎をお約束できるものではありません。
+          </p>
+        </div>
+        <div class="mt-6 flex flex-wrap gap-3">
+          <Button href={mapUrl('長野県飯田市下栗1296')} variant="outline"
+            >主な活動エリアの地図</Button
+          >
+        </div>
+      </Card>
+    </section>
+
+    <!-- 行き方を選ぶ -->
+    <section id="routes" class="mb-16 scroll-mt-24">
+      <SectionHeading as="h2" align="left" class="mb-4"
+        >行き方を選ぶ</SectionHeading
+      >
+      <p class="mb-6 leading-loose text-body">
+        目的に合う行き方をお選びください。各カードに、主要な出発地（名古屋・東京）からの所要時間の目安と、参考になる時刻表リンクをまとめています。所要時間・時刻は時期や便で変わるため、おおよその目安としてご覧のうえ、出発前に各社の最新情報をご確認ください。
+      </p>
+      <div class="grid gap-6 md:grid-cols-2">
+        {
+          routes.map((route) => (
+            <Card class="flex h-full flex-col border-t-4 border-t-primary-soft px-6 py-6 md:px-8">
+              <div class="flex flex-wrap items-center gap-2">
+                <span class="rounded-full bg-primary-deep px-3 py-0.5 text-[0.7rem] font-medium tracking-wide text-white">
+                  {route.badge}
+                </span>
+                {route.recommend && (
+                  <span class="rounded-full bg-accent-strong px-2.5 py-0.5 text-[0.65rem] font-medium tracking-wide text-white">
+                    おすすめ
+                  </span>
+                )}
+              </div>
+              <h3 class="mt-3 font-serif text-lg font-medium text-primary">
+                {route.title}
+              </h3>
+              <p class="mt-2 leading-relaxed text-body">{route.summary}</p>
+              <ol class="mt-4 space-y-3">
+                {route.steps.map((step, i) => (
+                  <li class="flex gap-3 leading-relaxed text-body">
+                    <span
+                      class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary-soft/30 text-sm font-medium text-primary-deep"
+                      aria-hidden="true"
+                    >
+                      {i + 1}
+                    </span>
+                    <span>{step}</span>
+                  </li>
+                ))}
+              </ol>
+              {route.origins.length > 0 && (
+                <div class="mt-5 rounded-xl bg-primary-soft/10 px-4 py-3">
+                  <p class="text-xs font-medium tracking-wide text-primary-deep">
+                    起点別の目安
+                  </p>
+                  <dl class="mt-2 space-y-2 text-sm leading-relaxed text-body">
+                    {route.origins.map((o) => (
+                      <div class="flex gap-3">
+                        <dt class="w-16 shrink-0 font-medium text-primary-deep">
+                          {o.from}
+                        </dt>
+                        <dd>{o.time}</dd>
+                      </div>
+                    ))}
+                  </dl>
+                </div>
+              )}
+              {route.timetables.length > 0 && (
+                <div class="mt-4">
+                  <p class="text-xs font-medium tracking-wide text-primary-deep">
+                    時刻表（参考）
+                  </p>
+                  <ul class="mt-2 space-y-2">
+                    {route.timetables.map((t) => (
+                      <li class="leading-relaxed">
+                        <a
+                          href={t.href}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          class="text-sm font-medium text-accent-strong underline decoration-accent/40 underline-offset-4 hover:decoration-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+                        >
+                          {t.label}
+                        </a>
+                        <span class="block text-xs text-body/80">{t.note}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+              <p class="mt-4 rounded-xl bg-sunlight-soft/40 px-4 py-3 text-sm leading-relaxed text-body/90">
+                {route.note}
+              </p>
+            </Card>
+          ))
+        }
+      </div>
+    </section>
+
+    <!-- 地図 -->
+    <section class="mb-16">
+      <AccessMapCard />
+    </section>
+
+    <!-- CTA -->
+    <section
+      class="rounded-3xl border border-primary/10 bg-gradient-to-br from-sunlight-soft/60 to-surface px-6 py-10 text-center md:px-12"
+    >
+      <SectionHeading as="h2" align="center" class="mb-4"
+        >道のりも、旅のうち</SectionHeading
+      >
+      <p class="mx-auto max-w-xl leading-loose text-body">
+        遠いぶんだけ、たどり着いたときの景色は格別です。ルートや時刻表でご不明な点があれば、お問い合わせください。あなたのお越しを、遠山郷でお待ちしています。
+      </p>
+      <div class="mt-8 flex flex-wrap justify-center gap-3">
+        <Button href={ACTIVO_URL}>ボランティア募集を見る</Button>
+        <Button href="/eat-stay" variant="outline">食べる・泊まる</Button>
+      </div>
+    </section>
+  </Container>
+</BaseLayout>

@@ -22,10 +22,13 @@ describe('resolveBuildEnv', () => {
       GA_MEASUREMENT_ID_PREVIEW: 'G-PREV',
       PDFJS_EXPRESS_VIEWER_PRODUCTION: 'key-prod',
       PDFJS_EXPRESS_VIEWER_PREVIEW: 'key-prev',
+      GOOGLE_MAPS_API_KEY_PRODUCTION: 'maps-prod',
+      GOOGLE_MAPS_API_KEY_PREVIEW: 'maps-prev',
     })
     expect(resolved).toEqual({
       GA_MEASUREMENT_ID: 'G-PROD',
       PDFJS_EXPRESS_VIEWER: 'key-prod',
+      GOOGLE_MAPS_API_KEY: 'maps-prod',
     })
   })
 
