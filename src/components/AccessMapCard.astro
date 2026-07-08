@@ -1,0 +1,116 @@
+---
+/**
+ * 遠山郷エリアと周辺の食事処・宿を示す地図カード。交通案内 (/access) と
+ * 食べる・泊まる (/eat-stay) の両ページで同じものを表示する共有コンポーネント。
+ * GOOGLE_MAPS_API_KEY があればインタラクティブ地図 (AccessMap)、無ければ
+ * API キー不要の埋め込み iframe をフォールバックとして描画する。
+ */
+import SectionHeading from './SectionHeading.astro'
+import Card from './Card.astro'
+import Button from './Button.astro'
+import AccessMap from './AccessMap'
+import { mapSearchUrl as mapUrl, directionsUrl } from './googleMaps'
+import { DEST_QUERY, toyamagoArea, mapCenter, mapPlaces } from './accessData'
+
+interface Props {
+  heading?: string
+}
+
+const { heading = '地図とルート' } = Astro.props
+
+// Maps JavaScript API のブラウザキー。設定があればインタラクティブ地図 (AccessMap)
+// を、無ければ API キー不要の埋め込み iframe をフォールバックとして表示する。
+const mapsApiKey = import.meta.env.GOOGLE_MAPS_API_KEY
+
+// 出発地からの道順リンクと、API キー不要の埋め込み地図 (JS 無効・キー未設定時の保険)。
+const destDirectionsUrl = directionsUrl(DEST_QUERY)
+const mapEmbedUrl = `https://maps.google.com/maps?q=${encodeURIComponent(DEST_QUERY)}&z=11&hl=ja&output=embed`
+---
+
+<SectionHeading as="h2" align="left" class="mb-6">{heading}</SectionHeading>
+<Card class="overflow-hidden border-t-4 border-t-sky">
+  <div class="aspect-video w-full bg-primary-soft/10">
+    {
+      mapsApiKey ? (
+        <>
+          <AccessMap
+            client:only="react"
+            apiKey={mapsApiKey}
+            center={mapCenter}
+            zoom={11}
+            places={mapPlaces}
+            area={toyamagoArea}
+          />
+          <noscript>
+            <iframe
+              title="下栗の里と周辺の地図"
+              src={mapEmbedUrl}
+              loading="lazy"
+              referrerpolicy="no-referrer-when-downgrade"
+              class="h-full w-full border-0"
+            />
+          </noscript>
+        </>
+      ) : (
+        <iframe
+          title="下栗の里と周辺の地図"
+          src={mapEmbedUrl}
+          loading="lazy"
+          referrerpolicy="no-referrer-when-downgrade"
+          class="h-full w-full border-0"
+        />
+      )
+    }
+  </div>
+  <div class="px-6 py-6 md:px-8">
+    {
+      mapsApiKey && (
+        <ul
+          class="mb-4 flex flex-wrap gap-x-5 gap-y-2 text-sm text-body"
+          aria-label="地図の凡例"
+        >
+          <li class="flex items-center gap-2">
+            <span
+              class="inline-block h-3 w-4 rounded-sm border"
+              style="background:rgba(47,125,79,0.15);border-color:#1f6f43"
+              aria-hidden="true"
+            />
+            遠山郷エリア（旧上村・旧南信濃）
+          </li>
+          <li class="flex items-center gap-2">
+            <span
+              class="inline-block h-3 w-3 rounded-full ring-2 ring-white"
+              style="background:#b45309"
+              aria-hidden="true"
+            />
+            食事処
+          </li>
+          <li class="flex items-center gap-2">
+            <span
+              class="inline-block h-3 w-3 rounded-full ring-2 ring-white"
+              style="background:#1f6f43"
+              aria-hidden="true"
+            />
+            宿
+          </li>
+        </ul>
+      )
+    }
+    <p class="leading-loose text-body">
+      緑の面が <span class="font-medium text-primary-deep">遠山郷</span
+      >（旧上村・旧南信濃を合わせた地域）のおおよその範囲で、主な活動エリアの下栗もこの中にあります。周辺の
+      <span class="font-medium text-primary-deep">食事処・宿</span
+      >をピンで示しました。{
+        mapsApiKey && <>ピンをタップすると、住所や経路リンクが開きます。</>
+      }自家用車では、三遠南信道「程野IC」から国道152号へ出て、<span
+        class="font-medium text-primary-deep">上村小学校の手前を左折</span
+      >し、山道を登ります。下のボタンから、お使いの出発地を起点にした道順（ルート）を確認できます。
+    </p>
+    <div class="mt-5 flex flex-wrap gap-3">
+      <Button href={destDirectionsUrl}>Googleマップでルートを調べる</Button>
+      <Button href={mapUrl(DEST_QUERY)} variant="outline"
+        >地図を大きく開く</Button
+      >
+    </div>
+  </div>
+</Card>
