@@ -105,12 +105,12 @@ const faqs = [
     <h1
       class="font-serif text-3xl font-medium leading-snug text-primary md:text-4xl"
     >
-      畑へ、はじめの一歩を
+      遠山郷へ、はじめの一歩を
     </h1>
     <p
       class="mx-auto mt-5 max-w-xl text-left leading-loose text-body sm:text-center"
     >
-      農作業の経験がなくても、お一人でも大丈夫。遠山郷の畑では、年齢も立場もさまざまな人が集まって、一緒に体を動かしています。「ちょっと気になる」その気持ちだけで、十分はじめられます。
+      農作業の経験がなくても、お一人でも大丈夫。遠山郷では、年齢も立場もさまざまな人が集まって、一緒に体を動かしています。「ちょっと気になる」その気持ちだけで、十分はじめられます。
     </p>
     <div class="mx-auto mt-8 w-full max-w-3xl">
       <BlurImage
@@ -306,12 +306,45 @@ const faqs = [
       </div>
     </section>
 
+    <!-- 活動の範囲について: 林業・森づくり関心層への期待値調整と、開墾という伸びしろの提示 -->
+    <section class="mb-16">
+      <SectionHeading as="h2" align="left" class="mb-6"
+        >活動の範囲について</SectionHeading
+      >
+      <Card class="border-l-4 border-l-primary-soft px-6 py-8 md:px-10">
+        <div class="space-y-4 leading-loose text-body">
+          <p class="indent-4">
+            いまの活動は、下栗芋・蕎麦・大豆・お茶といった<span
+              class="font-medium text-primary-deep">農作業が中心</span
+            >です。とはいえ、決まった畑をただ手入れするだけの活動ではありません。
+          </p>
+          <p class="indent-4">
+            余力があれば、長らく耕されずに荒れてしまった土地を、もう一度作物の育つ状態へ戻す——<span
+              class="font-medium text-primary-deep">開墾</span
+            >のようなしっかりした作業にも挑んでみたいと考えています。これまでは人手が足りず手をつけられずにいましたが、<span
+              class="font-medium text-accent-strong"
+              >人手さえ集まれば実現できる</span
+            >、伸びしろのある活動です。言われたことをこなすだけでなく、「こんなことをやってみたい」を持ち寄れる、自由度の高いフィールドだと思っています。
+          </p>
+          <p class="indent-4">
+            いっぽうで、山奥での間伐や植林といった<span
+              class="font-medium text-primary-deep"
+              >本格的な林業（木こりのような作業）は、いまのところ予定していません</span
+            >。森林そのものに深く関わる活動をお探しの方には、ご期待に沿えない場合があります。私たちが大切にしているのは、遠山郷の景観や暮らし、文化を守り継いでいくこと。その背景は活動趣旨のページでご紹介しています。
+          </p>
+        </div>
+        <div class="mt-6 flex flex-wrap gap-3">
+          <Button href="/purpose" variant="outline">活動趣旨を見る</Button>
+        </div>
+      </Card>
+    </section>
+
     <!-- 最後の一押し CTA -->
     <section
       class="rounded-3xl border border-primary/10 bg-gradient-to-br from-sunlight-soft/60 to-surface px-6 py-10 text-center md:px-12"
     >
       <SectionHeading as="h2" align="center" class="mb-4"
-        >畑でお待ちしています</SectionHeading
+        >遠山郷でお待ちしています</SectionHeading
       >
       <p class="mx-auto max-w-xl leading-loose text-body">
         気になる作業が見つかったら、まずは気軽にお申し込みください。ご質問だけでも歓迎です。あなたのはじめの一歩を、遠山郷でお待ちしています。
