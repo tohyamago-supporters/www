@@ -31,6 +31,7 @@ function makeFakeMaps() {
   const mapCtor = vi.fn()
   const markerCtor = vi.fn()
   const polygonCtor = vi.fn()
+  const polylineCtor = vi.fn()
   const fitBounds = vi.fn()
   const boundsExtend = vi.fn()
 
@@ -58,6 +59,11 @@ function makeFakeMaps() {
       polygonCtor(...args)
     }
   }
+  class FakePolyline {
+    constructor(...args: unknown[]) {
+      polylineCtor(...args)
+    }
+  }
   class FakeLatLngBounds {
     extend = boundsExtend
   }
@@ -67,6 +73,7 @@ function makeFakeMaps() {
     Marker: FakeMarker,
     InfoWindow: FakeInfoWindow,
     Polygon: FakePolygon,
+    Polyline: FakePolyline,
     LatLngBounds: FakeLatLngBounds,
     SymbolPath: { CIRCLE: 0 },
   } as unknown as GoogleMapsApi
@@ -75,6 +82,7 @@ function makeFakeMaps() {
     mapCtor,
     markerCtor,
     polygonCtor,
+    polylineCtor,
     addListener,
     setContent,
     open,
@@ -180,6 +188,56 @@ describe('AccessMap', () => {
     // ポリゴンの3頂点 + ピン1件を範囲に含める
     expect(f.boundsExtend).toHaveBeenCalledTimes(4)
     expect(f.fitBounds).toHaveBeenCalledTimes(1)
+  })
+
+  it('border 指定で内部境界の破線 (Polyline) を描く', async () => {
+    const f = makeFakeMaps()
+    mockedLoad.mockResolvedValue(f.maps)
+    const border = [
+      { lat: 35.42, lng: 138.1 },
+      { lat: 35.38, lng: 137.94 },
+    ]
+    render(
+      <AccessMap
+        apiKey="K"
+        center={{ lat: 35.34, lng: 137.97 }}
+        places={[place]}
+        border={border}
+      />,
+    )
+
+    await waitFor(() => expect(f.polylineCtor).toHaveBeenCalledTimes(1))
+    expect(f.polylineCtor.mock.calls[0][0]).toMatchObject({ path: border })
+    // 境界線だけでは自動フィットしない (面やピンが基準)
+    expect(f.polygonCtor).not.toHaveBeenCalled()
+  })
+
+  it('labels 指定で旧村名を絵柄なしのラベルマーカーで置く', async () => {
+    const f = makeFakeMaps()
+    mockedLoad.mockResolvedValue(f.maps)
+    const labels = [
+      { text: '旧上村', lat: 35.44, lng: 138.0 },
+      { text: '旧南信濃村', lat: 35.33, lng: 137.96 },
+    ]
+    render(
+      <AccessMap
+        apiKey="K"
+        center={{ lat: 35.34, lng: 137.97 }}
+        places={[place]}
+        labels={labels}
+      />,
+    )
+
+    // ピン1件 + ラベル2件 = マーカー3件
+    await waitFor(() => expect(f.markerCtor).toHaveBeenCalledTimes(3))
+    const labelCall = f.markerCtor.mock.calls.find(
+      (c) => (c[0] as { label?: { text?: string } }).label?.text === '旧上村',
+    )
+    expect(labelCall).toBeDefined()
+    expect(labelCall![0]).toMatchObject({
+      clickable: false,
+      icon: { scale: 0 },
+    })
   })
 
   it('読み込み失敗でフォールバックのリンクを出す', async () => {

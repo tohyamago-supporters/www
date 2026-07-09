@@ -5,9 +5,18 @@ import {
   MAP_STYLES,
   MARKER_STYLE,
   AREA_STYLE,
+  AREA_BORDER_STYLE,
+  AREA_LABEL_STYLE,
   placeInfoWindowContent,
   type MapPlace,
 } from './googleMaps'
+
+// 面に重ねる地区ラベル (旧村名) 1 件分。
+export interface AreaLabel {
+  text: string
+  lat: number
+  lng: number
+}
 
 interface Props {
   apiKey: string
@@ -16,6 +25,10 @@ interface Props {
   places: MapPlace[]
   // 面 (遠山郷エリア) を示すポリゴンの頂点。指定時は塗りつぶし面を描く。
   area?: google.maps.LatLngLiteral[]
+  // 面の中に破線で示す内部境界 (旧上村と旧南信濃村の境) の頂点。
+  border?: google.maps.LatLngLiteral[]
+  // 面に重ねる地区ラベル (旧村名)。
+  labels?: AreaLabel[]
   // 最初から情報ウィンドウを開いておくピンの名前 (通常は目的地)。
   openName?: string
 }
@@ -30,6 +43,8 @@ export default function AccessMap({
   zoom = 13,
   places,
   area,
+  border,
+  labels,
   openName,
 }: Props) {
   const containerRef = useRef<HTMLDivElement>(null)
@@ -76,6 +91,20 @@ export default function AccessMap({
           new maps.Polygon({ ...AREA_STYLE, paths: area, map })
           for (const point of area) bounds.extend(point)
         }
+        // 旧上村と旧南信濃村の境を、面の中に破線で重ねる
+        if (border && border.length > 0) {
+          new maps.Polyline({ ...AREA_BORDER_STYLE, path: border, map })
+        }
+        // 旧村名のラベルを面の中に置く (絵柄なしの文字のみ)
+        for (const label of labels ?? []) {
+          new maps.Marker({
+            map,
+            position: { lat: label.lat, lng: label.lng },
+            clickable: false,
+            label: { ...AREA_LABEL_STYLE, text: label.text },
+            icon: { path: maps.SymbolPath.CIRCLE, scale: 0 },
+          })
+        }
         for (const place of places) {
           const position = { lat: place.lat, lng: place.lng }
           const style = MARKER_STYLE[place.category ?? 'destination']
@@ -119,7 +148,7 @@ export default function AccessMap({
       cancelled = true
       w.gm_authFailure = prevAuthFailure
     }
-  }, [apiKey, center, zoom, places, area, openName])
+  }, [apiKey, center, zoom, places, area, border, labels, openName])
 
   return (
     <div className="relative h-full w-full">
