@@ -5,7 +5,6 @@ import {
   MAP_STYLES,
   MARKER_STYLE,
   AREA_STYLE,
-  AREA_BORDER_STYLE,
   AREA_LABEL_STYLE,
   placeInfoWindowContent,
   type MapPlace,
@@ -25,8 +24,6 @@ interface Props {
   places: MapPlace[]
   // 面 (遠山郷エリア) を示すポリゴンの頂点。指定時は塗りつぶし面を描く。
   area?: google.maps.LatLngLiteral[]
-  // 面の中に破線で示す内部境界 (旧上村と旧南信濃村の境) の頂点。
-  border?: google.maps.LatLngLiteral[]
   // 面に重ねる地区ラベル (旧村名)。
   labels?: AreaLabel[]
   // 最初から情報ウィンドウを開いておくピンの名前 (通常は目的地)。
@@ -43,7 +40,6 @@ export default function AccessMap({
   zoom = 13,
   places,
   area,
-  border,
   labels,
   openName,
 }: Props) {
@@ -90,10 +86,6 @@ export default function AccessMap({
         if (area && area.length > 0) {
           new maps.Polygon({ ...AREA_STYLE, paths: area, map })
           for (const point of area) bounds.extend(point)
-        }
-        // 旧上村と旧南信濃村の境を、面の中に破線で重ねる
-        if (border && border.length > 0) {
-          new maps.Polyline({ ...AREA_BORDER_STYLE, path: border, map })
         }
         // 旧村名のラベルを面の中に置く (絵柄なしの文字のみ)
         for (const label of labels ?? []) {
@@ -148,7 +140,7 @@ export default function AccessMap({
       cancelled = true
       w.gm_authFailure = prevAuthFailure
     }
-  }, [apiKey, center, zoom, places, area, border, labels, openName])
+  }, [apiKey, center, zoom, places, area, labels, openName])
 
   return (
     <div className="relative h-full w-full">

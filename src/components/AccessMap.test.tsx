@@ -31,7 +31,6 @@ function makeFakeMaps() {
   const mapCtor = vi.fn()
   const markerCtor = vi.fn()
   const polygonCtor = vi.fn()
-  const polylineCtor = vi.fn()
   const fitBounds = vi.fn()
   const boundsExtend = vi.fn()
 
@@ -59,11 +58,6 @@ function makeFakeMaps() {
       polygonCtor(...args)
     }
   }
-  class FakePolyline {
-    constructor(...args: unknown[]) {
-      polylineCtor(...args)
-    }
-  }
   class FakeLatLngBounds {
     extend = boundsExtend
   }
@@ -73,7 +67,6 @@ function makeFakeMaps() {
     Marker: FakeMarker,
     InfoWindow: FakeInfoWindow,
     Polygon: FakePolygon,
-    Polyline: FakePolyline,
     LatLngBounds: FakeLatLngBounds,
     SymbolPath: { CIRCLE: 0 },
   } as unknown as GoogleMapsApi
@@ -82,7 +75,6 @@ function makeFakeMaps() {
     mapCtor,
     markerCtor,
     polygonCtor,
-    polylineCtor,
     addListener,
     setContent,
     open,
@@ -188,28 +180,6 @@ describe('AccessMap', () => {
     // ポリゴンの3頂点 + ピン1件を範囲に含める
     expect(f.boundsExtend).toHaveBeenCalledTimes(4)
     expect(f.fitBounds).toHaveBeenCalledTimes(1)
-  })
-
-  it('border 指定で内部境界の破線 (Polyline) を描く', async () => {
-    const f = makeFakeMaps()
-    mockedLoad.mockResolvedValue(f.maps)
-    const border = [
-      { lat: 35.42, lng: 138.1 },
-      { lat: 35.38, lng: 137.94 },
-    ]
-    render(
-      <AccessMap
-        apiKey="K"
-        center={{ lat: 35.34, lng: 137.97 }}
-        places={[place]}
-        border={border}
-      />,
-    )
-
-    await waitFor(() => expect(f.polylineCtor).toHaveBeenCalledTimes(1))
-    expect(f.polylineCtor.mock.calls[0][0]).toMatchObject({ path: border })
-    // 境界線だけでは自動フィットしない (面やピンが基準)
-    expect(f.polygonCtor).not.toHaveBeenCalled()
   })
 
   it('labels 指定で旧村名を絵柄なしのラベルマーカーで置く', async () => {

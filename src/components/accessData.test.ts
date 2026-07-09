@@ -2,7 +2,6 @@ import { describe, it, expect } from 'vitest'
 import {
   DEST_QUERY,
   toyamagoArea,
-  toyamagoBorder,
   toyamagoAreaLabels,
   mapCenter,
   restaurants,
@@ -38,16 +37,6 @@ describe('accessData の定数', () => {
   it('遠山郷エリアの外周は面を描ける頂点数と妥当な座標を持つ', () => {
     expect(toyamagoArea.length).toBeGreaterThanOrEqual(3)
     for (const point of toyamagoArea) {
-      expect(point.lat).toBeGreaterThan(35)
-      expect(point.lat).toBeLessThan(36)
-      expect(point.lng).toBeGreaterThan(137)
-      expect(point.lng).toBeLessThan(139)
-    }
-  })
-
-  it('旧上村・旧南信濃の境は線を描ける頂点数と妥当な座標を持つ', () => {
-    expect(toyamagoBorder.length).toBeGreaterThanOrEqual(2)
-    for (const point of toyamagoBorder) {
       expect(point.lat).toBeGreaterThan(35)
       expect(point.lat).toBeLessThan(36)
       expect(point.lng).toBeGreaterThan(137)

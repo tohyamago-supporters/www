@@ -50,26 +50,6 @@ export const AREA_STYLE: google.maps.PolygonOptions = {
   clickable: false,
 }
 
-// 旧上村と旧南信濃村の境を面の中に示す破線。実線の外周と区別できるよう
-// ダッシュ (Symbol の反復) にし、色は面の縁と合わせる。
-export const AREA_BORDER_STYLE: google.maps.PolylineOptions = {
-  strokeColor: '#1f6f43',
-  strokeOpacity: 0,
-  clickable: false,
-  icons: [
-    {
-      icon: {
-        path: 'M 0,-1 0,1',
-        strokeOpacity: 0.7,
-        strokeWeight: 2,
-        scale: 3,
-      },
-      offset: '0',
-      repeat: '12px',
-    },
-  ],
-}
-
 // 面に重ねる旧村名ラベルのスタイル。ピンの絵柄は出さず (scale 0) 文字だけを置く。
 export const AREA_LABEL_STYLE: google.maps.MarkerLabel = {
   color: '#14532d',
@@ -167,7 +147,6 @@ export interface GoogleMapsApi {
   Marker: typeof google.maps.Marker
   InfoWindow: typeof google.maps.InfoWindow
   Polygon: typeof google.maps.Polygon
-  Polyline: typeof google.maps.Polyline
   LatLngBounds: typeof google.maps.LatLngBounds
   SymbolPath: typeof google.maps.SymbolPath
 }
@@ -208,7 +187,6 @@ export function loadGoogleMaps(
         Marker: google.maps.Marker,
         InfoWindow: google.maps.InfoWindow,
         Polygon: google.maps.Polygon,
-        Polyline: google.maps.Polyline,
         LatLngBounds: google.maps.LatLngBounds,
         SymbolPath: google.maps.SymbolPath,
       }
