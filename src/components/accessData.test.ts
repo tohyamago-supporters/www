@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest'
 import {
   DEST_QUERY,
   toyamagoArea,
+  toyamagoAreaLabels,
   mapCenter,
   restaurants,
   stays,
@@ -40,6 +41,19 @@ describe('accessData の定数', () => {
       expect(point.lat).toBeLessThan(36)
       expect(point.lng).toBeGreaterThan(137)
       expect(point.lng).toBeLessThan(139)
+    }
+  })
+
+  it('地区ラベルは旧上村・旧南信濃の 2 件で、遠山郷の座標系に置く', () => {
+    expect(toyamagoAreaLabels.map((l) => l.text)).toEqual([
+      '旧上村',
+      '旧南信濃村',
+    ])
+    for (const label of toyamagoAreaLabels) {
+      expect(label.lat).toBeGreaterThan(35)
+      expect(label.lat).toBeLessThan(36)
+      expect(label.lng).toBeGreaterThan(137)
+      expect(label.lng).toBeLessThan(139)
     }
   })
 

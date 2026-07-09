@@ -50,6 +50,14 @@ export const AREA_STYLE: google.maps.PolygonOptions = {
   clickable: false,
 }
 
+// 面に重ねる旧村名ラベルのスタイル。ピンの絵柄は出さず (scale 0) 文字だけを置く。
+export const AREA_LABEL_STYLE: google.maps.MarkerLabel = {
+  color: '#14532d',
+  fontSize: '12px',
+  fontWeight: '700',
+  text: '',
+}
+
 // Maps JavaScript API ローダ <script> の URL を組み立てる純粋関数。
 export interface LoaderOptions {
   language?: string

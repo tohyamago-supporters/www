@@ -10,7 +10,13 @@ import Card from './Card.astro'
 import Button from './Button.astro'
 import AccessMap from './AccessMap'
 import { mapSearchUrl as mapUrl, directionsUrl } from './googleMaps'
-import { DEST_QUERY, toyamagoArea, mapCenter, mapPlaces } from './accessData'
+import {
+  DEST_QUERY,
+  toyamagoArea,
+  toyamagoAreaLabels,
+  mapCenter,
+  mapPlaces,
+} from './accessData'
 
 interface Props {
   heading?: string
@@ -40,6 +46,7 @@ const mapEmbedUrl = `https://maps.google.com/maps?q=${encodeURIComponent(DEST_QU
             zoom={11}
             places={mapPlaces}
             area={toyamagoArea}
+            labels={toyamagoAreaLabels}
           />
           <noscript>
             <iframe
@@ -98,7 +105,7 @@ const mapEmbedUrl = `https://maps.google.com/maps?q=${encodeURIComponent(DEST_QU
     }
     <p class="leading-loose text-body">
       緑の面が <span class="font-medium text-primary-deep">遠山郷</span
-      >（旧上村・旧南信濃を合わせた地域）のおおよその範囲で、主な活動エリアの下栗もこの中にあります。周辺の
+      >（旧上村・旧南信濃を合わせた地域）の範囲で、主な活動エリアの下栗もこの中にあります。周辺の
       <span class="font-medium text-primary-deep">食事処・宿</span
       >をピンで示しました。{
         mapsApiKey && <>ピンをタップすると、住所や経路リンクが開きます。</>
