@@ -33,6 +33,13 @@ const events = (await getCollection('events')).map((entry) => ({
       >（軽め / ふつう /
       しっかり）を表示しています。気になる作業のバーをタップすると、内容と参加方法をご覧いただけます。今月の列をハイライトしているので、「今・近いうちに参加できる作業」を探してみてください。
     </p>
+    <p class="mb-8 max-w-2xl text-sm leading-relaxed text-body/80">
+      ここに並ぶのは毎年くり返す定番の農作業です。人手に余裕があるときには、荒れてしまった土地をもう一度耕せる状態へ戻す「開墾」のような作業に挑むこともあります。活動の範囲は<a
+        href="/join"
+        class="font-medium text-accent-strong underline underline-offset-2 hover:no-underline"
+        >はじめての方へ</a
+      >でもご案内しています。
+    </p>
 
     <FarmCalendar client:load crops={crops} events={events} />
 
