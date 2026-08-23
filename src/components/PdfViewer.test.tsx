@@ -21,6 +21,8 @@ vi.mock('@pdftron/pdfjs-express-viewer', () => ({
 
 describe('PdfViewer', () => {
   beforeEach(() => {
+    // console.error への spy はテストをまたいで共有されるため毎回戻す。
+    vi.restoreAllMocks()
     mocks.create.mockReset()
     mocks.create.mockResolvedValue({})
     mocks.shape = 'nested'
@@ -68,5 +70,37 @@ describe('PdfViewer', () => {
     expect(
       await screen.findByRole('link', { name: /定款（PDF）をダウンロード/ }),
     ).toBeInTheDocument()
+  })
+
+  it('起動前にアンマウントされた場合はビューワーを生成しない', async () => {
+    const { unmount } = render(
+      <PdfViewer src="/articles.pdf" filename="定款" />,
+    )
+    // 動的 import が解決する前にアンマウントする。
+    unmount()
+    await new Promise((resolve) => setTimeout(resolve, 0))
+
+    expect(mocks.create).not.toHaveBeenCalled()
+  })
+
+  it('起動が失敗する前にアンマウントされた場合は何もしない', async () => {
+    let reject: (error: Error) => void = () => {}
+    mocks.create.mockReturnValue(
+      new Promise((_resolve, rejectPromise) => {
+        reject = rejectPromise
+      }),
+    )
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+
+    const { unmount } = render(
+      <PdfViewer src="/articles.pdf" filename="定款" />,
+    )
+    await waitFor(() => expect(mocks.create).toHaveBeenCalledTimes(1))
+    unmount()
+    reject(new Error('boom'))
+    await new Promise((resolve) => setTimeout(resolve, 0))
+
+    // アンマウント済みなのでログも状態更新も行わない。
+    expect(errorSpy).not.toHaveBeenCalled()
   })
 })
