@@ -1,33 +1,405 @@
 ---
+/**
+ * 活動趣旨 (/purpose)
+ *
+ * ミッション (何のための法人か) と、それを裏づける「確認できる活動の実態」を
+ * 一つのページで示す。対外的な信頼性の確認 (助成・非営利プログラムの審査など) で
+ * 最初に参照されるページでもあるため、次の 3 点を必ず載せる:
+ *   1. ミッションステートメント (定款第4条の目的を正式な根拠として併記)
+ *   2. 現に行っている活動と、その確認先 (活動記録・農作業カレンダー・成果品)
+ *   3. 法人番号を含む法人情報と、非営利性を担保する定款の定め
+ *
+ * 中ほどの「私たちが向き合う課題」4 段落は当会設立時からの地の文であり、
+ * 書き手の表現を尊重してそのまま保持する (CLAUDE.md「コピーの方針」)。
+ * 実績の数字は手書きすると記事の追加に追従せず古びるため、
+ * Content Collection から `summarizeActivity` でビルド時に算出する。
+ */
+import { getCollection } from 'astro:content'
 import BaseLayout from '~/layouts/BaseLayout.astro'
 import Container from '~/components/Container.astro'
 import SectionHeading from '~/components/SectionHeading.astro'
 import Card from '~/components/Card.astro'
+import Button from '~/components/Button.astro'
+import { summarizeActivity } from '~/components/purposeStats'
+
+const posts = await getCollection('posts')
+const activity = summarizeActivity(posts)
+
+// 国税庁法人番号公表サイト (法人番号で当会の登記情報を確認できる)
+const HOUJIN_BANGOU_URL = 'https://www.houjin-bangou.nta.go.jp/'
+const ACTIVO_URL = 'https://activo.jp/s/a/119414'
+const SHOP_URL = 'https://shop.tohyamago.org'
+
+// 現在進行中の取り組み。定款第5条に掲げる事業のうち、実際に手を動かしているもの。
+// 「確認できること」を必ず添え、読み手が実態を自分で確かめられるようにする。
+const pillars = [
+  {
+    title: '農地と山林の維持保全',
+    body: '遠山郷の急傾斜地にある農地をお借りし、耕作を続けています。現在の作付けは下栗芋（二度芋）・下栗蕎麦・在来大豆・茶の4品目。植付けから草刈り・土寄せ、収穫、脱穀までを年間を通じて行い、手を入れなければ林に還ってしまう畑を、畑のまま次の年へ引き継いでいます。',
+    evidence: '年間の作業時期は農作業カレンダーで公開しています。',
+    links: [{ label: '農作業カレンダーを見る', href: '/calendar' }],
+  },
+  {
+    title: '地域内外の交流の促進',
+    body: '農作業は会員でなくても参加でき、東京・神奈川・愛知など県外からお越しになる方を受け入れています。参加に費用はいただいていません（昼食や現地までの交通費などの実費はご負担いただいています）。経験や年齢は問わず、初めての方にはその場で作業をお伝えしています。あわせて下栗自治会主催の「もみじ狩り」など地域の行事にも加わり、地域の人・文化と関わる機会を重ねています。',
+    evidence: 'ボランティアの募集は activo で通年公開しています。',
+    links: [
+      { label: 'はじめての方へ', href: '/join' },
+      { label: 'ボランティア募集を見る', href: ACTIVO_URL },
+    ],
+  },
+  {
+    title: '地域資源の価値の可視化と事業化',
+    body: '収穫した下栗芋・新茶・蕎麦・大豆を成果品として販売しています。地域の産物に売り先と値段をつくることは、耕作を続ける費用をこの地域の中で生み出すための試みです。剰余金は分配せず、次の年の耕作と地域の活動に充てています。',
+    evidence: '成果品はオンラインショップで販売しています。',
+    links: [
+      { label: '成果品を見る', href: '/products' },
+      { label: 'ショップへ', href: SHOP_URL },
+    ],
+  },
+  {
+    title: '地域の魅力と課題の情報発信',
+    body: '2018年から、活動のようすを写真と短い言葉で記録し、公開し続けています。収穫が過去最高になった年も、蒔いた大豆が芽を出さなかった年も、そのまま残しています。中山間地域で耕作を続けるとはどういうことかを、都市部に住む人が「自らに係るもの」として受け取れる形で伝えるための記録です。',
+    evidence: `これまでに公開した活動記録は${activity.postCount}件です。`,
+    links: [
+      { label: '活動記録を読む', href: '/news' },
+      { label: '年ごとのアーカイブ', href: '/news/archive' },
+    ],
+  },
+]
+
+// 活動の歩み。各行は公開済みの活動記録で裏づけが取れる出来事に限る。
+const milestones = [
+  {
+    period: '2018〜2019年',
+    body: '任意団体「下栗応援サークル」として、下栗の里の遊休農地で下栗芋・大豆の作付けを開始。種まきから収穫までの記録の公開を始めました。2019年6月には定点観測機器「AgriRecorder」を畑に設置しています。',
+  },
+  {
+    period: '2020〜2022年',
+    body: '定点観測のタイムラプスで作物の育ちを記録。感染症下でも人数を絞りながら耕作を継続し、ボランティアの方々との「ゆるいつながり」づくりを続けました。',
+  },
+  {
+    period: '2023〜2024年',
+    body: '竹パウダーによる土壌改良など栽培の工夫を重ね、茶は「一芯三葉」の手摘みに挑戦。新茶の数量限定販売を再開しました。2024年10月1日、一般社団法人遠山郷応援会を設立しています。',
+  },
+  {
+    period: '2025〜2026年',
+    body: '新規参加者を交えて蕎麦の収穫・脱穀を実施。2026年の茶摘みでは延べ12名の参加により新茶18kgを収穫し、手摘みを始めて以来最も多い収穫となりました。下栗自治会の「もみじ狩り」や南信濃和田の地域行事にも参加しています。',
+  },
+]
+
+// 非営利性と透明性を担保する定款の定め。条番号を添え、定款本文で確認できるようにする。
+const governance = [
+  {
+    article: '第39条',
+    title: '剰余金を分配しません',
+    body: '事業によって得た収入は会員や役員に分配せず、農地の維持と地域の活動に充てます。',
+  },
+  {
+    article: '第42条',
+    title: '解散時の残余財産を公益に帰属させます',
+    body: '清算する場合の残余財産は会員に分配せず、公益社団法人及び公益財団法人の認定等に関する法律第5条第17号に掲げる法人、又は国若しくは地方公共団体に贈与します。',
+  },
+  {
+    article: '第38条',
+    title: '事業報告と決算を備え置き、閲覧に供します',
+    body: '事業報告・貸借対照表・損益計算書（正味財産増減計算書）・財産目録などを毎事業年度作成し、監事の監査と理事会の承認を経て、主たる事務所に備え置いて一般の閲覧に供します。',
+  },
+  {
+    article: '第3条',
+    title: '公告は電子公告により行います',
+    body: '法令に基づく公告は、本ウェブサイト上の「公告」のページに掲載します。',
+  },
+]
+
+// 法人情報。外部からの照合に使われるため、登記・定款と一致する値のみを載せる。
+const corporateInfo = [
+  { label: '名称', value: '一般社団法人遠山郷応援会' },
+  { label: '法人番号', value: '9100005013227', mono: true },
+  { label: '設立年月日', value: '2024年10月1日' },
+  {
+    label: '法人形態',
+    value: '一般社団法人（定款により剰余金の分配を行わない法人）',
+  },
+  { label: '代表者', value: '代表理事　池田 大樹' },
+  {
+    label: '主たる事務所',
+    value: '〒399-1311　長野県飯田市南信濃和田1239番地',
+  },
+  { label: '事業年度', value: '毎年7月1日から翌年6月30日まで' },
+  { label: 'メールアドレス', value: 'receive@tohyamago.org', mono: true },
+  { label: '電話番号', value: '050-5236-0637', mono: true },
+]
+
+const stats = [
+  { value: String(activity.yearSpan), unit: '年', label: '活動を続けています' },
+  {
+    value: String(activity.postCount),
+    unit: '件',
+    label: '公開している活動記録',
+  },
+  {
+    value: String(activity.photoCount),
+    unit: '枚',
+    label: '記録に掲載した写真',
+  },
+  { value: '4', unit: '品目', label: '作付けしている作物' },
+]
 ---
 
 <BaseLayout
   title="活動趣旨"
-  description="遠山郷応援会の活動趣旨。なぜ遠山郷の景観・暮らし・文化を守り継ぐのか、私たちのミッションとビジョンをご紹介します。"
+  description="一般社団法人遠山郷応援会（法人番号 9100005013227）のミッションと活動内容。中山間地域である長野県遠山郷で、農地・山林の維持保全、地域内外の交流促進、地域資源の事業化、情報発信に取り組んでいます。"
 >
   <Container class="py-12 md:py-16">
     <SectionHeading as="h1" level="page" align="left" class="mb-8"
       >活動趣旨</SectionHeading
     >
+
+    <!-- ミッションステートメント -->
     <Card
-      class="border-t-4 border-t-sunlight px-6 py-8 space-y-6 leading-loose text-body md:px-10 md:py-10"
+      class="border-t-4 border-t-sunlight px-6 py-8 md:px-10 md:py-10"
+      as="section"
     >
-      <p class="indent-4">
-        資本主義経済の発展に伴い都市への人口流入が多くなり、それ以外の地域で人口減少や経済活動の衰退が進む傾向は、自由経済圏の各国が抱える共通の課題であるようです。人口や経済活動の一極集中は、都市部においても地方においても生活水準の維持、災害リスクの分散、治安の維持や国防を困難にするものであり、地方の活力を維持することは健全な国土の管理や発展に不可欠であると言えます。人口が減少し資本が流出してしまう地域の生活や産業を守るためには、地域内における事業の継続や発展の工夫を重ねると共に、流出した資本が生んだ都市部の余剰資本を地域に還元し、国全体で格差の少ない均衡の取れた発展を目指す必要があります。
+      <p
+        class="font-serif text-2xl leading-relaxed font-medium text-primary md:text-3xl"
+      >
+        秘境の息遣いと、<wbr />守る人の想いを伝える
       </p>
-      <p class="indent-4">
-        遠山郷は魅力的な自然環境や文化を持ち、かつては農林業を中心に栄えた地域でありながら、人口が大きく減少し経済活動が困難になりつつある地域の一つです。平地こそ少ないものの多種の農作物の生育に適した気候で、良好な居住環境が得られ、南方の地域と往来しやすく、赤石山脈西麓への出入口でもあるこの地域を荒廃させて良いとは思えません。
-      </p>
-      <p class="indent-4">
-        地域の経済や文化を守り後世に豊かな社会を残すため、自律継続的に人口の維持と経済活動の発展が行われる仕組みを目指すことが私たちの活動の基本です。具体的には、地域経済の基盤となるべき農地や山林の維持保全、地域内にある価値の可視化や価値の創出による事業化、地域の魅力や課題の情報発信等です。これらの活動は、地域住民だけでなく都市部に住む人々が地域の課題を自らに係るものと捉えて主体的に取り組めることが望ましく、地域内外で相互に無理なく協力し合える環境を作っていきたいです。
-      </p>
-      <p class="indent-4">
-        会員及び関係者においては、より豊かな社会の追求を通じて同時に個々人の幸福を実現されることを願います。
-      </p>
+      <div class="mt-6 space-y-4 leading-loose text-body">
+        <p class="indent-4">
+          一般社団法人遠山郷応援会は、長野県飯田市の山あいにある遠山郷で、農地と山林、そこに根づく暮らしと文化を守り継ぐために活動する非営利の法人です。人口が減り、耕す人がいなくなりつつあるこの地域で、地域に住む人と地域の外に暮らす人が一緒に手を動かし、耕作を続け、そこにある価値を伝え、次の世代へ手渡すことを目指しています。
+        </p>
+        <p class="indent-4">
+          活動によって得た収入は分配せず、農地の維持と地域の活動に充てます。私たちの目的は、定款第4条に次のとおり定めています。
+        </p>
+      </div>
+
+      <blockquote
+        class="mt-6 rounded-2xl border-l-4 border-l-primary-soft bg-sky-soft/40 px-5 py-5 md:px-7"
+      >
+        <p class="text-sm font-medium text-primary-deep">定款第4条（目的）</p>
+        <p class="mt-2 leading-loose text-body">
+          この法人は、中山間地域等における人口減少、少子高齢化、地域経済の衰退及びこれらに伴う社会課題に対し、定住者、滞在者、旅行者その他当該地域を認知する者の協力を得て解決への取り組みを実践又は支援するとともに、地域内外の交流を促進して移住、就労、事業開発その他当該地域に関わる活動を円滑にし、地域に存する資財の維持活用及び地域経済の持続的な発展を図ることにより、公共の福祉の増進に寄与することを目的とする。
+        </p>
+        <p class="mt-3 text-sm text-body/70">
+          <a
+            href="/articles"
+            class="text-accent-strong underline underline-offset-2 hover:opacity-80"
+            >定款の全文</a
+          >を公開しています。
+        </p>
+      </blockquote>
     </Card>
+
+    <!-- 私たちが向き合う課題 (設立時からの地の文をそのまま保持) -->
+    <section class="mt-12 md:mt-16">
+      <SectionHeading as="h2" align="left" class="mb-6"
+        >私たちが向き合う課題</SectionHeading
+      >
+      <Card
+        class="border-l-4 border-l-primary-soft px-6 py-8 space-y-6 leading-loose text-body md:px-10 md:py-10"
+      >
+        <p class="indent-4">
+          資本主義経済の発展に伴い都市への人口流入が多くなり、それ以外の地域で人口減少や経済活動の衰退が進む傾向は、自由経済圏の各国が抱える共通の課題であるようです。人口や経済活動の一極集中は、都市部においても地方においても生活水準の維持、災害リスクの分散、治安の維持や国防を困難にするものであり、地方の活力を維持することは健全な国土の管理や発展に不可欠であると言えます。人口が減少し資本が流出してしまう地域の生活や産業を守るためには、地域内における事業の継続や発展の工夫を重ねると共に、流出した資本が生んだ都市部の余剰資本を地域に還元し、国全体で格差の少ない均衡の取れた発展を目指す必要があります。
+        </p>
+        <p class="indent-4">
+          遠山郷は魅力的な自然環境や文化を持ち、かつては農林業を中心に栄えた地域でありながら、人口が大きく減少し経済活動が困難になりつつある地域の一つです。平地こそ少ないものの多種の農作物の生育に適した気候で、良好な居住環境が得られ、南方の地域と往来しやすく、赤石山脈西麓への出入口でもあるこの地域を荒廃させて良いとは思えません。
+        </p>
+        <p class="indent-4">
+          地域の経済や文化を守り後世に豊かな社会を残すため、自律継続的に人口の維持と経済活動の発展が行われる仕組みを目指すことが私たちの活動の基本です。具体的には、地域経済の基盤となるべき農地や山林の維持保全、地域内にある価値の可視化や価値の創出による事業化、地域の魅力や課題の情報発信等です。これらの活動は、地域住民だけでなく都市部に住む人々が地域の課題を自らに係るものと捉えて主体的に取り組めることが望ましく、地域内外で相互に無理なく協力し合える環境を作っていきたいです。
+        </p>
+        <p class="indent-4">
+          会員及び関係者においては、より豊かな社会の追求を通じて同時に個々人の幸福を実現されることを願います。
+        </p>
+      </Card>
+    </section>
+
+    <!-- 現在の取り組み -->
+    <section class="mt-12 md:mt-16">
+      <SectionHeading as="h2" align="left" class="mb-3"
+        >現在の取り組み</SectionHeading
+      >
+      <p class="mb-6 leading-loose text-body">
+        定款第5条に掲げる事業のうち、現在継続して手を動かしているのは次の4つです。いずれも実施のようすを活動記録として公開しており、どなたでも内容をご確認いただけます。
+      </p>
+      <div class="grid gap-6 md:grid-cols-2">
+        {
+          pillars.map((pillar, index) => (
+            <Card
+              as="article"
+              class="flex flex-col border-t-4 border-t-sunlight px-6 py-6 md:px-8"
+            >
+              <span class="mb-3 inline-flex w-fit items-center rounded-full bg-primary-deep px-3 py-1 text-xs font-medium text-white">
+                取り組み {index + 1}
+              </span>
+              <SectionHeading as="h3" level="sub" align="left" class="mb-3">
+                {pillar.title}
+              </SectionHeading>
+              <p class="indent-4 leading-loose text-body">{pillar.body}</p>
+              <p class="mt-4 text-sm leading-relaxed text-body/70">
+                {pillar.evidence}
+              </p>
+              <ul class="mt-4 flex flex-wrap gap-x-5 gap-y-2 text-sm">
+                {pillar.links.map((link) => (
+                  <li>
+                    <a
+                      href={link.href}
+                      class="text-accent-strong underline underline-offset-4 hover:opacity-80"
+                      {...(link.href.startsWith('http')
+                        ? { target: '_blank', rel: 'noopener noreferrer' }
+                        : {})}
+                    >
+                      {link.label}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </Card>
+          ))
+        }
+      </div>
+    </section>
+
+    <!-- 活動の記録 (確認できる実績) -->
+    <section class="mt-12 md:mt-16">
+      <SectionHeading as="h2" align="left" class="mb-3"
+        >これまでの活動の記録</SectionHeading
+      >
+      <p class="mb-6 leading-loose text-body">
+        私たちは活動のようすを1回ごとに記録し、写真とともに公開しています。次の数字は、そのすべての記録から集計したものです。
+      </p>
+
+      <div class="grid grid-cols-2 gap-4 lg:grid-cols-4">
+        {
+          stats.map((stat) => (
+            <Card class="border-t-4 border-t-primary-soft px-5 py-6 text-center">
+              <p class="font-mono text-3xl font-medium text-primary-deep md:text-4xl">
+                {stat.value}
+                <span class="ml-1 font-sans text-base font-normal">
+                  {stat.unit}
+                </span>
+              </p>
+              <p class="mt-2 text-sm leading-relaxed text-body/80">
+                {stat.label}
+              </p>
+            </Card>
+          ))
+        }
+      </div>
+
+      <ol class="mt-8 space-y-4">
+        {
+          milestones.map((milestone) => (
+            <li>
+              <Card class="border-l-4 border-l-sunlight px-6 py-5 md:px-8">
+                <p class="font-mono text-sm font-medium text-primary-deep">
+                  {milestone.period}
+                </p>
+                <p class="mt-2 leading-loose text-body">{milestone.body}</p>
+              </Card>
+            </li>
+          ))
+        }
+      </ol>
+
+      <div class="mt-8 flex flex-wrap gap-4">
+        <Button href="/news">活動記録をすべて読む</Button>
+        <Button href="/news/archive" variant="outline">
+          年ごとのアーカイブを見る
+        </Button>
+      </div>
+    </section>
+
+    <!-- 非営利性と透明性 -->
+    <section class="mt-12 md:mt-16">
+      <SectionHeading as="h2" align="left" class="mb-3"
+        >非営利性と透明性</SectionHeading
+      >
+      <p class="mb-6 leading-loose text-body">
+        当会は営利を目的とせず、活動で得た収入を地域へ還すために、定款で次のとおり定めています。
+      </p>
+      <dl class="grid gap-4 md:grid-cols-2">
+        {
+          governance.map((item) => (
+            <Card class="px-6 py-6 md:px-8">
+              <span class="inline-flex w-fit items-center rounded-full bg-accent-strong px-3 py-1 font-mono text-xs font-medium text-white">
+                定款{item.article}
+              </span>
+              <dt class="mt-3 font-serif text-lg font-medium text-primary">
+                {item.title}
+              </dt>
+              <dd class="mt-2 leading-loose text-body">{item.body}</dd>
+            </Card>
+          ))
+        }
+      </dl>
+      <p class="mt-6 text-sm leading-loose text-body/80">
+        <a
+          href="/articles"
+          class="text-accent-strong underline underline-offset-2 hover:opacity-80"
+          >定款</a
+        >・<a
+          href="/public_notices"
+          class="text-accent-strong underline underline-offset-2 hover:opacity-80"
+          >公告</a
+        >・<a
+          href="/notation"
+          class="text-accent-strong underline underline-offset-2 hover:opacity-80"
+          >特定商取引法に基づく表記</a
+        >は、いずれも本ウェブサイト上で公開しています。
+      </p>
+    </section>
+
+    <!-- 法人情報 -->
+    <section class="mt-12 md:mt-16">
+      <SectionHeading as="h2" align="left" class="mb-3">法人情報</SectionHeading
+      >
+      <p class="mb-6 leading-loose text-body">
+        当会は日本国の法律に基づき登記された一般社団法人です。法人番号により、国税庁の法人番号公表サイトで登記情報をご確認いただけます。
+      </p>
+      <dl
+        class="divide-y divide-primary/10 rounded-3xl border border-primary/10 border-t-4 border-t-sunlight bg-surface px-6 py-2 shadow-sm"
+      >
+        {
+          corporateInfo.map((item) => (
+            <div class="grid gap-1 py-4 sm:grid-cols-[10rem_1fr]">
+              <dt class="font-medium text-primary-deep">{item.label}</dt>
+              <dd class:list={['text-body', item.mono && 'font-mono']}>
+                {item.value}
+              </dd>
+            </div>
+          ))
+        }
+      </dl>
+      <p class="mt-4 text-sm leading-loose text-body/80">
+        法人番号<span class="font-mono">9100005013227</span>は、<a
+          href={HOUJIN_BANGOU_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="text-accent-strong underline underline-offset-2 hover:opacity-80"
+          >国税庁法人番号公表サイト</a
+        >で検索すると、名称・所在地・登記記録と照合できます。
+      </p>
+    </section>
+
+    <!-- 次の一歩 -->
+    <section class="mt-12 md:mt-16">
+      <Card
+        class="border-t-4 border-t-accent px-6 py-8 text-center md:px-10 md:py-10"
+      >
+        <SectionHeading as="h2" align="center" class="mb-4"
+          >一緒に手を動かしませんか</SectionHeading
+        >
+        <p class="mx-auto max-w-2xl leading-loose text-body">
+          畑の手入れも、成果品を選ぶことも、寄付も、この地域で耕作が続くことに等しくつながっています。できる形で関わっていただけると嬉しいです。
+        </p>
+        <div class="mt-8 flex flex-wrap justify-center gap-4">
+          <Button href="/join">活動に参加する</Button>
+          <Button href="/products" variant="outline">成果品を見る</Button>
+          <Button href="/support" variant="outline">活動を支える</Button>
+        </div>
+      </Card>
+    </section>
   </Container>
 </BaseLayout>
