@@ -14,7 +14,7 @@ import type { Intensity } from '~/components/FarmCalendar'
 import heroImage from '~/assets/hero-photo.jpg'
 
 // 「今月の活動」: 農作業カレンダー (crops) から当月 (無ければ最も近い先の月) に
-// 参加できる作業を抽出する。ビルド時の月を起点にするため、季節に追従して自動更新される。
+// 行う作業を抽出する。ビルド時の月を起点にするため、季節に追従して自動更新される。
 const crops = (await getCollection('crops')).map((entry) => ({
   id: entry.id,
   ...entry.data,
@@ -120,9 +120,9 @@ const intensityLabel: Record<Intensity, string> = {
         <p class="mb-6 text-sm leading-relaxed text-body/80">
           {
             isThisMonth
-              ? `${preview.month}月に参加できる作業です。`
-              : `${preview.month}月から参加できる作業です。`
-          }気になる作業があれば、ぜひご参加ください。
+              ? `${preview.month}月に行う作業です。`
+              : `${preview.month}月から始まる作業です。`
+          }気になる作業があれば、活動実施日に合わせてぜひご参加ください。
         </p>
         {
           previewTasks.length > 0 ? (
