@@ -29,6 +29,12 @@ interface Props {
    * false にして下絵の上へ即時表示する。
    */
   fade?: boolean
+  /**
+   * webp 出力品質 (0–100)。既定 62。景観・葉物など高詳細な写真でも、Astro 既定の
+   * 高品質 (~80 相当) だと 750px 幅でも 200KiB 超になりモバイル回線で重い。62 なら
+   * 体感差なく 2〜3 割軽くできる。より鮮明さが要る箇所は呼び出し側で上書きする。
+   */
+  quality?: number
   /** ラッパー (形状・余白・アスペクト・枠線など) に付けるクラス */
   class?: string
   /** 本画像 (object-fit やフィルタ) に付けるクラス */
@@ -44,6 +50,7 @@ const {
   decoding = 'async',
   fetchpriority,
   fade = true,
+  quality = 62,
   class: className = '',
   imgClass = '',
 } = Astro.props
@@ -59,6 +66,7 @@ const blur = await getBlurDataURL(src)
     src={src}
     alt={alt}
     sizes={sizes}
+    quality={quality}
     loading={loading}
     decoding={decoding}
     fetchpriority={fetchpriority}

@@ -31,7 +31,8 @@ const events = (await getCollection('events')).map((entry) => ({
       >。各バーには<span class="font-medium text-accent-strong"
         >作業強度の目安</span
       >（軽め / ふつう /
-      しっかり）を表示しています。気になる作業のバーをタップすると、内容と参加方法をご覧いただけます。今月の列をハイライトしているので、「今・近いうちに参加できる作業」を探してみてください。
+      しっかり）を表示しています。気になる作業のバーをタップすると、内容と参加方法をご覧いただけます。今月の列をハイライトしているので、「今・近いうちに行う作業」を探してみてください。なお、このカレンダーは作業時期の目安です。実際にご参加いただけるのは、月に
+      1〜2 回ほど設けている活動実施日です。
     </p>
 
     <FarmCalendar client:load crops={crops} events={events} />
@@ -40,7 +41,7 @@ const events = (await getCollection('events')).map((entry) => ({
       class="mt-10 flex flex-wrap items-center gap-3 rounded-3xl border border-primary/10 bg-surface px-6 py-6 shadow-sm"
     >
       <p class="grow leading-loose text-body">
-        日程の詳細や最新の募集状況は、はじめての方向けの案内とボランティア募集ページでご確認いただけます。
+        活動実施日の詳細や最新の募集状況は、はじめての方向けの案内とボランティア募集ページでご確認いただけます。
       </p>
       <Button href="/join" variant="outline">はじめての方へ</Button>
       <Button href="https://activo.jp/s/a/119414">ボランティア募集を見る</Button

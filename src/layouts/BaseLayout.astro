@@ -83,6 +83,11 @@ const structuredData = [
 // GA_MEASUREMENT_ID で設定する。未設定 (ローカル開発・プレビュー) では計測タグを
 // 出力しないため、開発中のアクセスが本番の解析に混ざらない。
 const gaMeasurementId = import.meta.env.GA_MEASUREMENT_ID
+
+// Google Fonts の CSS URL。非ブロッキング読み込み (preload / print swap / noscript) で
+// 複数回参照するため定数化する。要求ウェイトは実使用分のみ (Serif 600 は不使用のため除外)。
+const fontsHref =
+  'https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500&family=Noto+Serif+JP:wght@300;500&display=swap'
 ---
 
 <!doctype html>
@@ -127,13 +132,28 @@ gtag('config', '${gaMeasurementId}');`}
         </Fragment>
       )
     }
-    <!-- タイポグラフィ: 見出し Noto Serif JP / 本文 Noto Sans JP (light 基調) -->
+    {
+      /* タイポグラフィ: 見出し Noto Serif JP / 本文 Noto Sans JP (light 基調)。
+        日本語 Web フォントは巨大 (ウェイトごとに ~100 個の unicode-range 分割) で、
+        フォント CSS を render-blocking で読むと FCP/LCP が CSS ダウンロード完了まで
+        待たされる (低速 4G で数秒)。そこで CSS を非ブロッキングに読み込む:
+        まず media="print" で適用対象外として取得し、onload で media を all に戻す。
+        display=swap によりまず system フォント (Hiragino/Yu 系) を即描画し、Web フォントは
+        遅れて差し替える。JS 無効時は noscript の通常 stylesheet でフォールバックする。
+        未使用ウェイト (Serif 600 = font-semibold は不使用) は要求しない。 */
+    }
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preload" as="style" href={fontsHref} />
     <link
-      href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500&family=Noto+Serif+JP:wght@300;500;600&display=swap"
+      href={fontsHref}
       rel="stylesheet"
+      media="print"
+      onload="this.media='all'"
     />
+    <noscript>
+      <link href={fontsHref} rel="stylesheet" />
+    </noscript>
   </head>
   <body class={fullscreen ? 'is-fullscreen' : undefined}>
     <SiteHeader currentPath={currentPath} />
