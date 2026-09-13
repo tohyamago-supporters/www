@@ -182,6 +182,34 @@ describe('AccessMap', () => {
     expect(f.fitBounds).toHaveBeenCalledTimes(1)
   })
 
+  it('labels 指定で旧村名を絵柄なしのラベルマーカーで置く', async () => {
+    const f = makeFakeMaps()
+    mockedLoad.mockResolvedValue(f.maps)
+    const labels = [
+      { text: '旧上村', lat: 35.44, lng: 138.0 },
+      { text: '旧南信濃村', lat: 35.33, lng: 137.96 },
+    ]
+    render(
+      <AccessMap
+        apiKey="K"
+        center={{ lat: 35.34, lng: 137.97 }}
+        places={[place]}
+        labels={labels}
+      />,
+    )
+
+    // ピン1件 + ラベル2件 = マーカー3件
+    await waitFor(() => expect(f.markerCtor).toHaveBeenCalledTimes(3))
+    const labelCall = f.markerCtor.mock.calls.find(
+      (c) => (c[0] as { label?: { text?: string } }).label?.text === '旧上村',
+    )
+    expect(labelCall).toBeDefined()
+    expect(labelCall![0]).toMatchObject({
+      clickable: false,
+      icon: { scale: 0 },
+    })
+  })
+
   it('読み込み失敗でフォールバックのリンクを出す', async () => {
     mockedLoad.mockRejectedValue(new Error('boom'))
     render(
