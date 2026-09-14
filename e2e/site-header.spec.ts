@@ -16,7 +16,7 @@ test('デスクトップのドロップダウンがコンテンツの前面に�
   // 「活動を知る」ドロップダウンをホバーで開く
   await page.getByRole('button', { name: '活動を知る' }).hover()
 
-  const item = page.getByRole('link', { name: '活動趣旨', exact: true })
+  const item = page.getByRole('link', { name: '活動方針', exact: true })
   await expect(item).toBeVisible()
   // 開閉アニメーション (transform/opacity) が落ち着くのを待つ
   await page.waitForTimeout(250)
