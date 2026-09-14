@@ -57,7 +57,7 @@ tohyamago/
 ├── src/
 │   ├── pages/                  # ファイルベースルーティング
 │   │   ├── index.astro         # トップ (ヒーロー + 3導線 + 今月の活動 + 物語teaser + 活動記録ダイジェスト)
-│   │   ├── purpose.astro       # 活動趣旨
+│   │   ├── purpose.astro       # 活動方針
 │   │   ├── story.astro         # 遠山郷との始まり (StoryReader 島によるライトノベル風の読み物)
 │   │   ├── join.astro          # はじめての方へ / 参加案内
 │   │   ├── calendar.astro      # 農作業カレンダー
