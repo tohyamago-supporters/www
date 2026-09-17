@@ -1,12 +1,14 @@
-import { test, expect } from '@playwright/test'
+import { test, expect, type Page } from '@playwright/test'
 
 /**
- * リグレッション: 「狭い画面で活動理念の見出しが語中で折り返す」NG。
+ * リグレッション: 「活動理念の見出しが語中で折り返す / 階段組みが崩れる」NG。
  *
  * /purpose のヒーロー見出しは意味の切れ目 (都市と地方が / 互いを理解し、/
- * 共に汗を流し、/ 豊かさを未来へ継ぐ) を inline-block に分け、幅が足りないときは
- * その境界で折り返させている。分割が粗いと「…互いを理解 / し、」のように
- * 語中で折れてしまう。行分割は実際のテキスト計測に依存するため jsdom では検証できない。
+ * 共に汗を流し、/ 豊かさを未来へ継ぐ) ごとに 1 行とし、行頭を左端から右端へ
+ * 等間隔でずらした階段組みにしている。送り幅は「見出しの幅 − 最長行の幅」を
+ * 3 等分した値で、基準を各行ではなく最長行に揃えないと最長の 4 行目だけ
+ * 行頭が左へ戻る。行の折返し・位置はテキスト計測に依存するため jsdom では
+ * 検証できない。
  */
 const PHRASES = [
   '都市と地方が',
@@ -15,45 +17,49 @@ const PHRASES = [
   '豊かさを未来へ継ぐ',
 ]
 
-/** h1 内の各 span を、描画された行 (矩形の上端) ごとにまとめた文字列の配列 */
-async function headingLines(page: import('@playwright/test').Page) {
+/** h1 の各行の文字列と、左右端の位置 (見出しブロックの左端を 0 とする) */
+async function creedLines(page: Page) {
   return page.evaluate(() => {
-    const lines = new Map<number, string>()
-    for (const span of document.querySelectorAll('h1 span')) {
-      const top = Math.round(span.getBoundingClientRect().top)
-      lines.set(top, (lines.get(top) ?? '') + (span.textContent ?? ''))
+    const heading = document.querySelector('h1')
+    if (!heading) throw new Error('見出しが見つかりませんでした')
+    const base = heading.getBoundingClientRect()
+    return {
+      width: base.width,
+      lines: [...heading.querySelectorAll('span')].map((line) => {
+        const box = line.getBoundingClientRect()
+        return {
+          text: line.textContent ?? '',
+          left: box.left - base.left,
+          right: box.right - base.left,
+          // 1 行に収まっていれば矩形は 1 つ。語中で折り返すと 2 つ以上になる
+          rects: line.getClientRects().length,
+        }
+      }),
     }
-    return [...lines.entries()]
-      .sort((a, b) => a[0] - b[0])
-      .map(([, text]) => text)
   })
 }
 
-test('狭い画面では活動理念の見出しが意味の切れ目で折り返す', async ({
-  page,
-}) => {
-  await page.setViewportSize({ width: 320, height: 700 })
-  await page.goto('/purpose')
+for (const width of [320, 390, 1280]) {
+  test(`活動理念の見出しが幅 ${width}px で階段状に並ぶ`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 800 })
+    await page.goto('/purpose')
 
-  // 意味の切れ目ごとに 1 行ずつ折り返す
-  expect(await headingLines(page)).toEqual(PHRASES)
+    const { width: headingWidth, lines } = await creedLines(page)
 
-  // どの句も、それ自体が 2 行に折れていない (= 語中で折り返していない)
-  const wrappedSpans = await page.evaluate(
-    () =>
-      [...document.querySelectorAll('h1 span')].filter(
-        (span) => span.getClientRects().length > 1,
-      ).length,
-  )
-  expect(wrappedSpans).toBe(0)
-})
+    // 意味の切れ目ごとに 1 行、かつ語中では折り返さない
+    expect(lines.map((line) => line.text)).toEqual(PHRASES)
+    expect(lines.map((line) => line.rects)).toEqual([1, 1, 1, 1])
 
-test('広い画面では活動理念の見出しが 2 行に収まる', async ({ page }) => {
-  await page.setViewportSize({ width: 1280, height: 800 })
-  await page.goto('/purpose')
+    // 先頭行は左寄せ、最終行は右寄せ (端数を考慮して 1px の許容差)
+    expect(lines[0].left).toBeLessThanOrEqual(1)
+    expect(Math.abs(lines[lines.length - 1].right - headingWidth)).toBeLessThan(
+      1,
+    )
 
-  expect(await headingLines(page)).toEqual([
-    '都市と地方が互いを理解し、',
-    '共に汗を流し、豊かさを未来へ継ぐ',
-  ])
-})
+    // 中間行の行頭は補間され、行頭は必ず右へ進む (最長行で戻らない)
+    const lefts = lines.map((line) => line.left)
+    for (let i = 1; i < lefts.length; i++) {
+      expect(lefts[i]).toBeGreaterThan(lefts[i - 1])
+    }
+  })
+}

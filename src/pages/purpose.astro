@@ -5,6 +5,28 @@ import SectionHeading from '~/components/SectionHeading.astro'
 import Card from '~/components/Card.astro'
 import Button from '~/components/Button.astro'
 
+// 理念の見出し。意味の切れ目ごとに 1 行とし、行頭を左端から右端へ等間隔で
+// ずらした階段組みにする (先頭行 = 左寄せ / 最終行 = 右寄せ / 中間行は補間)。
+//
+// 行頭の送り幅は「見出しの幅 − 最長行の幅」を 3 等分した値。基準を各行の幅では
+// なく最長行に揃えることで、行の長短に関わらず傾きが一定になる (各行の余白を
+// 按分すると、最長の 4 行目だけ行頭が左に戻ってしまう)。最長行の幅は
+// --creed-line (和文は全角 = 1em なので 9 文字 = 9em) で持ち、文字サイズが
+// 変わっても追従する。両端の行は計算に頼らず ml-0 / ml-auto で確実に揃える。
+// 画面が狭く送り幅が負になる場合は max() で 0 に留め、はみ出しを防ぐ。
+const creedLines = [
+  { text: '都市と地方が', offset: 'ml-0' },
+  {
+    text: '互いを理解し、',
+    offset: 'ml-[max(0px,calc((100%-var(--creed-line))/3))]',
+  },
+  {
+    text: '共に汗を流し、',
+    offset: 'ml-[max(0px,calc((100%-var(--creed-line))/3*2))]',
+  },
+  { text: '豊かさを未来へ継ぐ', offset: 'ml-auto' },
+]
+
 // 行動指針。原文のまま 3 項目を並べ、「三つの実」(深緑 → 陽光 → コーラル) の
 // 並びに合わせてカード上辺の色を変える。
 const principles = [
@@ -39,13 +61,15 @@ const principles = [
         活動理念
       </span>
       <h1
-        class="font-serif text-2xl font-medium leading-snug text-primary sm:text-3xl md:text-4xl md:leading-[1.4]"
+        class="mx-auto max-w-xl font-serif text-2xl font-medium leading-snug text-primary [--creed-line:9em] sm:text-3xl md:text-4xl md:leading-[1.4]"
       >
-        <span class="inline-block">都市と地方が</span><span class="inline-block"
-          >互いを理解し、</span
-        ><span class="inline-block">共に汗を流し、</span><span
-          class="inline-block">豊かさを未来へ継ぐ</span
-        >
+        {
+          creedLines.map((line) => (
+            <span class:list={['block w-fit text-left', line.offset]}>
+              {line.text}
+            </span>
+          ))
+        }
       </h1>
     </Container>
   </section>
