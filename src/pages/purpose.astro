@@ -3,68 +3,106 @@ import BaseLayout from '~/layouts/BaseLayout.astro'
 import Container from '~/components/Container.astro'
 import SectionHeading from '~/components/SectionHeading.astro'
 import Card from '~/components/Card.astro'
+
+// 行動指針。「何をするか」が一目で分かるよう、各項目に短い見出し語を添え、
+// 「三つの実」(深緑 → 陽光 → コーラル) の並びに合わせて上辺の色を変える。
+const principles = [
+  {
+    title: '実践を積み重ねる',
+    body: '地道な実践を積み重ね、社会全体の最適化を見据える',
+    accent: 'border-t-primary-soft',
+  },
+  {
+    title: '現実を直視する',
+    body: '現実を直視し、多様な立場と事情を尊重する',
+    accent: 'border-t-sunlight',
+  },
+  {
+    title: '対等な関係を保つ',
+    body: '関係者相互が対等な関係を築き、健全な距離感を保つ',
+    accent: 'border-t-accent',
+  },
+]
 ---
 
 <BaseLayout
   title="活動方針"
   description="遠山郷応援会の活動方針。なぜ遠山郷の景観・暮らし・文化を守り継ぐのか、私たちの理念と設立趣旨をご紹介します。"
 >
-  <Container class="py-12 md:py-16">
-    <SectionHeading as="h1" level="page" align="left" class="mb-8"
-      >活動方針</SectionHeading
-    >
-    <Card class="mb-8 border-l-4 border-l-accent px-6 py-8 md:px-10 md:py-10">
-      <SectionHeading as="h2" level="sub" align="left" class="mb-3"
-        >理念</SectionHeading
+  <!-- ヒーロー: 理念そのものをページの第一声 (h1) に置く。
+       ページ名は「活動理念」のピルで示し、カードには入れず地色の上に大きく掲げる。 -->
+  <section
+    class="relative overflow-hidden border-b border-primary/10 bg-gradient-to-b from-sunlight-soft/40 via-base to-base px-4 pt-12 pb-12 text-center sm:pt-16"
+  >
+    <Container>
+      <span
+        class="mx-auto mb-5 flex w-fit items-center rounded-full bg-primary-deep px-4 py-1 font-serif text-sm tracking-wide text-white"
       >
+        活動理念
+      </span>
+      <h1
+        class="font-serif text-2xl font-medium leading-snug text-primary sm:text-3xl md:text-4xl md:leading-[1.4]"
+      >
+        <span class="inline-block">都市と地方が互いを理解し、</span><span
+          class="inline-block">共に汗を流し、</span
+        ><span class="inline-block">豊かさを未来へ継ぐ</span>
+      </h1>
       <p
-        class="font-serif text-2xl font-medium leading-snug text-primary md:text-3xl"
+        class="mx-auto mt-6 max-w-xl text-left leading-loose text-body sm:text-center"
       >
-        都市と地方が互いを理解し、共に汗を流し、豊かさを未来へ継ぐ
+        人口が減り、資本が流出していく地域で、暮らしと産業が自律継続的に続く仕組みをつくる。それが、私たちの活動の基本です。
       </p>
-    </Card>
-    <Card
-      class="mb-8 border-t-4 border-t-primary-soft px-6 py-8 md:px-10 md:py-10"
-    >
-      <SectionHeading as="h2" level="sub" align="left" class="mb-4"
-        >行動指針</SectionHeading
-      >
-      <ul class="space-y-4">
-        {
-          [
-            '地道な実践を積み重ね、社会全体の最適化を見据える',
-            '現実を直視し、多様な立場と事情を尊重する',
-            '関係者相互が対等な関係を築き、健全な距離感を保つ',
-          ].map((item) => (
-            <li class="flex gap-3 leading-relaxed text-body">
+    </Container>
+  </section>
+
+  <!-- 行動指針: 判断のよりどころを 3 枚のカードで並べ、迷わず読めるようにする -->
+  <Container size="wide" class="py-12 md:py-16">
+    <SectionHeading as="h2" align="left" class="mb-3">行動指針</SectionHeading>
+    <p class="mb-8 leading-relaxed text-body/80">
+      理念を日々の活動でどう実践するか。判断に迷ったときのよりどころとして、三つの指針を掲げています。
+    </p>
+    <ol class="grid gap-4 md:grid-cols-3">
+      {
+        principles.map((principle, i) => (
+          <li>
+            <Card
+              class={`h-full border-t-4 px-6 py-6 md:px-7 ${principle.accent}`}
+            >
               <span
-                class="mt-2 h-0 w-0 shrink-0 border-x-[0.3rem] border-b-[0.5rem] border-x-transparent border-b-primary-soft"
+                class="flex h-9 w-9 items-center justify-center rounded-full bg-primary-deep font-serif font-medium text-white"
                 aria-hidden="true"
-              />
-              <span>{item}</span>
-            </li>
-          ))
-        }
-      </ul>
-    </Card>
-    <Card class="border-t-4 border-t-sunlight px-6 py-8 md:px-10 md:py-10">
-      <SectionHeading as="h2" level="sub" align="left" class="mb-4"
-        >設立趣旨</SectionHeading
-      >
-      <div class="space-y-6 leading-loose text-body">
-        <p class="indent-4">
-          資本主義経済の発展に伴い都市への人口流入が多くなり、それ以外の地域で人口減少や経済活動の衰退が進む傾向は、自由経済圏の各国が抱える共通の課題であるようです。人口や経済活動の一極集中は、都市部においても地方においても生活水準の維持、災害リスクの分散、治安の維持や国防を困難にするものであり、地方の活力を維持することは健全な国土の管理や発展に不可欠であると言えます。人口が減少し資本が流出してしまう地域の生活や産業を守るためには、地域内における事業の継続や発展の工夫を重ねると共に、流出した資本が生んだ都市部の余剰資本を地域に還元し、国全体で格差の少ない均衡の取れた発展を目指す必要があります。
-        </p>
-        <p class="indent-4">
-          遠山郷は魅力的な自然環境や文化を持ち、かつては農林業を中心に栄えた地域でありながら、人口が大きく減少し経済活動が困難になりつつある地域の一つです。平地こそ少ないものの多種の農作物の生育に適した気候で、良好な居住環境が得られ、南方の地域と往来しやすく、赤石山脈西麓への出入口でもあるこの地域を荒廃させて良いとは思えません。
-        </p>
-        <p class="indent-4">
-          地域の経済や文化を守り後世に豊かな社会を残すため、自律継続的に人口の維持と経済活動の発展が行われる仕組みを目指すことが私たちの活動の基本です。具体的には、地域経済の基盤となるべき農地や山林の維持保全、地域内にある価値の可視化や価値の創出による事業化、地域の魅力や課題の情報発信等です。これらの活動は、地域住民だけでなく都市部に住む人々が地域の課題を自らに係るものと捉えて主体的に取り組めることが望ましく、地域内外で相互に無理なく協力し合える環境を作っていきたいです。
-        </p>
-        <p class="indent-4">
-          会員及び関係者においては、より豊かな社会の追求を通じて同時に個々人の幸福を実現されることを願います。
-        </p>
-      </div>
-    </Card>
+              >
+                {i + 1}
+              </span>
+              <h3 class="mt-4 font-serif text-lg font-medium leading-snug text-primary">
+                {principle.title}
+              </h3>
+              <p class="mt-3 text-left leading-loose text-body">
+                {principle.body}
+              </p>
+            </Card>
+          </li>
+        ))
+      }
+    </ol>
+  </Container>
+
+  <!-- 設立趣旨: 読み物としてまとまった量があるため、カードに入れず地色の上にベタ書きする -->
+  <Container class="border-t border-primary/10 py-12 md:py-16">
+    <SectionHeading as="h2" align="left" class="mb-6">設立趣旨</SectionHeading>
+    <div class="space-y-6 leading-loose text-body">
+      <p class="indent-4">
+        資本主義経済の発展に伴い都市への人口流入が多くなり、それ以外の地域で人口減少や経済活動の衰退が進む傾向は、自由経済圏の各国が抱える共通の課題であるようです。人口や経済活動の一極集中は、都市部においても地方においても生活水準の維持、災害リスクの分散、治安の維持や国防を困難にするものであり、地方の活力を維持することは健全な国土の管理や発展に不可欠であると言えます。人口が減少し資本が流出してしまう地域の生活や産業を守るためには、地域内における事業の継続や発展の工夫を重ねると共に、流出した資本が生んだ都市部の余剰資本を地域に還元し、国全体で格差の少ない均衡の取れた発展を目指す必要があります。
+      </p>
+      <p class="indent-4">
+        遠山郷は魅力的な自然環境や文化を持ち、かつては農林業を中心に栄えた地域でありながら、人口が大きく減少し経済活動が困難になりつつある地域の一つです。平地こそ少ないものの多種の農作物の生育に適した気候で、良好な居住環境が得られ、南方の地域と往来しやすく、赤石山脈西麓への出入口でもあるこの地域を荒廃させて良いとは思えません。
+      </p>
+      <p class="indent-4">
+        地域の経済や文化を守り後世に豊かな社会を残すため、自律継続的に人口の維持と経済活動の発展が行われる仕組みを目指すことが私たちの活動の基本です。具体的には、地域経済の基盤となるべき農地や山林の維持保全、地域内にある価値の可視化や価値の創出による事業化、地域の魅力や課題の情報発信等です。これらの活動は、地域住民だけでなく都市部に住む人々が地域の課題を自らに係るものと捉えて主体的に取り組めることが望ましく、地域内外で相互に無理なく協力し合える環境を作っていきたいです。
+      </p>
+      <p class="indent-4">
+        会員及び関係者においては、より豊かな社会の追求を通じて同時に個々人の幸福を実現されることを願います。
+      </p>
+    </div>
   </Container>
 </BaseLayout>
