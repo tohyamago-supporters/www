@@ -3,22 +3,20 @@ import BaseLayout from '~/layouts/BaseLayout.astro'
 import Container from '~/components/Container.astro'
 import SectionHeading from '~/components/SectionHeading.astro'
 import Card from '~/components/Card.astro'
+import Button from '~/components/Button.astro'
 
-// 行動指針。「何をするか」が一目で分かるよう、各項目に短い見出し語を添え、
-// 「三つの実」(深緑 → 陽光 → コーラル) の並びに合わせて上辺の色を変える。
+// 行動指針。原文のまま 3 項目を並べ、「三つの実」(深緑 → 陽光 → コーラル) の
+// 並びに合わせてカード上辺の色を変える。
 const principles = [
   {
-    title: '実践を積み重ねる',
     body: '地道な実践を積み重ね、社会全体の最適化を見据える',
     accent: 'border-t-primary-soft',
   },
   {
-    title: '現実を直視する',
     body: '現実を直視し、多様な立場と事情を尊重する',
     accent: 'border-t-sunlight',
   },
   {
-    title: '対等な関係を保つ',
     body: '関係者相互が対等な関係を築き、健全な距離感を保つ',
     accent: 'border-t-accent',
   },
@@ -66,20 +64,15 @@ const principles = [
         principles.map((principle, i) => (
           <li>
             <Card
-              class={`h-full border-t-4 px-6 py-6 md:px-7 ${principle.accent}`}
+              class={`flex h-full gap-4 border-t-4 px-6 py-6 md:px-7 ${principle.accent}`}
             >
               <span
-                class="flex h-9 w-9 items-center justify-center rounded-full bg-primary-deep font-serif font-medium text-white"
+                class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary-deep font-serif font-medium text-white"
                 aria-hidden="true"
               >
                 {i + 1}
               </span>
-              <h3 class="mt-4 font-serif text-lg font-medium leading-snug text-primary">
-                {principle.title}
-              </h3>
-              <p class="mt-3 text-left leading-loose text-body">
-                {principle.body}
-              </p>
+              <p class="text-left leading-loose text-body">{principle.body}</p>
             </Card>
           </li>
         ))
@@ -104,5 +97,21 @@ const principles = [
         会員及び関係者においては、より豊かな社会の追求を通じて同時に個々人の幸福を実現されることを願います。
       </p>
     </div>
+
+    <!-- 次の一歩: 読み終えた人が迷わないよう、参加と支援の導線を末尾に置く -->
+    <section
+      class="mt-12 rounded-3xl border border-primary/10 bg-gradient-to-br from-sunlight-soft/60 to-surface px-6 py-10 text-center md:px-12"
+    >
+      <SectionHeading as="h2" align="center" class="mb-4"
+        >この理念を、かたちにする</SectionHeading
+      >
+      <p class="mx-auto max-w-xl leading-loose text-body">
+        理念を進めるのは、現地で動く人と、遠くから支える人です。どちらの一歩も、遠山郷の暮らしを次の世代へつなぐ力になります。
+      </p>
+      <div class="mt-8 flex flex-wrap justify-center gap-3">
+        <Button href="/join">活動に参加する</Button>
+        <Button href="/support" variant="outline">活動を支える</Button>
+      </div>
+    </section>
   </Container>
 </BaseLayout>
