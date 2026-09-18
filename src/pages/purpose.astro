@@ -5,26 +5,45 @@ import SectionHeading from '~/components/SectionHeading.astro'
 import Card from '~/components/Card.astro'
 import Button from '~/components/Button.astro'
 
-// 理念の見出し。意味の切れ目ごとに 1 行とし、行頭を左端から右端へ等間隔で
-// ずらした階段組みにする (先頭行 = 左寄せ / 最終行 = 右寄せ / 中間行は補間)。
+// 理念の見出し。意味の切れ目で改行し、行頭を左端から右端へ等間隔でずらした
+// 階段組みにする (先頭行 = 左寄せ / 最終行 = 右寄せ / 中間行は補間)。
 //
-// 行頭の送り幅は「見出しの幅 − 最長行の幅」を 3 等分した値。基準を各行の幅では
-// なく最長行に揃えることで、行の長短に関わらず傾きが一定になる (各行の余白を
-// 按分すると、最長の 4 行目だけ行頭が左に戻ってしまう)。最長行の幅は
-// --creed-line (和文は全角 = 1em なので 9 文字 = 9em) で持ち、文字サイズが
-// 変わっても追従する。両端の行は計算に頼らず ml-0 / ml-auto で確実に揃える。
-// 画面が狭く送り幅が負になる場合は max() で 0 に留め、はみ出しを防ぐ。
-const creedLines = [
-  { text: '都市と地方が', offset: 'ml-0' },
+// 改行の数は画面幅で変える。狭い画面 (〜sm) は 4 つの句をそれぞれ 1 行に、
+// sm 以上は 2 句ずつまとめて 2 行にする。前半 (都市と地方が互いを理解し、) と
+// 後半 (共に汗を流し、豊かさを未来へ継ぐ) を group でくくり、狭い画面では
+// group を contents にして句そのものを行として扱い、sm 以上では group を
+// 行にして中の句を inline に戻す。
+//
+// 狭い画面での行頭の送り幅は「見出しの幅 − 最長行の幅」を 3 等分した値。
+// 基準を各行の幅ではなく最長行に揃えることで、行の長短に関わらず傾きが一定に
+// なる (各行の余白を按分すると、最長の 4 行目だけ行頭が左に戻ってしまう)。
+// 最長行の幅は --creed-line (和文は全角 = 1em なので 9 文字 = 9em) で持ち、
+// 文字サイズが変わっても追従する。両端の行は計算に頼らず ml-0 / ml-auto で
+// 確実に揃える。画面が狭く送り幅が負になる場合は max() で 0 に留め、はみ出しを
+// 防ぐ。
+const creedGroups = [
   {
-    text: '互いを理解し、',
-    offset: 'ml-[max(0px,calc((100%-var(--creed-line))/3))]',
+    // sm 以上ではこの group が 1 行目 (左寄せ)
+    line: 'contents sm:block sm:w-fit',
+    phrases: [
+      { text: '都市と地方が', offset: 'ml-0' },
+      {
+        text: '互いを理解し、',
+        offset: 'ml-[max(0px,calc((100%-var(--creed-line))/3))]',
+      },
+    ],
   },
   {
-    text: '共に汗を流し、',
-    offset: 'ml-[max(0px,calc((100%-var(--creed-line))/3*2))]',
+    // sm 以上ではこの group が 2 行目 (右寄せ)
+    line: 'contents sm:block sm:w-fit sm:ml-auto',
+    phrases: [
+      {
+        text: '共に汗を流し、',
+        offset: 'ml-[max(0px,calc((100%-var(--creed-line))/3*2))]',
+      },
+      { text: '豊かさを未来へ継ぐ', offset: 'ml-auto' },
+    ],
   },
-  { text: '豊かさを未来へ継ぐ', offset: 'ml-auto' },
 ]
 
 // 行動指針。原文のまま 3 項目を並べ、「三つの実」(深緑 → 陽光 → コーラル) の
@@ -61,12 +80,21 @@ const principles = [
         活動理念
       </span>
       <h1
-        class="mx-auto max-w-xl font-serif text-2xl font-medium leading-snug text-primary [--creed-line:9em] sm:text-3xl md:text-4xl md:leading-[1.4]"
+        class="mx-auto max-w-xl font-serif text-2xl font-medium leading-snug text-primary [--creed-line:9em] sm:text-3xl md:max-w-2xl md:text-4xl md:leading-[1.4]"
       >
         {
-          creedLines.map((line) => (
-            <span class:list={['block w-fit text-left', line.offset]}>
-              {line.text}
+          creedGroups.map((group) => (
+            <span class:list={[group.line]}>
+              {group.phrases.map((phrase) => (
+                <span
+                  class:list={[
+                    'block w-fit text-left sm:ml-0 sm:inline',
+                    phrase.offset,
+                  ]}
+                >
+                  {phrase.text}
+                </span>
+              ))}
             </span>
           ))
         }
