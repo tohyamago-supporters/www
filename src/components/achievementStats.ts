@@ -56,9 +56,12 @@ export function sortFields(fields: FieldRecord[]): FieldRecord[] {
  * 1 件も判明していなければ null を返し、ページ側で「集計中」と出し分ける。
  */
 export function totalFieldArea(fields: FieldRecord[]): number | null {
-  const known = fields.filter((f) => typeof f.area === 'number')
+  // 型述語で area を必須に絞り込み、合計側に到達不能なフォールバックを残さない
+  const known = fields.filter(
+    (f): f is FieldRecord & { area: number } => typeof f.area === 'number',
+  )
   if (known.length === 0) return null
-  return known.reduce((sum, f) => sum + (f.area ?? 0), 0)
+  return known.reduce((sum, f) => sum + f.area, 0)
 }
 
 /** 面積が判明している耕作地の件数。 */

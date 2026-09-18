@@ -125,6 +125,15 @@ describe('sortActivities', () => {
     expect(sorted.map((a) => a.id)).toEqual(['new', 'mid', 'old'])
   })
 
+  it('同じ日なら名前順で安定させる', () => {
+    const sameDay = new Date('2025-10-25T00:00:00Z')
+    const sorted = sortActivities([
+      activity({ id: 'z', name: 'もみじ狩り', date: sameDay }),
+      activity({ id: 'a', name: 'そば打ち体験', date: sameDay }),
+    ])
+    expect(sorted.map((a) => a.id)).toEqual(['a', 'z'])
+  })
+
   it('入力配列を破壊しない', () => {
     const input = [
       activity({ id: 'old', date: new Date('2018-01-01T00:00:00Z') }),
