@@ -1,4 +1,12 @@
 ---
+/**
+ * /products — 成果品紹介。
+ *
+ * ナビ「活動成果」章の 1 ページ。法人全体の活動成果 (/achievements) のうち
+ * 「畑から生まれたもの」だけを深掘りし、賛同購入 (オンラインショップ) へつなぐ。
+ * ショーケースの文章・成果品・旬は productShowcase.ts、名称・絵文字・色・表示順は
+ * crops コレクションを単一の情報源とする。
+ */
 import { getCollection } from 'astro:content'
 import BaseLayout from '~/layouts/BaseLayout.astro'
 import BlurImage from '~/components/BlurImage.astro'
@@ -7,94 +15,17 @@ import SectionHeading from '~/components/SectionHeading.astro'
 import Card from '~/components/Card.astro'
 import Button from '~/components/Button.astro'
 import ProductCard from '~/components/ProductCard.astro'
+import { PRODUCT_SHOWCASE, resolveProducts } from '~/components/productShowcase'
 import farmImage from '~/assets/farm.jpg'
 
 const SHOP_URL = 'https://shop.tohyamago.org'
 
-// 成果品の物語。emoji / color / name は作物コレクション (crops) を単一情報源として
-// 紐づけ、ここではショーケース用の文章・成果品・旬だけを管理する。
-const showcase = [
-  {
-    id: 'shimoguri-imo',
-    tagline: '日本のチロル・下栗の急斜面で育つ、小さな在来芋',
-    story: [
-      '標高 1,000m 前後の急傾斜地に石垣を積んで拓かれた、下栗の里の畑。耕されなくなれば荒れてしまうこの景観を守ろうと畑に通ううちに、代々この土地で受け継がれてきた在来のじゃがいも——ひと夏に二度植えられることから「二度芋」とも呼ばれる小ぶりな芋——も、毎年の畑仕事の実りとして採れています。',
-      '春に植え、夏に草を取り、盛夏に皆で掘る。そんな一年を畑で過ごすうちにできた芋です。掘りたてのほくほくとした味わいは、この時期この場所ならではの楽しみになっています。',
-    ],
-    makes: [
-      { label: '下栗芋（生芋）', note: '夏に採れた掘りたてを数量限定で' },
-      { label: 'いも田楽', note: '串に刺して味噌だれで、下栗の郷土の味' },
-    ],
-    season: '植え付け 3〜4 月／収穫は盛夏（7〜8 月）',
-  },
-  {
-    id: 'shimoguri-soba',
-    tagline: '芋を掘った同じ畑から、白い花を経て実る蕎麦',
-    story: [
-      '下栗芋を収穫したあとの畑を遊ばせておくのはもったいないと蕎麦の種を蒔くと、夏の終わりには一面に白い花が咲き揃い、秋には黒い実が実ります。畑を守る一年の流れの中で、そのまま蕎麦も育っていきます。',
-      '皆で刈り取り、天日で乾かして脱穀すれば、いつのまにか玄蕎麦に。冬には採れたての新蕎麦を味わう会も、活動の楽しみのひとつになっています。',
-    ],
-    makes: [
-      { label: '玄蕎麦・そば粉', note: '秋に採れた下栗産の蕎麦' },
-      { label: '新蕎麦', note: '晩秋〜冬、採れたての香りを楽しむ' },
-    ],
-    season: '種蒔き 7 月／収穫・脱穀は晩秋（10〜11 月）',
-  },
-  {
-    id: 'zairai-daizu',
-    tagline: '畑の草を刈り、見守るうちに実る在来大豆',
-    story: [
-      '蕎麦畑と並んで育っているのが、遠山郷に受け継がれてきた在来の大豆です。鳥よけのネットを張って種を蒔き、夏のあいだ畑の草を刈りながら見守るうちに、晩秋には収穫を迎えます。',
-      '刈り取った株は「はざかけ」にして天日に干し、その年の〆に皆で脱穀。畑に通った一年の終わりに、ふっくらとした大豆が残ります。',
-    ],
-    makes: [
-      { label: '在来大豆', note: '天日に干した遠山郷の大豆' },
-      {
-        label: '味噌・きな粉 など',
-        note: '採れた大豆を活かした加工にも少しずつ挑戦',
-      },
-    ],
-    season: '種蒔き 5 月／収穫・脱穀は晩秋（11〜12 月）',
-  },
-  {
-    id: 'ocha',
-    tagline: '茶畑を守るうちに、皆で摘む初夏の新茶',
-    story: [
-      '春の整枝・施肥から始まり、初夏には新芽を摘みます。「一芯三葉」——芯と若い葉だけを摘む昔ながらのやり方を、地域の人に教わりながら皆で摘む、初夏のひととき。手入れが行き届かなくなりがちな茶畑を守る活動でもあります。',
-      'ある年は摘んだ 15kg の生葉が、茶工場での加工を経て 3kg ほどの茶葉になりました。茶畑に通ううちに生まれた、香りのよい新茶です。仕上がったぶんを数量限定でお分けしています。',
-    ],
-    makes: [
-      { label: '新茶（仕上げ茶）', note: '皆で手摘みした数量限定の煎茶' },
-    ],
-    season: '整枝 3 月／茶摘み（新茶）は初夏（5 月）',
-  },
-]
+const crops = (await getCollection('crops')).map((entry) => ({
+  id: entry.id,
+  ...entry.data,
+}))
 
-// 作物コレクションと突き合わせ、ブランド情報 (emoji / color / name) を補う。
-// 表示順は crops の order に従う。
-const cropById = new Map(
-  (await getCollection('crops')).map((c) => [c.id, c.data]),
-)
-
-const products = showcase
-  .map((item) => {
-    const crop = cropById.get(item.id)
-    // ID 不整合 (タイポやデータ削除) はビルド時に即エラーにし、
-    // 成果品が静かに消えるのを防ぐ。
-    if (!crop) {
-      throw new Error(
-        `[products.astro] ID "${item.id}" に対応する作物が crops コレクションに見つかりません。コンテンツファイルまたは showcase の ID を確認してください。`,
-      )
-    }
-    return {
-      ...item,
-      name: crop.name,
-      emoji: crop.emoji,
-      color: crop.color,
-      order: crop.order,
-    }
-  })
-  .sort((a, b) => a.order - b.order)
+const products = resolveProducts(PRODUCT_SHOWCASE, crops)
 ---
 
 <BaseLayout
@@ -121,7 +52,11 @@ const products = showcase
     <p
       class="mx-auto mt-5 max-w-2xl text-left leading-loose text-body sm:text-center"
     >
-      皆で畑に通い、季節の作業を重ねるうちに実った、下栗芋・蕎麦・大豆・お茶。遠山郷の畑からのおすそわけをご紹介します。気に入ったものは、オンラインショップでお求めいただけます。
+      皆で畑に通い、季節の作業を重ねるうちに実った、下栗芋・蕎麦・大豆・お茶。耕作地を守り、地域の行事に加わってきた<a
+        href="/achievements"
+        class="font-medium text-primary underline underline-offset-4 hover:opacity-80 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+        >活動成果</a
+      >のうち、畑からのおすそわけをご紹介します。気に入ったものは、オンラインショップでお求めいただけます。
     </p>
     <div class="mx-auto mt-8 w-full max-w-3xl">
       <BlurImage
@@ -137,7 +72,7 @@ const products = showcase
     </div>
     <div class="mt-8 flex flex-wrap justify-center gap-3">
       <Button href={SHOP_URL}>オンラインショップを見る</Button>
-      <Button href="/calendar" variant="outline">畑の一年を見る</Button>
+      <Button href="/achievements" variant="outline">活動成果を見る</Button>
     </div>
   </section>
 
@@ -152,6 +87,13 @@ const products = showcase
         </p>
         <p class="mt-4 indent-4">
           とはいえ畑仕事を続ければ、実りもついてきます。量は多くありませんが、どれもこの土地ならではの味わい。採れたぶんをお分けすることが、畑を守り、活動を続けていく力にもなります。
+        </p>
+        <p class="mt-4 indent-4">
+          このページで紹介する成果品は、守っている耕作地やイベントの実施・参加とあわせた<a
+            href="/achievements"
+            class="font-medium text-primary underline underline-offset-4 hover:opacity-80 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+            >法人全体の活動成果</a
+          >の一部です。
         </p>
       </Card>
     </section>
