@@ -76,8 +76,8 @@ const events = defineCollection({
     }),
 })
 
-// 耕作地 (法人が守っている畑)。面積は実測・申告値が確定しているものだけ area に記載し、
-// 未確定のものは省略する (ページ側は未記載の面積を出さない = 推計値を表に出さない)。
+// 耕作地 (法人が農作業を行っている畑)。面積は実測・申告値が確定しているものだけ area に
+// 記載し、未確定のものは省略する (ページ側は未記載の面積を出さない = 推計値を表に出さない)。
 const fields = defineCollection({
   loader: glob({ pattern: '**/*.yaml', base: './src/content/fields' }),
   schema: z.object({
@@ -86,30 +86,59 @@ const fields = defineCollection({
     order: z.number().default(0),
     /** 耕作面積 (㎡)。未確定なら省略する。 */
     area: z.number().positive().optional(),
-    /** 関わり始めた年 (西暦)。 */
-    since: z.number().int().optional(),
     /** crops コレクションの ID。名称・絵文字・色は crops を単一の情報源とする。 */
     crops: z.array(z.string()).default([]),
     note: z.string().optional(),
   }),
 })
 
-// イベントの実施・参加の記録 (特定日の実績)。events (毎年循環する年間予定) とは別に、
-// 「いつ・何を・どう関わったか」を年表として残す。
-const activities = defineCollection({
-  loader: glob({ pattern: '**/*.yaml', base: './src/content/activities' }),
-  schema: z.object({
-    name: z.string(),
-    date: z.coerce.date(),
-    /** hosted=当会が実施 / joined=地域の行事へ参加 */
-    kind: z.enum(['hosted', 'joined']).default('joined'),
-    location: z.string().optional(),
-    organizer: z.string().optional(),
-    /** 参加人数 (延べ)。把握できているものだけ記載する。 */
-    participants: z.number().int().positive().optional(),
-    url: z.url().optional(),
-    note: z.string().optional(),
-  }),
+// 事業年度ごとの事業報告 (1 事業報告書 = 1 ファイル)。総会に提出した事業報告書・
+// 附属明細書を情報源とし、/achievements はこの内容をそのまま報告の形で掲載する。
+// 回数・延べ参加人数・販売点数は works / sales から数え、本文に数字を手打ちしない。
+const reports = defineCollection({
+  loader: glob({ pattern: '**/*.yaml', base: './src/content/reports' }),
+  schema: z
+    .object({
+      /** 年度名 (例: 令和7年度)。 */
+      name: z.string(),
+      startDate: z.coerce.date(),
+      endDate: z.coerce.date(),
+      /** 事業報告書の日付。 */
+      reportedOn: z.coerce.date(),
+      /** 概況 (段落ごとに 1 要素)。 */
+      summary: z.array(z.string()).default([]),
+      /** 実施状況の明細 (事業報告附属明細書の実施状況表)。 */
+      works: z
+        .array(
+          z.object({
+            date: z.coerce.date(),
+            name: z.string(),
+            place: z.string(),
+            /** 参加人数。把握できているものだけ記載する。 */
+            participants: z.number().int().positive().optional(),
+            /** farmwork=遊休農地活用農作業 / hosted=当会が実施 / joined=地域行事へ参加 */
+            kind: z.enum(['farmwork', 'hosted', 'joined']).default('farmwork'),
+            note: z.string().optional(),
+          }),
+        )
+        .default([]),
+      /** 成果品販売状況 (平均単価は amount / units から算出する)。 */
+      sales: z
+        .array(
+          z.object({
+            item: z.string(),
+            channel: z.string(),
+            units: z.number().int().positive(),
+            amount: z.number().nonnegative(),
+            note: z.string().optional(),
+          }),
+        )
+        .default([]),
+    })
+    .refine((report) => report.startDate <= report.endDate, {
+      message: 'startDate は endDate 以下の日付を指定してください',
+      path: ['endDate'],
+    }),
 })
 
-export const collections = { posts, crops, events, fields, activities }
+export const collections = { posts, crops, events, fields, reports }

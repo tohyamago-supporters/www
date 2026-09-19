@@ -2,13 +2,12 @@
 /**
  * /achievements — 活動成果。
  *
- * ナビの「活動成果」章の表紙。法人としてこれまでに積み重ねてきたこと
- * (守っている耕作地・イベントの実施と参加・畑から生まれた成果品) を一枚で見せる。
- * 成果品とショップでの販売は、その成果の「一部」として最後に置く。
+ * ナビの「活動成果」章の表紙。総会に提出した事業報告書 (reports コレクション) を情報源に、
+ * 事業年度ごとの実施状況と成果品の販売状況を「報告」の体裁でまとめる。
+ * 成果品とショップでの販売は、法人全体の成果の「一部」として後段に置く。
  *
- * 数字は原則としてコンテンツコレクション (fields / crops / activities / posts) から
- * 数える (手打ちすると実態とずれるため)。耕作面積は実測・申告値が確定している
- * 耕作地だけを合計し、未確定なら数字を出さずその旨を書く (推計値を成果として出さない)。
+ * 法人化前 (任意団体「下栗応援サークル」) の活動は概要で触れるにとどめ、明細は扱わない。
+ * 数字は原則としてコンテンツコレクションから数える (手打ちすると報告書とずれるため)。
  */
 import { getCollection } from 'astro:content'
 import BaseLayout from '~/layouts/BaseLayout.astro'
@@ -17,36 +16,37 @@ import Container from '~/components/Container.astro'
 import SectionHeading from '~/components/SectionHeading.astro'
 import Card from '~/components/Card.astro'
 import Button from '~/components/Button.astro'
-import { formatPeriod } from '~/components/FarmCalendar'
 import { PRODUCT_SHOWCASE, resolveProducts } from '~/components/productShowcase'
 import {
-  ACTIVITY_KIND_LABEL,
-  countActivitiesByKind,
-  countAnnualTasks,
-  countFieldsWithArea,
-  formatActivityDate,
+  WORK_KIND_LABEL,
+  averageUnitPrice,
   formatArea,
-  groupActivitiesByYear,
-  summarizeActivityKinds,
+  formatDate,
+  formatYen,
+  selectEvents,
   sortFields,
+  sortReports,
+  sortWorks,
+  summarizeFarmWork,
+  summarizeReports,
+  summarizeSales,
+  countFieldsWithArea,
   totalFieldArea,
-  yearsOfActivity,
-  type ActivityRecord,
   type FieldRecord,
+  type ReportRecord,
 } from '~/components/achievementStats'
 import farmImage from '~/assets/farm.jpg'
 
 const SHOP_URL = 'https://shop.tohyamago.org'
-/** 前身「下栗応援サークル」として活動を始めた年 (最古の活動記録が 2018 年)。 */
-const START_YEAR = 2018
 /** 一般社団法人遠山郷応援会の設立日。 */
-const INCORPORATED = '2024年10月1日'
+const INCORPORATED = '2024年10月1日（令和6年10月1日）'
+/** 定款に定める事業年度。 */
+const FISCAL_YEAR = '毎年 7 月 1 日から翌年 6 月 30 日まで'
 
 const crops = (await getCollection('crops')).map((entry) => ({
   id: entry.id,
   ...entry.data,
 }))
-const posts = await getCollection('posts')
 
 const fields: FieldRecord[] = sortFields(
   (await getCollection('fields')).map((entry) => ({
@@ -54,17 +54,17 @@ const fields: FieldRecord[] = sortFields(
     ...entry.data,
   })),
 )
-const activities: ActivityRecord[] = (await getCollection('activities')).map(
-  (entry) => ({ id: entry.id, ...entry.data }),
+
+const reports: ReportRecord[] = sortReports(
+  (await getCollection('reports')).map((entry) => ({
+    id: entry.id,
+    ...entry.data,
+  })),
 )
-// 年間の関わり (毎年めぐってくる行事・販売)。カレンダーと同じ events を時期順に並べる。
-const annualEvents = (await getCollection('events'))
-  .map((entry) => ({ id: entry.id, ...entry.data }))
-  .sort((a, b) => a.start - b.start)
 
 // 耕作地に紐づく作物名。ID 不整合はビルド時に即エラーにし、畑の中身が静かに消えるのを防ぐ。
 const cropById = new Map(crops.map((c) => [c.id, c]))
-const fieldCards = fields.map((field) => ({
+const fieldRows = fields.map((field) => ({
   ...field,
   cropList: field.crops.map((cropId) => {
     const crop = cropById.get(cropId)
@@ -77,119 +77,168 @@ const fieldCards = fields.map((field) => ({
   }),
 }))
 
-const products = resolveProducts(PRODUCT_SHOWCASE, crops)
+// 事業年度ごとの表示データ。回数・人数・点数はすべて明細から数える。
+const reportSections = reports.map((report) => ({
+  ...report,
+  works: sortWorks(report.works),
+  farmWork: summarizeFarmWork(report.works),
+  events: selectEvents(report.works),
+  saleTotal: summarizeSales(report.sales),
+}))
 
+const total = summarizeReports(reports)
+const latest = reportSections[0]
 const knownArea = totalFieldArea(fields)
 const fieldsWithArea = countFieldsWithArea(fields)
-const activityCount = countActivitiesByKind(activities)
-// 内訳は両方の種別があるときだけ添える (片方だけなら総数と同じ情報になる)
-const activityBreakdown = summarizeActivityKinds(activityCount)
-const activityYears = groupActivitiesByYear(activities)
 
-// 「数字で見る活動」。すべてデータから数えた値で、コンテンツを足せば自動で伸びる。
-const stats = [
+const products = resolveProducts(PRODUCT_SHOWCASE, crops)
+
+// 報告書の表紙にあたるメタ情報
+const documentMeta = [
+  { term: '報告主体', description: '一般社団法人遠山郷応援会' },
+  { term: '法人設立', description: INCORPORATED },
+  { term: '事業年度', description: FISCAL_YEAR },
   {
-    value: String(yearsOfActivity(START_YEAR, new Date())),
-    unit: '年目',
-    label: '活動を続けて',
-    note: `${START_YEAR} 年の畑仕事から`,
+    term: '掲載範囲',
+    description: `${total.years} 事業年度（${reportSections.at(-1)?.name} 〜 ${latest?.name}）`,
   },
   {
-    value: String(fields.length),
-    unit: 'か所',
-    label: '守っている耕作地',
-    note: knownArea ? `面積が判明しているぶんで ${formatArea(knownArea)}` : '',
-  },
-  {
-    value: String(crops.length),
-    unit: '品目',
-    label: '育てている作物',
-    note: `年間 ${countAnnualTasks(crops)} 区分の農作業`,
-  },
-  {
-    value: String(posts.length),
-    unit: '本',
-    label: '残してきた活動記録',
-    note: '写真と短い言葉で積み重ねた記録',
+    term: '最新の報告',
+    description: latest
+      ? `${latest.name}（${formatDate(latest.reportedOn)} 付）`
+      : '',
   },
 ]
 
-// 年間の関わりのカテゴリ表示 (色だけに頼らずラベルでも区別する)
-const eventCategoryStyle: Record<string, string> = {
-  地域行事: 'bg-sky-soft text-primary-deep',
-  当会イベント: 'bg-accent-soft/50 text-accent-strong',
-  販売: 'bg-sunlight-soft text-primary-deep',
-}
-const defaultCategoryStyle = 'bg-primary-soft/20 text-primary-deep'
+// 設立からの累計 (概要に置く指標)
+const totals = [
+  {
+    label: '報告した事業年度',
+    value: String(total.years),
+    unit: '年度',
+    note: '設立から毎年度、総会へ報告',
+  },
+  {
+    label: '農作業の実施回数',
+    value: String(total.sessions),
+    unit: '回',
+    note: '遊休農地活用のボランティア農作業',
+  },
+  {
+    label: '延べ参加人数',
+    value: String(total.participants),
+    unit: '名',
+    note: '農作業に加わった人数の延べ',
+  },
+  {
+    label: '成果品の販売',
+    value: String(total.saleUnits),
+    unit: '点',
+    note: `売上高 ${formatYen(total.saleAmount)}`,
+  },
+]
 
-const activityKindStyle: Record<string, string> = {
+// 区分バッジ (色だけに頼らずラベルでも区別する)
+const workKindStyle: Record<string, string> = {
+  farmwork: 'bg-primary-soft/20 text-primary-deep',
   hosted: 'bg-accent-strong text-white',
   joined: 'bg-primary-deep text-white',
 }
+
+const tableWrap =
+  'overflow-x-auto rounded-2xl border border-primary/10 bg-surface'
+const tableBase = 'w-full border-collapse text-left text-sm'
+const th = 'px-4 py-3 font-medium whitespace-nowrap'
+const td = 'px-4 py-3 align-top text-left'
+const tdNum = 'px-4 py-3 text-right align-top tabular-nums whitespace-nowrap'
 ---
 
 <BaseLayout
   title="活動成果"
-  description="一般社団法人遠山郷応援会のこれまでの活動成果。守っている耕作地と耕作面積、イベントの実施・参加の記録、そして畑から生まれた成果品をご紹介します。"
+  description="一般社団法人遠山郷応援会の活動成果。事業年度ごとの農作業の実施状況・延べ参加人数、地域行事への参加、成果品の販売状況を事業報告としてまとめています。"
   image={farmImage}
   imageAlt="遠山郷の畑と山並み"
 >
-  <!-- ヒーロー: 「畑と地域に何を残してきたか」というページの主旨を先に言い切る -->
-  <section
-    class="relative overflow-hidden bg-gradient-to-b from-sunlight-soft/50 via-base to-base px-4 pt-12 pb-10 text-center sm:pt-16"
-  >
-    <span
-      class="mx-auto mb-4 flex w-fit items-center rounded-full bg-primary-deep px-4 py-1 font-serif text-sm tracking-wide text-white"
-    >
-      活動成果
-    </span>
-    <h1
-      class="font-serif text-3xl font-medium leading-snug text-primary md:text-4xl"
-    >
-      畑と地域に、積み重ねてきたこと
-    </h1>
-    <p
-      class="mx-auto mt-5 max-w-2xl text-left leading-loose text-body sm:text-center"
-    >
-      {START_YEAR} 年に下栗の里の畑へ通い始め、{
-        INCORPORATED
-      }に一般社団法人となりました。守り続けてきた耕作地、地域の行事への関わり、そして畑から生まれた成果品——これまでに積み重ねてきたことをまとめます。
-    </p>
-    <div class="mx-auto mt-8 w-full max-w-3xl">
-      <BlurImage
-        src={farmImage}
-        alt="遠山郷の急斜面に広がる畑と山並み"
-        loading="eager"
-        fetchpriority="high"
-        fade={false}
-        sizes="(min-width: 768px) 768px, 100vw"
-        class="aspect-video w-full overflow-hidden rounded-3xl shadow-lg ring-1 ring-primary/10"
-        imgClass="h-full! w-full object-cover"
-      />
-    </div>
+  <!-- 表紙: 報告書に倣い、標題と報告主体・対象期間を先に示す -->
+  <section class="bg-gradient-to-b from-sunlight-soft/40 via-base to-base">
+    <Container size="wide" class="pt-12 pb-10 md:pt-16">
+      <p
+        class="mb-4 flex w-fit items-center rounded-full bg-primary-deep px-4 py-1 font-serif text-sm tracking-wide text-white"
+      >
+        事業報告
+      </p>
+      <h1
+        class="font-serif text-3xl font-medium leading-snug text-primary md:text-4xl"
+      >
+        活動成果
+      </h1>
+      <span class="mt-3 block h-1 w-16 rounded-full bg-sunlight"></span>
+      <p class="mt-6 max-w-3xl leading-loose text-body">
+        一般社団法人遠山郷応援会が各事業年度に行った活動と、その成果を報告します。掲載する内容は、総会に提出した事業報告書および事業報告附属明細書に基づくものです。
+      </p>
+
+      <div class="mt-8 grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+        <Card class="px-6 py-6">
+          <dl class="divide-y divide-primary/10 text-sm">
+            {
+              documentMeta.map((item) => (
+                <div class="flex flex-wrap gap-x-4 gap-y-1 py-2.5 first:pt-0 last:pb-0">
+                  <dt class="w-28 shrink-0 font-medium text-primary-deep">
+                    {item.term}
+                  </dt>
+                  <dd class="text-left text-body">{item.description}</dd>
+                </div>
+              ))
+            }
+          </dl>
+        </Card>
+        <BlurImage
+          src={farmImage}
+          alt="遠山郷の急斜面に広がる畑と山並み"
+          loading="eager"
+          fetchpriority="high"
+          fade={false}
+          sizes="(min-width: 1024px) 576px, 100vw"
+          class="aspect-[16/10] w-full overflow-hidden rounded-3xl shadow-sm ring-1 ring-primary/10"
+          imgClass="h-full! w-full object-cover"
+        />
+      </div>
+    </Container>
   </section>
 
   <Container size="wide" class="py-12 md:py-16">
-    <!-- 数字で見る活動: データから数えた実数だけを並べる -->
-    <section class="mb-14">
-      <SectionHeading as="h2" align="left" class="mb-6"
-        >数字で見る活動</SectionHeading
-      >
-      <dl class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+    <!-- 1. 概要: 法人化前は経緯として一言触れるにとどめ、設立後の累計を示す -->
+    <section class="mb-16">
+      <SectionHeading as="h2" align="left" class="mb-4">1. 概要</SectionHeading>
+      <div class="max-w-3xl space-y-4 leading-loose text-body">
+        <p>
+          当法人は{
+            INCORPORATED
+          }に設立され、任意団体である下栗応援サークルが行っていた、ボランティアによる遊休農地活用の農作業および成果品の販売事業を引き継ぎました。法人化前の経緯は<a
+            href="/story"
+            class="font-medium text-accent-strong underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+            >遠山郷との始まり</a
+          >でご紹介しています。本報告では、設立以降の活動を対象とします。
+        </p>
+        <p>
+          設立から{total.years}事業年度で積み重ねた実績は、次のとおりです。
+        </p>
+      </div>
+      <dl class="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {
-          stats.map((stat) => (
+          totals.map((item) => (
             <div>
               <Card class="flex h-full flex-col gap-1 border-t-4 border-t-sunlight px-6 py-6">
-                <dt class="text-sm font-medium text-body/80">{stat.label}</dt>
+                <dt class="text-sm font-medium text-body/80">{item.label}</dt>
                 <dd class="font-serif text-primary">
-                  <span class="text-4xl font-medium">{stat.value}</span>
-                  <span class="ml-1 text-lg">{stat.unit}</span>
+                  <span class="text-4xl font-medium tabular-nums">
+                    {item.value}
+                  </span>
+                  <span class="ml-1 text-lg">{item.unit}</span>
                 </dd>
-                {stat.note && (
-                  <p class="text-sm leading-relaxed text-body/70">
-                    {stat.note}
-                  </p>
-                )}
+                <p class="text-left text-sm leading-relaxed text-body/70">
+                  {item.note}
+                </p>
               </Card>
             </div>
           ))
@@ -197,209 +246,306 @@ const activityKindStyle: Record<string, string> = {
       </dl>
     </section>
 
-    <!-- 耕作地: 守っている畑そのものが最大の成果。面積は確定ぶんだけ出す -->
-    <section class="mb-14">
+    <!-- 2. 事業年度ごとの報告: 概況 → 指標 → 実施状況 → 販売状況 の順で年度別に並べる -->
+    <section class="mb-16">
       <SectionHeading as="h2" align="left" class="mb-4"
-        >守っている耕作地</SectionHeading
+        >2. 事業年度ごとの報告</SectionHeading
       >
-      <p class="mb-6 max-w-3xl leading-loose text-body">
-        遠山郷の畑は、耕されなくなれば数年で野山に戻ってしまいます。私たちが最も大切にしているのは、この農地と景観を耕し続けて残すこと。現在は{
-          fields.length
-        }か所の畑に、季節ごとに通っています。
+      <p class="mb-8 max-w-3xl leading-loose text-body">
+        新しい事業年度から順に掲載します。実施回数・延べ参加人数は、事業報告附属明細書の実施状況から数えたものです。
       </p>
-      <ul class="grid gap-6 md:grid-cols-3">
+
+      <div class="space-y-12">
         {
-          fieldCards.map((field) => (
-            <li class="sm:flex">
-              <Card as="article" hover class="flex w-full flex-col">
-                <div class="border-b border-primary/10 bg-primary-soft/10 px-6 py-5">
-                  <h3 class="font-serif text-xl font-medium text-primary">
-                    {field.name}
+          reportSections.map((report) => (
+            <article>
+              <header class="border-b border-primary/15 pb-4">
+                <div class="flex flex-wrap items-baseline gap-x-4 gap-y-1">
+                  <h3 class="font-serif text-2xl font-medium text-primary">
+                    {report.name}
                   </h3>
-                  <p class="mt-1 text-sm text-body/80">{field.location}</p>
+                  <p class="text-sm text-body/80">
+                    <time datetime={report.startDate.toISOString()}>
+                      {formatDate(report.startDate)}
+                    </time>
+                    <span> 〜 </span>
+                    <time datetime={report.endDate.toISOString()}>
+                      {formatDate(report.endDate)}
+                    </time>
+                  </p>
                 </div>
-                <div class="flex grow flex-col gap-4 px-6 py-6">
-                  <dl class="space-y-2 text-sm">
-                    <div class="flex gap-2">
-                      <dt class="shrink-0 font-medium text-primary-deep">
-                        耕作面積
-                      </dt>
-                      <dd class="text-body">
-                        {field.area ? formatArea(field.area) : '確認中'}
-                      </dd>
-                    </div>
-                    {field.since && (
-                      <div class="flex gap-2">
-                        <dt class="shrink-0 font-medium text-primary-deep">
-                          関わり始め
-                        </dt>
-                        <dd class="text-body">{field.since} 年から</dd>
-                      </div>
-                    )}
-                    <div class="flex gap-2">
-                      <dt class="shrink-0 font-medium text-primary-deep">
-                        育てているもの
-                      </dt>
-                      <dd class="flex flex-wrap gap-1.5">
-                        {field.cropList.map((crop) => (
+                <p class="mt-1 text-sm text-body/70">
+                  事業報告書 {formatDate(report.reportedOn)} 付
+                </p>
+              </header>
+
+              {report.summary.length > 0 && (
+                <div class="mt-5 max-w-3xl space-y-3 leading-loose text-body">
+                  {report.summary.map((paragraph) => (
+                    <p>{paragraph}</p>
+                  ))}
+                </div>
+              )}
+
+              <dl class="mt-6 grid gap-3 sm:grid-cols-3">
+                <div class="rounded-2xl border border-primary/10 bg-surface px-5 py-4">
+                  <dt class="text-sm text-body/80">農作業の実施回数</dt>
+                  <dd class="font-serif text-primary">
+                    <span class="text-2xl font-medium tabular-nums">
+                      {report.farmWork.sessions}
+                    </span>
+                    <span class="ml-1 text-sm">回</span>
+                  </dd>
+                </div>
+                <div class="rounded-2xl border border-primary/10 bg-surface px-5 py-4">
+                  <dt class="text-sm text-body/80">延べ参加人数</dt>
+                  <dd class="font-serif text-primary">
+                    <span class="text-2xl font-medium tabular-nums">
+                      {report.farmWork.participants}
+                    </span>
+                    <span class="ml-1 text-sm">名</span>
+                  </dd>
+                </div>
+                <div class="rounded-2xl border border-primary/10 bg-surface px-5 py-4">
+                  <dt class="text-sm text-body/80">成果品の販売</dt>
+                  <dd class="font-serif text-primary">
+                    <span class="text-2xl font-medium tabular-nums">
+                      {report.saleTotal.units}
+                    </span>
+                    <span class="ml-1 text-sm">
+                      点／{formatYen(report.saleTotal.amount)}
+                    </span>
+                  </dd>
+                </div>
+              </dl>
+
+              <h4 class="mt-8 mb-3 font-serif text-lg font-medium text-primary-deep">
+                実施状況
+              </h4>
+              <div class={tableWrap}>
+                <table class={`${tableBase} min-w-[40rem]`}>
+                  <caption class="sr-only">
+                    {report.name}
+                    の活動実施状況（実施日・区分・活動内容・活動場所・参加人数）
+                  </caption>
+                  <thead class="bg-primary-soft/10 text-primary-deep">
+                    <tr>
+                      <th scope="col" class={th}>
+                        実施日
+                      </th>
+                      <th scope="col" class={th}>
+                        区分
+                      </th>
+                      <th scope="col" class={th}>
+                        活動内容
+                      </th>
+                      <th scope="col" class={th}>
+                        活動場所
+                      </th>
+                      <th scope="col" class={`${th} text-right`}>
+                        参加人数
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody class="divide-y divide-primary/10">
+                    {report.works.map((item) => (
+                      <tr>
+                        <td class={`${td} whitespace-nowrap`}>
+                          <time datetime={item.date.toISOString()}>
+                            {formatDate(item.date)}
+                          </time>
+                        </td>
+                        <td class={td}>
                           <span
-                            class="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs text-primary-deep"
-                            style={`background-color: color-mix(in srgb, ${crop.color} 16%, transparent)`}
+                            class:list={[
+                              'inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium whitespace-nowrap',
+                              workKindStyle[item.kind],
+                            ]}
                           >
-                            {crop.emoji && (
-                              <span aria-hidden="true">{crop.emoji}</span>
-                            )}
-                            {crop.name}
+                            {WORK_KIND_LABEL[item.kind]}
                           </span>
+                        </td>
+                        <td class={`${td} text-body`}>{item.name}</td>
+                        <td class={`${td} text-body/80`}>{item.place}</td>
+                        <td class={tdNum}>
+                          {item.participants ? `${item.participants} 名` : '—'}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                  <tfoot class="border-t-2 border-primary/15 bg-primary-soft/5 font-medium text-primary-deep">
+                    <tr>
+                      <td class={td} colspan="4">
+                        農作業 計
+                      </td>
+                      <td class={tdNum}>
+                        {report.farmWork.sessions} 回／延べ{' '}
+                        {report.farmWork.participants} 名
+                      </td>
+                    </tr>
+                  </tfoot>
+                </table>
+              </div>
+              <p class="mt-3 text-left text-sm leading-relaxed text-body/70">
+                ※「農作業
+                計」は、遊休農地活用のボランティア農作業のみを集計したものです
+                {report.events.length > 0 &&
+                  `（${report.events.map((event) => event.name).join('・')}は含みません）`}
+                。参加人数が把握できていないものは「—」と表示しています。
+              </p>
+
+              {report.sales.length > 0 && (
+                <>
+                  <h4 class="mt-8 mb-3 font-serif text-lg font-medium text-primary-deep">
+                    成果品の販売状況
+                  </h4>
+                  <div class={tableWrap}>
+                    <table class={`${tableBase} min-w-[34rem]`}>
+                      <caption class="sr-only">
+                        {report.name}
+                        の成果品販売状況（品目・販売経路・販売点数・平均単価・売上高）
+                      </caption>
+                      <thead class="bg-primary-soft/10 text-primary-deep">
+                        <tr>
+                          <th scope="col" class={th}>
+                            品目
+                          </th>
+                          <th scope="col" class={th}>
+                            販売経路
+                          </th>
+                          <th scope="col" class={`${th} text-right`}>
+                            販売点数
+                          </th>
+                          <th scope="col" class={`${th} text-right`}>
+                            平均単価
+                          </th>
+                          <th scope="col" class={`${th} text-right`}>
+                            売上高
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody class="divide-y divide-primary/10">
+                        {report.sales.map((sale) => (
+                          <tr>
+                            <td class={`${td} whitespace-nowrap text-body`}>
+                              {sale.item}
+                            </td>
+                            <td class={`${td} text-body/80`}>{sale.channel}</td>
+                            <td class={tdNum}>{sale.units} 点</td>
+                            <td class={tdNum}>
+                              {formatYen(averageUnitPrice(sale))}
+                            </td>
+                            <td class={tdNum}>{formatYen(sale.amount)}</td>
+                          </tr>
                         ))}
-                      </dd>
-                    </div>
-                  </dl>
-                  {field.note && (
-                    <p class="mt-auto leading-loose text-body">{field.note}</p>
-                  )}
-                </div>
-              </Card>
-            </li>
+                      </tbody>
+                      <tfoot class="border-t-2 border-primary/15 bg-primary-soft/5 font-medium text-primary-deep">
+                        <tr>
+                          <td class={td} colspan="2">
+                            合計
+                          </td>
+                          <td class={tdNum}>{report.saleTotal.units} 点</td>
+                          <td class={tdNum}>—</td>
+                          <td class={tdNum}>
+                            {formatYen(report.saleTotal.amount)}
+                          </td>
+                        </tr>
+                      </tfoot>
+                    </table>
+                  </div>
+                </>
+              )}
+            </article>
           ))
         }
-      </ul>
-      <p class="mt-6 text-sm leading-relaxed text-body/80">
-        {
-          fieldsWithArea === 0
-            ? '※ 耕作面積は、急傾斜地で区画が入り組むため実測を進めているところです。確定したものから順に掲載します。'
-            : `※ 耕作面積は実測・申告で確定した ${fieldsWithArea} か所ぶんを掲載しています。残りは確認でき次第追記します。`
-        }
+      </div>
+    </section>
+
+    <!-- 3. 活動場所: 報告書の活動場所位置図に対応する畑。面積は確定ぶんだけ出す -->
+    <section class="mb-16">
+      <SectionHeading as="h2" align="left" class="mb-4"
+        >3. 活動場所</SectionHeading
+      >
+      <p class="mb-6 max-w-3xl leading-loose text-body">
+        遠山郷の畑は、耕されなくなれば数年で野山に戻ってしまいます。農地と景観を耕し続けて残すことが活動の根幹であり、現在は次の{
+          fields.length
+        }か所の畑に季節ごとに通っています。
       </p>
+      <div class={tableWrap}>
+        <table class={`${tableBase} min-w-[36rem]`}>
+          <caption class="sr-only">
+            活動場所の一覧（名称・所在・育てているもの・耕作面積）
+          </caption>
+          <thead class="bg-primary-soft/10 text-primary-deep">
+            <tr>
+              <th scope="col" class={th}>活動場所</th>
+              <th scope="col" class={th}>所在</th>
+              <th scope="col" class={th}>育てているもの</th>
+              <th scope="col" class={th}>耕作面積</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-primary/10">
+            {
+              fieldRows.map((field) => (
+                <tr>
+                  <th
+                    scope="row"
+                    class={`${td} font-serif text-base font-medium whitespace-nowrap text-primary`}
+                  >
+                    {field.name}
+                  </th>
+                  <td class={`${td} text-body/80`}>{field.location}</td>
+                  <td class={td}>
+                    <span class="flex flex-wrap gap-1.5">
+                      {field.cropList.map((crop) => (
+                        <span
+                          class="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs whitespace-nowrap text-primary-deep"
+                          style={`background-color: color-mix(in srgb, ${crop.color} 16%, transparent)`}
+                        >
+                          {crop.emoji && (
+                            <span aria-hidden="true">{crop.emoji}</span>
+                          )}
+                          {crop.name}
+                        </span>
+                      ))}
+                    </span>
+                  </td>
+                  <td class={`${td} whitespace-nowrap text-body`}>
+                    {field.area ? formatArea(field.area) : '確認中'}
+                  </td>
+                </tr>
+              ))
+            }
+          </tbody>
+        </table>
+      </div>
+      <ul
+        class="mt-4 space-y-1.5 text-left text-sm leading-relaxed text-body/70"
+      >
+        <li>
+          {
+            fieldsWithArea === 0
+              ? '※ 耕作面積は、急傾斜地で区画が入り組むため実測を進めているところです。確定したものから順に掲載します。'
+              : `※ 耕作面積は実測・申告で確定した ${fieldsWithArea} か所ぶん${knownArea ? `（計 ${formatArea(knownArea)}）` : ''}を掲載しています。残りは確認でき次第追記します。`
+          }
+        </li>
+        <li>
+          ※
+          このほか、脱穀・包装などの収穫後の作業は、天耕の家付近・農業倉庫前および相模原事務所で行っています。
+        </li>
+      </ul>
       <div class="mt-6 flex flex-wrap gap-3">
         <Button href="/calendar" variant="outline">畑の一年を見る</Button>
       </div>
     </section>
 
-    <!-- イベント: 年間の関わり (毎年めぐってくるもの) と、実施・参加の記録 (特定日) -->
-    <section class="mb-14">
+    <!-- 4. 成果品: 法人全体の成果の「一部」として、詳細ページとショップへ送る -->
+    <section class="mb-16">
       <SectionHeading as="h2" align="left" class="mb-4"
-        >イベントの実施と参加</SectionHeading
+        >4. 成果品について</SectionHeading
       >
       <p class="mb-6 max-w-3xl leading-loose text-body">
-        畑を耕すだけでは、地域とはつながれません。当会で企画する催しを開くとともに、地域が受け継いできた行事にも加えていただき、人と文化を知る時間を重ねてきました。
-      </p>
-
-      <h3 class="mb-3 font-serif text-lg font-medium text-primary-deep">
-        年間を通じた関わり
-      </h3>
-      <ul class="mb-10 grid gap-3 sm:grid-cols-2">
-        {
-          annualEvents.map((event) => (
-            <li>
-              <Card class="flex h-full flex-col gap-2 px-5 py-5">
-                <div class="flex flex-wrap items-center gap-2">
-                  <span
-                    class:list={[
-                      'inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium',
-                      eventCategoryStyle[event.category] ??
-                        defaultCategoryStyle,
-                    ]}
-                  >
-                    {event.category}
-                  </span>
-                  <span class="font-serif font-medium text-primary">
-                    {event.name}
-                  </span>
-                </div>
-                <p class="text-sm text-body/80">
-                  {formatPeriod(event.start, event.end)}
-                  {event.location && <span> ／ {event.location}</span>}
-                </p>
-                {event.note && (
-                  <p class="leading-loose text-body">{event.note}</p>
-                )}
-              </Card>
-            </li>
-          ))
-        }
-      </ul>
-
-      <h3 class="mb-3 font-serif text-lg font-medium text-primary-deep">
-        実施・参加の記録
-      </h3>
-      <p class="mb-5 text-sm leading-relaxed text-body/80">
-        {`これまでに ${activities.length} 件を記録しています`}{
-          activityBreakdown && `（${activityBreakdown}）`
-        }。掲載しているのは、記録に残っている分の抜粋です。
-      </p>
-      <div class="space-y-8">
-        {
-          activityYears.map((group) => (
-            <section aria-label={`${group.year}年の記録`}>
-              <h4 class="mb-3 flex items-center gap-3 font-serif text-primary">
-                <span class="text-2xl font-medium">{group.year}</span>
-                <span class="h-px grow bg-primary/15" aria-hidden="true" />
-              </h4>
-              <ul class="space-y-3">
-                {group.items.map((activity) => (
-                  <li>
-                    <Card class="flex flex-col gap-2 border-l-4 border-l-primary-soft px-5 py-5">
-                      <div class="flex flex-wrap items-center gap-2">
-                        <span
-                          class:list={[
-                            'inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium',
-                            activityKindStyle[activity.kind],
-                          ]}
-                        >
-                          {ACTIVITY_KIND_LABEL[activity.kind]}
-                        </span>
-                        <span class="font-serif text-lg font-medium text-primary">
-                          {activity.name}
-                        </span>
-                      </div>
-                      <p class="text-sm text-body/80">
-                        <time datetime={activity.date.toISOString()}>
-                          {formatActivityDate(activity.date)}
-                        </time>
-                        {activity.location && (
-                          <span> ／ {activity.location}</span>
-                        )}
-                        {activity.organizer && (
-                          <span> ／ {activity.organizer}主催</span>
-                        )}
-                        {activity.participants && (
-                          <span> ／ 延べ {activity.participants} 名</span>
-                        )}
-                      </p>
-                      {activity.note && (
-                        <p class="leading-loose text-body">{activity.note}</p>
-                      )}
-                      {activity.url && (
-                        <a
-                          href={activity.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          class="text-sm font-medium text-accent-strong underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
-                        >
-                          関連リンク
-                        </a>
-                      )}
-                    </Card>
-                  </li>
-                ))}
-              </ul>
-            </section>
-          ))
-        }
-      </div>
-      <div class="mt-6 flex flex-wrap gap-3">
-        <Button href="/news" variant="outline">活動記録を読む</Button>
-      </div>
-    </section>
-
-    <!-- 成果品: 活動成果の「一部」として、ダイジェスト＋詳細ページとショップへ送る -->
-    <section class="mb-14">
-      <SectionHeading as="h2" align="left" class="mb-4"
-        >畑から生まれた成果品</SectionHeading
-      >
-      <p class="mb-6 max-w-3xl leading-loose text-body">
-        作物を売るために畑を耕しているわけではありませんが、畑仕事を続ければ実りもついてきます。量は多くありませんが、どれもこの土地ならではの味わい。採れたぶんをお分けすることが、耕作地を守り、活動を続けていく力になります。
+        作物を売るために畑を耕しているわけではありませんが、畑仕事を続ければ実りもついてきます。収穫した茶はみなみ信州農業協同組合南信濃支所へ製茶を委託し、通信販売と直接販売によりお分けしています。採れたぶんをお分けすることが、耕作地を守り、活動を続けていく力になります。
       </p>
       <ul class="mb-6 grid gap-4 sm:grid-cols-2">
         {
@@ -419,10 +565,10 @@ const activityKindStyle: Record<string, string> = {
                   <h3 class="font-serif text-lg font-medium text-primary">
                     {product.name}
                   </h3>
-                  <p class="mt-1 text-sm leading-relaxed text-body/80">
+                  <p class="mt-1 text-left text-sm leading-relaxed text-body/80">
                     {product.tagline}
                   </p>
-                  <p class="mt-2 text-sm text-body">
+                  <p class="mt-2 text-left text-sm text-body">
                     {product.makes.map((make) => make.label).join('／')}
                   </p>
                 </div>
@@ -437,15 +583,43 @@ const activityKindStyle: Record<string, string> = {
       </div>
     </section>
 
-    <!-- 次の一歩: 成果は参加してくれた人の時間の積み重ね、という締め -->
+    <!-- 5. 附記: 出典と、関連する記録・資料への導線 -->
+    <section class="mb-16">
+      <SectionHeading as="h2" align="left" class="mb-4">5. 附記</SectionHeading>
+      <ul
+        class="max-w-3xl list-disc space-y-2 pl-5 text-left leading-loose text-body marker:text-primary-soft"
+      >
+        <li>
+          本ページの内容は、総会に提出した事業報告書および事業報告附属明細書に基づきます。数値は明細から集計しており、四捨五入の都合で内訳と合計が一致しない場合があります。
+        </li>
+        <li>
+          一日ごとの様子や写真は<a
+            href="/news"
+            class="font-medium text-accent-strong underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+            >活動記録</a
+          >に掲載しています。
+        </li>
+        <li>
+          法令に基づく公告は<a
+            href="/public_notices"
+            class="font-medium text-accent-strong underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+            >公告</a
+          >のページに掲載します。
+        </li>
+      </ul>
+    </section>
+
+    <!-- 次の一歩: 成果は参加した人の時間の積み重ね、という締め -->
     <section
       class="rounded-3xl border border-primary/10 bg-gradient-to-br from-sunlight-soft/60 to-surface px-6 py-10 text-center md:px-12"
     >
       <SectionHeading as="h2" align="center" class="mb-4"
         >この続きを、一緒に</SectionHeading
       >
-      <p class="mx-auto max-w-xl leading-loose text-body">
-        ここに並べた成果は、畑に集まったいろいろな人が過ごした時間の積み重ねです。次の一年ぶんを増やすのは、これから加わる人の一日。まずは一日、活動に加わってみませんか。
+      <p
+        class="mx-auto max-w-xl text-left leading-loose text-body sm:text-center"
+      >
+        ここに並べた数字は、畑に集まったいろいろな人が過ごした時間の積み重ねです。次の一年ぶんを増やすのは、これから加わる人の一日。まずは一日、活動に加わってみませんか。
       </p>
       <div class="mt-8 flex flex-wrap justify-center gap-3">
         <Button href="/join">はじめての方へ</Button>

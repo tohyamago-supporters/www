@@ -4,32 +4,56 @@ import {
   totalFieldArea,
   countFieldsWithArea,
   formatArea,
-  countAnnualTasks,
-  yearsOfActivity,
-  sortActivities,
-  groupActivitiesByYear,
-  countActivitiesByKind,
-  summarizeActivityKinds,
-  formatActivityDate,
-  ACTIVITY_KIND_LABEL,
+  formatYen,
+  formatDate,
+  sortReports,
+  sortWorks,
+  summarizeFarmWork,
+  selectEvents,
+  summarizeSales,
+  averageUnitPrice,
+  summarizeReports,
+  WORK_KIND_LABEL,
   type FieldRecord,
-  type ActivityRecord,
+  type WorkRecord,
+  type SaleRecord,
+  type ReportRecord,
 } from './achievementStats'
 
 const field = (over: Partial<FieldRecord> = {}): FieldRecord => ({
   id: 'f',
   name: '畑',
-  location: '下栗の里',
+  location: '下栗',
   order: 0,
   crops: [],
   ...over,
 })
 
-const activity = (over: Partial<ActivityRecord> = {}): ActivityRecord => ({
-  id: 'a',
-  name: '行事',
-  date: new Date('2025-01-01T00:00:00Z'),
-  kind: 'joined',
+const work = (over: Partial<WorkRecord> = {}): WorkRecord => ({
+  date: new Date('2025-11-02T00:00:00Z'),
+  name: '大豆収穫作業',
+  place: '突当り付近',
+  kind: 'farmwork',
+  ...over,
+})
+
+const sale = (over: Partial<SaleRecord> = {}): SaleRecord => ({
+  item: '茶',
+  channel: 'BASE',
+  units: 10,
+  amount: 15400,
+  ...over,
+})
+
+const report = (over: Partial<ReportRecord> = {}): ReportRecord => ({
+  id: 'r',
+  name: '令和7年度',
+  startDate: new Date('2025-07-01T00:00:00Z'),
+  endDate: new Date('2026-06-30T00:00:00Z'),
+  reportedOn: new Date('2026-08-15T00:00:00Z'),
+  summary: [],
+  works: [],
+  sales: [],
   ...over,
 })
 
@@ -45,8 +69,8 @@ describe('sortFields', () => {
 
   it('order が同じなら名前順で安定させる', () => {
     const sorted = sortFields([
-      field({ id: 'z', name: '茶畑', order: 1 }),
-      field({ id: 'a', name: '大豆の畑', order: 1 }),
+      field({ id: 'z', name: 'わかば畑', order: 1 }),
+      field({ id: 'a', name: 'あかね畑', order: 1 }),
     ])
     expect(sorted.map((f) => f.id)).toEqual(['a', 'z'])
   })
@@ -92,124 +116,182 @@ describe('formatArea', () => {
   })
 })
 
-describe('countAnnualTasks', () => {
-  it('作物ごとの作業件数を合計する', () => {
-    expect(
-      countAnnualTasks([
-        { tasks: [1, 2, 3] },
-        { tasks: [] },
-        { tasks: [1, 2] },
-      ]),
-    ).toBe(5)
+describe('formatYen', () => {
+  it('3 桁区切りの金額にする', () => {
+    expect(formatYen(15400)).toBe('15,400 円')
+    expect(formatYen(0)).toBe('0 円')
   })
 })
 
-describe('yearsOfActivity', () => {
-  it('開始年を 1 年目として数える', () => {
-    expect(yearsOfActivity(2018, new Date('2018-08-11T00:00:00Z'))).toBe(1)
-    expect(yearsOfActivity(2018, new Date('2026-09-18T00:00:00Z'))).toBe(9)
-  })
-
-  it('開始年より前でも 1 を下回らない', () => {
-    expect(yearsOfActivity(2018, new Date('2017-01-01T00:00:00Z'))).toBe(1)
-  })
-})
-
-describe('sortActivities', () => {
-  it('新しい順に並べる', () => {
-    const sorted = sortActivities([
-      activity({ id: 'old', date: new Date('2018-12-13T00:00:00Z') }),
-      activity({ id: 'new', date: new Date('2026-03-16T00:00:00Z') }),
-      activity({ id: 'mid', date: new Date('2025-10-25T00:00:00Z') }),
-    ])
-    expect(sorted.map((a) => a.id)).toEqual(['new', 'mid', 'old'])
-  })
-
-  it('同じ日なら名前順で安定させる', () => {
-    const sameDay = new Date('2025-10-25T00:00:00Z')
-    const sorted = sortActivities([
-      activity({ id: 'z', name: 'もみじ狩り', date: sameDay }),
-      activity({ id: 'a', name: 'そば打ち体験', date: sameDay }),
-    ])
-    expect(sorted.map((a) => a.id)).toEqual(['a', 'z'])
-  })
-
-  it('入力配列を破壊しない', () => {
-    const input = [
-      activity({ id: 'old', date: new Date('2018-01-01T00:00:00Z') }),
-      activity({ id: 'new', date: new Date('2026-01-01T00:00:00Z') }),
-    ]
-    sortActivities(input)
-    expect(input.map((a) => a.id)).toEqual(['old', 'new'])
-  })
-})
-
-describe('groupActivitiesByYear', () => {
-  it('年ごとにまとめ、年も年内も新しい順にする', () => {
-    const groups = groupActivitiesByYear([
-      activity({ id: 'a', date: new Date('2025-03-01T00:00:00Z') }),
-      activity({ id: 'b', date: new Date('2026-03-16T00:00:00Z') }),
-      activity({ id: 'c', date: new Date('2025-10-25T00:00:00Z') }),
-    ])
-    expect(groups.map((g) => g.year)).toEqual([2026, 2025])
-    expect(groups[1].items.map((a) => a.id)).toEqual(['c', 'a'])
-  })
-
-  it('空配列なら空を返す', () => {
-    expect(groupActivitiesByYear([])).toEqual([])
-  })
-})
-
-describe('countActivitiesByKind', () => {
-  it('実施 / 参加の内訳を数える', () => {
-    expect(
-      countActivitiesByKind([
-        activity({ kind: 'hosted' }),
-        activity({ kind: 'joined' }),
-        activity({ kind: 'joined' }),
-      ]),
-    ).toEqual({ hosted: 1, joined: 2 })
-  })
-
-  it('空配列でも 0 埋めした内訳を返す', () => {
-    expect(countActivitiesByKind([])).toEqual({ hosted: 0, joined: 0 })
-  })
-})
-
-describe('summarizeActivityKinds', () => {
-  it('両方の種別があれば内訳を並べる', () => {
-    expect(summarizeActivityKinds({ hosted: 2, joined: 3 })).toBe(
-      '実施 2 件・参加 3 件',
-    )
-  })
-
-  it('片方しか無ければ空文字 (総数と重複するため)', () => {
-    expect(summarizeActivityKinds({ hosted: 0, joined: 3 })).toBe('')
-    expect(summarizeActivityKinds({ hosted: 0, joined: 0 })).toBe('')
-  })
-})
-
-describe('ACTIVITY_KIND_LABEL', () => {
-  it('色に頼らず語で区別できるラベルを持つ', () => {
-    expect(ACTIVITY_KIND_LABEL.hosted).toBe('実施')
-    expect(ACTIVITY_KIND_LABEL.joined).toBe('参加')
-  })
-})
-
-describe('formatActivityDate', () => {
+describe('formatDate', () => {
   it('YYYY年M月D日 に整形する (0 埋めしない)', () => {
-    expect(formatActivityDate(new Date('2025-10-25T00:00:00Z'))).toBe(
-      '2025年10月25日',
-    )
-    expect(formatActivityDate(new Date('2026-03-06T00:00:00Z'))).toBe(
-      '2026年3月6日',
-    )
+    expect(formatDate(new Date('2026-08-15T00:00:00Z'))).toBe('2026年8月15日')
+    expect(formatDate(new Date('2026-03-06T00:00:00Z'))).toBe('2026年3月6日')
   })
 
   it('UTC 基準で取り出す (実行タイムゾーンで日付がずれない)', () => {
     // ローカルが UTC+9 なら翌日になる時刻でも、UTC の日付を返す
-    expect(formatActivityDate(new Date('2025-10-25T23:30:00Z'))).toBe(
-      '2025年10月25日',
-    )
+    expect(formatDate(new Date('2025-10-25T23:30:00Z'))).toBe('2025年10月25日')
+  })
+})
+
+describe('sortReports', () => {
+  it('新しい事業年度から順に並べる', () => {
+    const sorted = sortReports([
+      report({ id: 'old', startDate: new Date('2024-10-01T00:00:00Z') }),
+      report({ id: 'new', startDate: new Date('2025-07-01T00:00:00Z') }),
+    ])
+    expect(sorted.map((r) => r.id)).toEqual(['new', 'old'])
+  })
+
+  it('入力配列を破壊しない', () => {
+    const input = [
+      report({ id: 'old', startDate: new Date('2024-10-01T00:00:00Z') }),
+      report({ id: 'new', startDate: new Date('2025-07-01T00:00:00Z') }),
+    ]
+    sortReports(input)
+    expect(input.map((r) => r.id)).toEqual(['old', 'new'])
+  })
+})
+
+describe('sortWorks', () => {
+  it('実施日の古い順に並べる (報告書の表と同じ並び)', () => {
+    const sorted = sortWorks([
+      work({ name: 'c', date: new Date('2026-01-17T00:00:00Z') }),
+      work({ name: 'a', date: new Date('2025-07-26T00:00:00Z') }),
+      work({ name: 'b', date: new Date('2025-10-04T00:00:00Z') }),
+    ])
+    expect(sorted.map((w) => w.name)).toEqual(['a', 'b', 'c'])
+  })
+
+  it('同じ日は入力順 (事業報告書の記載順) を保つ', () => {
+    const sameDay = new Date('2025-10-04T00:00:00Z')
+    const sorted = sortWorks([
+      work({ name: '茶畑除草作業', date: sameDay }),
+      work({ name: '下栗蕎麦収穫作業', date: sameDay }),
+    ])
+    expect(sorted.map((w) => w.name)).toEqual([
+      '茶畑除草作業',
+      '下栗蕎麦収穫作業',
+    ])
+  })
+
+  it('入力配列を破壊しない', () => {
+    const input = [
+      work({ name: 'b', date: new Date('2026-01-17T00:00:00Z') }),
+      work({ name: 'a', date: new Date('2025-07-26T00:00:00Z') }),
+    ]
+    sortWorks(input)
+    expect(input.map((w) => w.name)).toEqual(['b', 'a'])
+  })
+})
+
+describe('summarizeFarmWork', () => {
+  it('農作業の回数と延べ参加人数を数える', () => {
+    expect(
+      summarizeFarmWork([
+        work({ participants: 3 }),
+        work({ participants: 2 }),
+        work({ participants: 1 }),
+      ]),
+    ).toEqual({ sessions: 3, participants: 6 })
+  })
+
+  it('農作業以外 (地域行事参加・当会実施) は数えない', () => {
+    expect(
+      summarizeFarmWork([
+        work({ participants: 3 }),
+        work({ kind: 'joined', participants: 3 }),
+        work({ kind: 'hosted' }),
+      ]),
+    ).toEqual({ sessions: 1, participants: 3 })
+  })
+
+  it('参加人数が未記載の行は 0 として扱う', () => {
+    expect(summarizeFarmWork([work(), work({ participants: 2 })])).toEqual({
+      sessions: 2,
+      participants: 2,
+    })
+  })
+})
+
+describe('selectEvents', () => {
+  it('農作業以外の活動だけを取り出す', () => {
+    const events = selectEvents([
+      work({ name: '大豆収穫作業' }),
+      work({ name: 'もみじ狩り', kind: 'joined' }),
+      work({ name: '下栗蕎麦を食べる会', kind: 'hosted' }),
+    ])
+    expect(events.map((w) => w.name)).toEqual([
+      'もみじ狩り',
+      '下栗蕎麦を食べる会',
+    ])
+  })
+})
+
+describe('summarizeSales', () => {
+  it('販売点数と売上高を合計する', () => {
+    expect(summarizeSales([sale(), sale({ units: 3, amount: 5400 })])).toEqual({
+      units: 13,
+      amount: 20800,
+    })
+  })
+
+  it('販売実績が無ければ 0 を返す', () => {
+    expect(summarizeSales([])).toEqual({ units: 0, amount: 0 })
+  })
+})
+
+describe('averageUnitPrice', () => {
+  it('売上高を点数で割った平均単価を返す', () => {
+    expect(averageUnitPrice(sale())).toBe(1540)
+  })
+
+  it('端数は四捨五入する', () => {
+    expect(averageUnitPrice(sale({ units: 3, amount: 5000 }))).toBe(1667)
+  })
+})
+
+describe('summarizeReports', () => {
+  it('全事業年度の累計を積み上げる', () => {
+    expect(
+      summarizeReports([
+        report({
+          works: [work({ participants: 6 }), work({ participants: 3 })],
+          sales: [sale({ units: 10, amount: 13800 })],
+        }),
+        report({
+          works: [
+            work({ participants: 4 }),
+            work({ kind: 'joined', participants: 3 }),
+          ],
+          sales: [sale({ units: 3, amount: 5400 })],
+        }),
+      ]),
+    ).toEqual({
+      years: 2,
+      sessions: 3,
+      participants: 13,
+      saleUnits: 13,
+      saleAmount: 19200,
+    })
+  })
+
+  it('報告が無ければすべて 0 を返す', () => {
+    expect(summarizeReports([])).toEqual({
+      years: 0,
+      sessions: 0,
+      participants: 0,
+      saleUnits: 0,
+      saleAmount: 0,
+    })
+  })
+})
+
+describe('WORK_KIND_LABEL', () => {
+  it('色に頼らず語で区別できるラベルを持つ', () => {
+    expect(WORK_KIND_LABEL.farmwork).toBe('農作業')
+    expect(WORK_KIND_LABEL.hosted).toBe('当会実施')
+    expect(WORK_KIND_LABEL.joined).toBe('地域行事参加')
   })
 })
