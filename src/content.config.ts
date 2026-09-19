@@ -76,4 +76,40 @@ const events = defineCollection({
     }),
 })
 
-export const collections = { posts, crops, events }
+// 耕作地 (法人が守っている畑)。面積は実測・申告値が確定しているものだけ area に記載し、
+// 未確定のものは省略する (ページ側は未記載の面積を出さない = 推計値を表に出さない)。
+const fields = defineCollection({
+  loader: glob({ pattern: '**/*.yaml', base: './src/content/fields' }),
+  schema: z.object({
+    name: z.string(),
+    location: z.string(),
+    order: z.number().default(0),
+    /** 耕作面積 (㎡)。未確定なら省略する。 */
+    area: z.number().positive().optional(),
+    /** 関わり始めた年 (西暦)。 */
+    since: z.number().int().optional(),
+    /** crops コレクションの ID。名称・絵文字・色は crops を単一の情報源とする。 */
+    crops: z.array(z.string()).default([]),
+    note: z.string().optional(),
+  }),
+})
+
+// イベントの実施・参加の記録 (特定日の実績)。events (毎年循環する年間予定) とは別に、
+// 「いつ・何を・どう関わったか」を年表として残す。
+const activities = defineCollection({
+  loader: glob({ pattern: '**/*.yaml', base: './src/content/activities' }),
+  schema: z.object({
+    name: z.string(),
+    date: z.coerce.date(),
+    /** hosted=当会が実施 / joined=地域の行事へ参加 */
+    kind: z.enum(['hosted', 'joined']).default('joined'),
+    location: z.string().optional(),
+    organizer: z.string().optional(),
+    /** 参加人数 (延べ)。把握できているものだけ記載する。 */
+    participants: z.number().int().positive().optional(),
+    url: z.url().optional(),
+    note: z.string().optional(),
+  }),
+})
+
+export const collections = { posts, crops, events, fields, activities }

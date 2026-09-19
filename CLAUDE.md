@@ -63,7 +63,8 @@ tohyamago/
 │   │   ├── calendar.astro      # 農作業カレンダー
 │   │   ├── access.astro        # 交通案内 (経路・所要時間 + AccessMap 島)
 │   │   ├── eat-stay.astro      # 食べる・泊まる (周辺の食事処・宿。AccessMapCard を共有)
-│   │   ├── products.astro      # 成果品紹介 → shop
+│   │   ├── achievements.astro  # 活動成果 (耕作地・耕作面積 / イベント実施・参加 / 成果品ダイジェスト)
+│   │   ├── products.astro      # 成果品紹介 → shop (活動成果の一部)
 │   │   ├── support.astro       # 寄付案内 (口座振込。Stripe は Phase 4)
 │   │   ├── membership.astro    # 入会案内 (入会手続きは準備中 = Phase 5)
 │   │   ├── news.astro          # 活動記録一覧 (全記事をダイジェストカードで表示。トップは最新数件)
@@ -85,6 +86,8 @@ tohyamago/
 │   │   ├── homeTasks.ts        # トップ「今月の活動」抽出ロジック (crops から当月作業)
 │   │   ├── FarmCalendar.tsx    # 農作業ガントチャート (React island)
 │   │   ├── ProductCard.astro   # 成果品カード
+│   │   ├── productShowcase.ts  # 成果品ショーケースのデータと crops との突き合わせ (/achievements と /products で共有)
+│   │   ├── achievementStats.ts # 活動成果の集計 (耕作面積の合計・活動年数・イベント記録の年別まとめ)
 │   │   ├── Button.astro / ArrowIcon.astro / buttonArrow.ts  # CTA ボタンと末尾矢印
 │   │   ├── Card.astro / Container.astro / SectionHeading.astro  # 共通 UI プリミティブ
 │   │   ├── Posts.astro         # Content Collection からダイジェストカード一覧を描画 (ctaEvery で NewsCta を挿入)
@@ -101,12 +104,14 @@ tohyamago/
 │   │   ├── AccessMap.tsx / AccessMapCard.astro / accessData.ts / googleMaps.ts  # 交通案内の地図と共有データ
 │   │   ├── ComingSoon.astro    # 準備中ページの共通テンプレート
 │   │   └── PdfViewer.tsx       # PDF.js Express ラッパー (React, client:only)
-│   ├── content.config.ts       # Content Collection スキーマ (posts / crops / events)
+│   ├── content.config.ts       # Content Collection スキーマ (posts / crops / events / fields / activities)
 │   ├── buildEnv.ts             # ビルド時変数を本番/プレビューで出し分ける純粋関数 (astro.config.mjs が利用)
 │   ├── content/
 │   │   ├── posts/              # 記事 (Markdown) と添付画像
 │   │   ├── crops/              # 農作業カレンダーの作物・作業データ (YAML)
-│   │   └── events/             # 地域イベントデータ (YAML)
+│   │   ├── events/             # 地域イベントデータ (YAML)
+│   │   ├── fields/             # 耕作地データ (YAML。名称・所在・耕作面積・作物)
+│   │   └── activities/         # イベント実施・参加の記録 (YAML。特定日の実績)
 │   ├── assets/                 # Astro が処理する画像・PDF (farm.jpg / mounts.jpg / articles.pdf 等)
 │   ├── types/                  # 型定義の補完 (例: pdfjs-express-viewer.d.ts)
 │   └── styles/global.css       # Tailwind の import・@theme トークン・body スタイル
@@ -127,6 +132,7 @@ tohyamago/
 - **`/public_notices` の URL は法人登記に記載されているため変更禁止**（最重要制約）。
 - グローバルナビ（ジャーナリー導線）は `SiteHeader.astro`、法令系文書（定款 / 公告 / 特商法表記）と法人概要は `SiteFooter.astro`。旧フローティング `RouterMenu` は廃止済み。ナビ項目・CTA は `SiteHeader.astro` の `groups` / `ctas` 定義を単一の情報源とする。
 - ナビの表記ゆれに注意: `/story` はナビ上「遠山郷との始まり」、`/news` は「活動記録」。
+- ナビの「活動成果」章は **法人全体の成果が主**。表紙が `/achievements`（耕作地・イベント実施/参加・成果品ダイジェスト）で、`/products` とオンラインショップはその一部として下に並べる。成果品だけを章の顔にしない。
 
 ### 活動記録 (/news) の描画
 
@@ -186,6 +192,44 @@ note: 国指定重要無形民俗文化財。# 任意
 
 - `FarmCalendar.tsx`（React island, `client:load`）が描画。データは `calendar.astro`（`getCollection('crops'|'events')`）から props で渡す。レイアウトは CSS Grid（36 列）、バーは `grid-column: start / end` でスパン、色は作物の `color`。当月ハイライト・バー展開などのインタラクションを担う。
 - アクセシビリティ: 色だけに依存しない（ラベル・凡例・`aria`）。表形式の意味を保持する。
+
+### 活動成果 データ (fields / activities)
+
+`/achievements`（活動成果）は **法人全体の成果が主**のページ。数字は原則としてコンテンツコレクションから数える（手打ちすると実態とずれるため）。表示ロジックは `achievementStats.ts` に純粋関数として分離し Vitest で検証する。
+
+`src/content/fields/<id>.yaml`（耕作地 1 件＝1 ファイル）:
+
+```yaml
+name: 下栗の畑
+location: 飯田市上村 下栗の里
+order: 1 # 表示順
+area: 300 # 耕作面積 (㎡)。任意。未確定なら省略する
+since: 2018 # 関わり始めた年。任意
+crops: # crops コレクションの ID (名称・絵文字・色は crops が単一の情報源)
+  - shimoguri-imo
+  - shimoguri-soba
+note: 標高 1,000m 前後の急傾斜地に石垣を積んで拓かれた畑。 # 任意
+```
+
+- **`area` は実測・申告で確定した値だけを書く**。未記載の耕作地はページ上「確認中」と表示し、合計にも含めない（推計値を成果として出さない）。表示は `formatArea`（100 ㎡ 以上はアール併記。1a = 100 ㎡）。
+- `crops` の ID が `crops` コレクションに無い場合は **ビルド時に即エラー**にする（畑の中身が静かに消えるのを防ぐ）。
+
+`src/content/activities/<id>.yaml`（イベントの実施・参加の記録 1 件＝1 ファイル）:
+
+```yaml
+name: もみじ狩り
+date: 2025-10-25 # 特定日 (events の「毎年循環する年間予定」とは別物)
+kind: joined # hosted=当会が実施 / joined=地域の行事へ参加 (既定 joined)
+location: 下栗の里（旧分校体育館） # 任意
+organizer: 下栗自治会 # 任意
+participants: 12 # 延べ参加人数。把握できているものだけ。任意
+url: https://example.com # 任意
+note: 地域内外から大勢が集まり賑わいました。 # 任意
+```
+
+- `events`（毎年めぐってくる行事・販売の年間予定）と `activities`（特定日の実績）は **役割が別**。ページは前者を「年間を通じた関わり」、後者を「実施・参加の記録」（年別）として並べる。
+- 日付は `postDate` / `postArchive` と同じく **UTC 基準**で取り出す（SSG の実行タイムゾーンで日付がずれないようにする）。
+- 成果品のショーケース文面は `productShowcase.ts`（`PRODUCT_SHOWCASE` / `resolveProducts`）に置き、`/achievements` のダイジェストと `/products` の詳細で共有する。
 
 ## 外部リンク
 
