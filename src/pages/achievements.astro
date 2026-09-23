@@ -33,22 +33,6 @@ const crops = (await getCollection('crops')).map((entry) => ({
   ...entry.data,
 }))
 const products = resolveProducts(PRODUCT_SHOWCASE, crops)
-
-// 交流の生まれ方を三つの側面に分けて示す (本文の補足)。
-const exchangeAspects = [
-  {
-    title: '訪れるきっかけをつくる',
-    body: 'ボランティア募集を通じて、遠山郷を訪れる理由と受け入れの窓口を用意しています。',
-  },
-  {
-    title: '参加者どうしがつながる',
-    body: '同じ畑で作業を分担する時間が、初めて会った人どうしの関係を残します。',
-  },
-  {
-    title: '地域の人と行き来する',
-    body: '作業を教わり、地域の行事に加えていただくなかで、内と外の交流が続いています。',
-  },
-]
 ---
 
 <BaseLayout
@@ -115,29 +99,12 @@ const exchangeAspects = [
       >
       <div class="max-w-3xl space-y-4 leading-loose text-body">
         <p>
-          農作業はボランティアとして広く募集しています。遠山郷を知らなかった人、名前は聞いたことがあっても訪れる機会のなかった人が、「畑を手伝う」という具体的な用事を通じて、この土地に足を運ぶきっかけになっています。
+          農作業はボランティア活動として参加者を募集しています。募集が目に触れることで遠山郷の存在・現状に関心を持ってもらうことが期待されます。また、活動の存在を知らせることで現地に赴くきっかけにしてもらうことができます。参加には至らずとも関心を寄せている購読者・フォロワーは緩やかに増加しており、関心層を少しずつ広げることができていると考えています。
         </p>
         <p>
-          そして畑に立てば、初対面どうしでも自然と会話が生まれます。同じ作業を分担し、収穫の手応えを分かち合う時間は、参加者どうしのつながりを残していきます。作業のやり方や畑の来歴を地域の方に教わり、地域の行事に加えていただく機会もあります。こうして、外から訪れた人と地域に暮らす人との行き来が、少しずつ重なってきました。
-        </p>
-        <p>
-          一度きりで終わらず、季節を変えてまた訪れる人がいること。遠山郷を気にかける人が地域の外にも増えていること自体を、私たちは活動の成果と考えています。
+          公共交通機関が利用しにくく飲食店や宿泊施設も限られている土地柄のため、活動参加者が接する人数は少なく、長い時間を共有することが多くなります。知見を広げたり、価値観を共有したり、共に考えたりするような交流が生じることで、互いをより深く知る機会となっています。
         </p>
       </div>
-      <ul class="mt-6 grid gap-4 md:grid-cols-3">
-        {
-          exchangeAspects.map((item) => (
-            <li class="md:flex">
-              <Card class="flex w-full flex-col gap-2 px-6 py-6">
-                <h3 class="font-serif text-lg font-medium text-primary">
-                  {item.title}
-                </h3>
-                <p class="text-left leading-loose text-body">{item.body}</p>
-              </Card>
-            </li>
-          ))
-        }
-      </ul>
       <div class="mt-6 flex flex-wrap gap-3">
         <Button href="/join">はじめての方へ</Button>
         <Button href={ACTIVO_URL} variant="outline"
