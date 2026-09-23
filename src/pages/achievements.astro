@@ -1,0 +1,159 @@
+---
+/**
+ * /achievements — 活動の影響。
+ *
+ * ナビの「活動成果」章の表紙。実績データを羅列するのではなく、当会の活動が
+ * 何をもたらしているのかを **切り口ごと**にまとめる。柱は二つ。
+ *   1. 遊休農地の活用と景観の維持
+ *   2. 地域に対する関心と交流機会の創出
+ * これに「農産物の商品開発」を、経済的な自立に向けた取り組みとして後段に添える。
+ *
+ * **具体的な数値 (回数・参加人数・面積・売上など) はこのページに載せない**。
+ * 年度ごとに変わる値であり、正確な実績は事業報告書が持つ。
+ * 前置き (ヒーロー画像・タイトル・リード文・概要・附記) は置かず、
+ * ページ種別を示すバッジの直後から本題に入る。章番号も振らない。
+ */
+import BaseLayout from '~/layouts/BaseLayout.astro'
+import BlurImage from '~/components/BlurImage.astro'
+import Container from '~/components/Container.astro'
+import SectionHeading from '~/components/SectionHeading.astro'
+import Button from '~/components/Button.astro'
+import farmImage from '~/assets/farm.jpg'
+import mountsImage from '~/assets/mounts.jpg'
+import walkImage from '~/assets/village-walk.jpg'
+
+const SHOP_URL = 'https://shop.tohyamago.org'
+const ACTIVO_URL = 'https://activo.jp/s/a/119414'
+---
+
+<BaseLayout
+  title="活動の影響"
+  description="一般社団法人遠山郷応援会の活動がもたらしている影響。遊休農地の活用による遠山郷の景観維持と、ボランティア募集を通じて生まれている地域内外の交流を、二つの切り口からご紹介します。"
+  image={farmImage}
+  imageAlt="遠山郷の畑と山並み"
+>
+  <Container size="wide" class="py-12 md:py-16">
+    <!-- ページ種別はバッジだけで示し、ヒーロータイトルは置かない
+      (見出し階層を保つため、バッジ自体を h1 とする)。
+      バッジの下にはページの説明文だけを置く。 -->
+    <h1
+      class="mb-4 flex w-fit items-center rounded-full bg-primary-deep px-4 py-1 font-serif text-sm tracking-wide text-white"
+    >
+      活動の影響
+    </h1>
+    <p class="mb-10 max-w-3xl leading-loose text-body">
+      当会の継続的な活動が影響・貢献していると考えられる出来事を、活動成果としてご紹介します。
+    </p>
+
+    <!-- 遊休農地の活用と景観の維持 -->
+    <section class="mb-16">
+      <SectionHeading as="h2" align="left" class="mb-4"
+        >遊休農地の活用と景観の維持</SectionHeading
+      >
+      <!-- モバイルでは写真を本文の上に置く (節をまたいで写真が連続しないよう、
+        デスクトップでだけ order で左右に振り分ける) -->
+      <div class="grid gap-8 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
+        <BlurImage
+          src={mountsImage}
+          alt="遠山郷の山並みと里の風景"
+          loading="eager"
+          fetchpriority="high"
+          fade={false}
+          sizes="(min-width: 1024px) 448px, 100vw"
+          class="aspect-[2/1] w-full overflow-hidden rounded-3xl shadow-sm ring-1 ring-primary/10 sm:aspect-[16/9] lg:order-2 lg:aspect-auto lg:h-full"
+          imgClass="h-full! w-full object-cover"
+        />
+        <div class="max-w-3xl space-y-4 leading-loose text-body lg:order-1">
+          <p>
+            下栗 (上村の集落)
+            は、東向き斜面の山麓〜尾根に位置するため日当たりが良く、標高
+            800m〜1,000mにあって寒暖差があり、急傾斜地のため水捌けも良いところです。これらの特性は農作物にとって好条件で、遠山郷の中でも農業が盛んに行われてきたようです。
+          </p>
+          <p>
+            しかしながら近年では人口減少と高齢化により農作業が行われなくなっており、耕作放棄地が増え、かつての景観が失われつつあります。
+          </p>
+          <p>
+            当会は、遊休農地活用による景観保全や地域行事のお手伝いに地域外から参加する、下栗応援団の一員として活動しており、毎年一定程度の農地を維持管理し続けています。
+          </p>
+          <p>
+            傾斜地特有の性質や課題を学びながら経験と工夫を重ねた結果、今では自立的に管理や作業を行うことができるようになっています。
+          </p>
+          <div class="flex flex-wrap gap-3 pt-2">
+            <Button href="/news" variant="outline">活動記録を読む</Button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 地域に対する関心と交流機会の創出 -->
+    <section class="mb-16">
+      <SectionHeading as="h2" align="left" class="mb-4"
+        >地域に対する関心と交流機会の創出</SectionHeading
+      >
+      <!-- 写真はデスクトップでのみ前節と左右を入れ替える (モバイルは常に本文の上) -->
+      <div class="grid gap-8 lg:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">
+        <BlurImage
+          src={walkImage}
+          alt="集落の坂道を並んで歩く活動の参加者"
+          sizes="(min-width: 1024px) 448px, 100vw"
+          class="aspect-[2/1] w-full overflow-hidden rounded-3xl shadow-sm ring-1 ring-primary/10 sm:aspect-[16/9] lg:aspect-auto lg:h-full"
+          imgClass="h-full! w-full object-cover"
+        />
+        <div class="max-w-3xl space-y-4 leading-loose text-body">
+          <p>
+            農作業はボランティア活動として参加者を募集しています。募集が目に触れることで遠山郷の存在・現状に関心を持ってもらうことが期待されます。また、活動の存在を知らせることで現地に赴くきっかけにしてもらうことができます。参加には至らずとも関心を寄せている購読者・フォロワーは緩やかに増加しており、関心層を少しずつ広げることができていると考えています。
+          </p>
+          <p>
+            公共交通機関が利用しにくく飲食店や宿泊施設も限られている土地柄のため、活動参加者が接する人数は少なく、長い時間を共有することが多くなります。知見を広げたり、価値観を共有したり、共に考えたりするような交流が生じることで、互いをより深く知る機会となっています。
+          </p>
+          <div class="flex flex-wrap gap-3 pt-2">
+            <Button href="/join">はじめての方へ</Button>
+            <Button href={ACTIVO_URL} variant="outline"
+              >ボランティア募集を見る</Button
+            >
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 農産物の商品開発: 経済的な自立に向けた取り組みとして置く -->
+    <section class="mb-16">
+      <SectionHeading as="h2" align="left" class="mb-4"
+        >農産物の商品開発</SectionHeading
+      >
+      <div class="mb-6 max-w-3xl space-y-4 leading-loose text-body">
+        <p>
+          ボランティアによる農耕作業や景観維持は、いつまでも期待するべきものではありません。里山の資産を世代を超えて残していくためには、これらの作業を魅力ある産業に育て上げ、経済的な自立を目指す必要があります。
+        </p>
+        <p>
+          当会では、農作業によって得られた収穫の一部を可能な限り販売するよう検討を継続しており、これまでに煎茶の商品化に成功しています。
+        </p>
+        <p>
+          商品開発の過程や販売実績から得られる知見を、持続可能な農業を育てる一助にしたいと考えています。
+        </p>
+      </div>
+      <div class="flex flex-wrap gap-3">
+        <Button href="/products">成果品を詳しく見る</Button>
+        <Button href={SHOP_URL} variant="outline">オンラインショップ</Button>
+      </div>
+    </section>
+
+    <!-- 次の一歩: いずれの成果も継続が前提であることを述べて締める -->
+    <section
+      class="rounded-3xl border border-primary/10 bg-gradient-to-br from-sunlight-soft/60 to-surface px-6 py-10 text-center md:px-12"
+    >
+      <SectionHeading as="h2" align="center" class="mb-4"
+        >これからの活動に向けて</SectionHeading
+      >
+      <p
+        class="mx-auto max-w-2xl text-left leading-loose text-body sm:text-center"
+      >
+        ここに挙げた成果は、いずれも活動を続けてきたことで少しずつ形になったものです。景観の維持も、関心層の広がりも、商品開発も、続けられなければそこで止まってしまいます。活動に加わっていただくこと、寄付によって支えていただくことが、次の一年を続ける力になります。
+      </p>
+      <div class="mt-8 flex flex-wrap justify-center gap-3">
+        <Button href="/join">はじめての方へ</Button>
+        <Button href="/support" variant="outline">活動を寄付で支える</Button>
+      </div>
+    </section>
+  </Container>
+</BaseLayout>
