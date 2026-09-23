@@ -63,7 +63,8 @@ tohyamago/
 │   │   ├── calendar.astro      # 農作業カレンダー
 │   │   ├── access.astro        # 交通案内 (経路・所要時間 + AccessMap 島)
 │   │   ├── eat-stay.astro      # 食べる・泊まる (周辺の食事処・宿。AccessMapCard を共有)
-│   │   ├── products.astro      # 成果品紹介 → shop
+│   │   ├── achievements.astro  # 活動の影響 (遊休農地活用と景観維持 / 交流 / 農産物の商品開発)
+│   │   ├── products.astro      # 成果品紹介 → shop (活動成果の一部)
 │   │   ├── support.astro       # 寄付案内 (口座振込。Stripe は Phase 4)
 │   │   ├── membership.astro    # 入会案内 (入会手続きは準備中 = Phase 5)
 │   │   ├── news.astro          # 活動記録一覧 (全記事をダイジェストカードで表示。トップは最新数件)
@@ -85,6 +86,7 @@ tohyamago/
 │   │   ├── homeTasks.ts        # トップ「今月の活動」抽出ロジック (crops から当月作業)
 │   │   ├── FarmCalendar.tsx    # 農作業ガントチャート (React island)
 │   │   ├── ProductCard.astro   # 成果品カード
+│   │   ├── productShowcase.ts  # 成果品ショーケースのデータと crops との突き合わせ (/achievements と /products で共有)
 │   │   ├── Button.astro / ArrowIcon.astro / buttonArrow.ts  # CTA ボタンと末尾矢印
 │   │   ├── Card.astro / Container.astro / SectionHeading.astro  # 共通 UI プリミティブ
 │   │   ├── Posts.astro         # Content Collection からダイジェストカード一覧を描画 (ctaEvery で NewsCta を挿入)
@@ -126,7 +128,8 @@ tohyamago/
 
 - **`/public_notices` の URL は法人登記に記載されているため変更禁止**（最重要制約）。
 - グローバルナビ（ジャーナリー導線）は `SiteHeader.astro`、法令系文書（定款 / 公告 / 特商法表記）と法人概要は `SiteFooter.astro`。旧フローティング `RouterMenu` は廃止済み。ナビ項目・CTA は `SiteHeader.astro` の `groups` / `ctas` 定義を単一の情報源とする。
-- ナビの表記ゆれに注意: `/story` はナビ上「遠山郷との始まり」、`/news` は「活動記録」。
+- ナビの表記ゆれに注意: `/story` はナビ上「遠山郷との始まり」、`/news` は「活動記録」、`/achievements` は「活動の影響」（章ラベルの「活動成果」とは別）。
+- ナビの「活動成果」章は **法人全体の成果が主**。表紙が `/achievements`（ナビ表記「活動の影響」。遊休農地活用による景観維持・交流・農産物の商品開発）で、`/products` とオンラインショップはその一部として下に並べる。成果品だけを章の顔にしない。
 
 ### 活動記録 (/news) の描画
 
@@ -186,6 +189,22 @@ note: 国指定重要無形民俗文化財。# 任意
 
 - `FarmCalendar.tsx`（React island, `client:load`）が描画。データは `calendar.astro`（`getCollection('crops'|'events')`）から props で渡す。レイアウトは CSS Grid（36 列）、バーは `grid-column: start / end` でスパン、色は作物の `color`。当月ハイライト・バー展開などのインタラクションを担う。
 - アクセシビリティ: 色だけに依存しない（ラベル・凡例・`aria`）。表形式の意味を保持する。
+
+### 活動の影響ページ (/achievements) の方針
+
+`/achievements`（ナビ表記「活動の影響」）は **法人全体の成果が主**のページ。実績データを羅列せず、活動が遠山郷にもたらしているものを **切り口ごと**にまとめる。柱は二つで、この二本立てを崩さない。
+
+1. **遊休農地の活用と景観の維持** — 耕されなくなれば失われる畑に通い続け、下栗の景観を残していること。
+2. **地域に対する関心と交流機会の創出** — ボランティア募集をきっかけに地域外の人が訪れ、参加者どうし・地域の人との交流が生まれていること。
+
+成果品とオンラインショップでの販売は「農産物の商品開発」として後段に置き、章の顔にしない。各節は文章で述べ、カードでの箇条書きは用いない。
+
+- **具体的な数値（実施回数・参加人数・耕作面積・販売点数・売上高など）はこのページに載せない**。年度ごとに変わる値であり、正確な実績は総会に提出する事業報告書が持つ。附記でその旨を案内する。
+- そのため専用のデータコレクション（旧 `fields` / `activities` / `reports`）と集計モジュール（旧 `achievementStats.ts`）は持たない。作物名・絵文字・基調色は `crops` コレクションを単一の情報源として参照する。
+- **前置きを置かない**。ヒーロー画像・ヒーロータイトル・概要・附記は設けず、ページ種別を示すバッジ（`h1`）＋ページの説明文一文のあと、すぐ本題（二つの柱）に入る。
+- **章番号は振らない**。見出しに読点を使わない。
+- **法人化前（任意団体「下栗応援サークル」）の活動はこのページで扱わない**。法人化前の歩みは `/story`、一日ごとの様子は `/news`、作物ごとの年間の流れは `/calendar` が担当する。
+- 成果品のショーケース文面は `productShowcase.ts`（`PRODUCT_SHOWCASE` / `resolveProducts`）に置き、`/products` が参照する。ID の不整合はビルド時に即エラーにする。
 
 ## 外部リンク
 
