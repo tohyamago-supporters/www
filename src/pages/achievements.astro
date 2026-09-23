@@ -6,33 +6,23 @@
  * 何をもたらしているのかを **切り口ごと**にまとめる。柱は二つ。
  *   1. 遊休農地の活用と景観の維持
  *   2. 地域に対する関心と交流機会の創出
- * これに「農産物の商品開発」を、活動から生まれたものとして後段に添える。
+ * これに「農産物の商品開発」を、経済的な自立に向けた取り組みとして後段に添える。
  *
  * **具体的な数値 (回数・参加人数・面積・売上など) はこのページに載せない**。
  * 年度ごとに変わる値であり、正確な実績は事業報告書が持つ。
  * 前置き (ヒーロー画像・タイトル・リード文・概要・附記) は置かず、
  * ページ種別を示すバッジの直後から本題に入る。章番号も振らない。
  */
-import { getCollection } from 'astro:content'
 import BaseLayout from '~/layouts/BaseLayout.astro'
 import BlurImage from '~/components/BlurImage.astro'
 import Container from '~/components/Container.astro'
 import SectionHeading from '~/components/SectionHeading.astro'
-import Card from '~/components/Card.astro'
 import Button from '~/components/Button.astro'
-import { PRODUCT_SHOWCASE, resolveProducts } from '~/components/productShowcase'
 import farmImage from '~/assets/farm.jpg'
 import mountsImage from '~/assets/mounts.jpg'
 
 const SHOP_URL = 'https://shop.tohyamago.org'
 const ACTIVO_URL = 'https://activo.jp/s/a/119414'
-
-// 成果品の名称・絵文字・基調色は crops コレクションを単一の情報源とする。
-const crops = (await getCollection('crops')).map((entry) => ({
-  id: entry.id,
-  ...entry.data,
-}))
-const products = resolveProducts(PRODUCT_SHOWCASE, crops)
 ---
 
 <BaseLayout
@@ -113,44 +103,22 @@ const products = resolveProducts(PRODUCT_SHOWCASE, crops)
       </div>
     </section>
 
-    <!-- 農産物の商品開発: 活動から生まれたものとして、章の一部に置く -->
+    <!-- 農産物の商品開発: 経済的な自立に向けた取り組みとして置く -->
     <section class="mb-16">
       <SectionHeading as="h2" align="left" class="mb-4"
         >農産物の商品開発</SectionHeading
       >
-      <p class="mb-6 max-w-3xl leading-loose text-body">
-        作物を売るために畑を耕しているわけではありませんが、畑仕事を続ければ実りもついてきます。収穫したものを加工し、この土地ならではの商品に仕立てて届けること。それは活動を知っていただく入口であり、耕作を続けていく力にもなります。
-      </p>
-      <ul class="mb-6 grid gap-4 sm:grid-cols-2">
-        {
-          products.map((product) => (
-            <li class="sm:flex">
-              <Card class="flex w-full items-start gap-4 px-5 py-5">
-                {product.emoji && (
-                  <span
-                    class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl text-2xl"
-                    style={`background-color: color-mix(in srgb, ${product.color} 15%, transparent)`}
-                    aria-hidden="true"
-                  >
-                    {product.emoji}
-                  </span>
-                )}
-                <div>
-                  <h3 class="font-serif text-lg font-medium text-primary">
-                    {product.name}
-                  </h3>
-                  <p class="mt-1 text-left text-sm leading-relaxed text-body/80">
-                    {product.tagline}
-                  </p>
-                  <p class="mt-2 text-left text-sm text-body">
-                    {product.makes.map((make) => make.label).join('／')}
-                  </p>
-                </div>
-              </Card>
-            </li>
-          ))
-        }
-      </ul>
+      <div class="mb-6 max-w-3xl space-y-4 leading-loose text-body">
+        <p>
+          ボランティアによる農耕作業や景観維持は、いつまでも期待するべきものではありません。里山の資産を世代を超えて残していくためには、これらの作業を魅力ある産業に育て上げ、経済的な自立を目指す必要があります。
+        </p>
+        <p>
+          当会では、農作業によって得られた収穫の一部を可能な限り販売するよう検討を継続しており、これまでに煎茶の商品化に成功しています。
+        </p>
+        <p>
+          商品開発の過程や販売実績から得られる知見を、持続可能な農業を育てる一助にしたいと考えています。
+        </p>
+      </div>
       <div class="flex flex-wrap gap-3">
         <Button href="/products">成果品を詳しく見る</Button>
         <Button href={SHOP_URL} variant="outline">オンラインショップ</Button>
