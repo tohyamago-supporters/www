@@ -2,7 +2,7 @@
 /**
  * /products — 成果品紹介。
  *
- * ナビ「活動成果」章の 1 ページ。法人全体の活動成果 (/achievements) のうち
+ * ナビ「活動成果」章の 1 ページ。法人全体への影響 (/achievements「活動の影響」) のうち
  * 「畑から生まれたもの」だけを深掘りし、賛同購入 (オンラインショップ) へつなぐ。
  * ショーケースの文章・成果品・旬は productShowcase.ts、名称・絵文字・色・表示順は
  * crops コレクションを単一の情報源とする。
@@ -55,7 +55,7 @@ const products = resolveProducts(PRODUCT_SHOWCASE, crops)
       皆で畑に通い、季節の作業を重ねるうちに実った、下栗芋・蕎麦・大豆・お茶。耕作地を守り、地域の行事に加わってきた<a
         href="/achievements"
         class="font-medium text-primary underline underline-offset-4 hover:opacity-80 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
-        >活動成果</a
+        >活動の影響</a
       >のうち、畑からのおすそわけをご紹介します。気に入ったものは、オンラインショップでお求めいただけます。
     </p>
     <div class="mx-auto mt-8 w-full max-w-3xl">
@@ -72,7 +72,7 @@ const products = resolveProducts(PRODUCT_SHOWCASE, crops)
     </div>
     <div class="mt-8 flex flex-wrap justify-center gap-3">
       <Button href={SHOP_URL}>オンラインショップを見る</Button>
-      <Button href="/achievements" variant="outline">活動成果を見る</Button>
+      <Button href="/achievements" variant="outline">活動の影響を見る</Button>
     </div>
   </section>
 
@@ -89,10 +89,10 @@ const products = resolveProducts(PRODUCT_SHOWCASE, crops)
           とはいえ畑仕事を続ければ、実りもついてきます。量は多くありませんが、どれもこの土地ならではの味わい。採れたぶんをお分けすることが、畑を守り、活動を続けていく力にもなります。
         </p>
         <p class="mt-4 indent-4">
-          このページで紹介する成果品は、守っている耕作地やイベントの実施・参加とあわせた<a
+          このページで紹介する成果品は、景観の維持や地域との交流とあわせた<a
             href="/achievements"
             class="font-medium text-primary underline underline-offset-4 hover:opacity-80 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
-            >法人全体の活動成果</a
+            >法人全体の活動の影響</a
           >の一部です。
         </p>
       </Card>
