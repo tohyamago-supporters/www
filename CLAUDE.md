@@ -64,7 +64,7 @@ tohyamago/
 │   │   ├── access.astro        # 交通案内 (経路・所要時間 + AccessMap 島)
 │   │   ├── eat-stay.astro      # 食べる・泊まる (周辺の食事処・宿。AccessMapCard を共有)
 │   │   ├── achievements.astro  # 活動の影響 (遊休農地活用と景観維持 / 交流 / 農産物の商品開発)
-│   │   ├── products.astro      # 成果品紹介 → shop (活動成果の一部)
+│   │   ├── products.astro      # 成果品紹介 → shop (活動の影響の一部)
 │   │   ├── support.astro       # 寄付案内 (口座振込。Stripe は Phase 4)
 │   │   ├── membership.astro    # 入会案内 (入会手続きは準備中 = Phase 5)
 │   │   ├── news.astro          # 活動記録一覧 (全記事をダイジェストカードで表示。トップは最新数件)
@@ -128,8 +128,8 @@ tohyamago/
 
 - **`/public_notices` の URL は法人登記に記載されているため変更禁止**（最重要制約）。
 - グローバルナビ（ジャーナリー導線）は `SiteHeader.astro`、法令系文書（定款 / 公告 / 特商法表記）と法人概要は `SiteFooter.astro`。旧フローティング `RouterMenu` は廃止済み。ナビ項目・CTA は `SiteHeader.astro` の `groups` / `ctas` 定義を単一の情報源とする。
-- ナビの表記ゆれに注意: `/story` はナビ上「遠山郷との始まり」、`/news` は「活動記録」、`/achievements` は「活動の影響」（章ラベルの「活動成果」とは別）。
-- ナビの「活動成果」章は **法人全体の成果が主**。表紙が `/achievements`（ナビ表記「活動の影響」。遊休農地活用による景観維持・交流・農産物の商品開発）で、`/products` とオンラインショップはその一部として下に並べる。成果品だけを章の顔にしない。
+- ナビの表記ゆれに注意: `/story` はナビ上「遠山郷との始まり」、`/news` は「活動記録」、`/achievements` は「活動の影響」。
+- `/achievements`（ナビ表記「活動の影響」）は「活動を知る」章の 2 番目（活動方針の次）に置く。ナビの「成果品」章は `/products`（成果品紹介）とオンラインショップのみ。
 
 ### 活動記録 (/news) の描画
 
