@@ -11,13 +11,7 @@
  */
 
 export type StoryScene =
-  | 'hero'
-  | 'winter'
-  | 'notice'
-  | 'seed'
-  | 'field'
-  | 'gather'
-  | 'dawn'
+  'hero' | 'winter' | 'notice' | 'seed' | 'field' | 'gather' | 'dawn'
 
 interface Palette {
   /** 空のグラデーション (上→下の 3 段) */
@@ -39,13 +33,7 @@ interface Palette {
   snow: boolean
   /** 前景モチーフ */
   motif:
-    | 'figure'
-    | 'travelers'
-    | 'hut'
-    | 'sprout'
-    | 'rows'
-    | 'lanterns'
-    | 'path'
+    'figure' | 'travelers' | 'hut' | 'sprout' | 'rows' | 'lanterns' | 'path'
 }
 
 // 共有する山の稜線 (全シーン同じシルエットを使い、色だけ変える)。
