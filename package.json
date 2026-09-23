@@ -25,7 +25,7 @@
     "@astrojs/react": "^6.0.6",
     "@astrojs/sitemap": "^3.7.4",
     "@pdftron/pdfjs-express-viewer": "^8.7.5",
-    "@tailwindcss/vite": "^4.3.2",
+    "@tailwindcss/vite": "^4.3.3",
     "astro": "^7.3.3",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
