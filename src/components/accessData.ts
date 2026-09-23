@@ -193,24 +193,20 @@ export const stays: Place[] = [
 // 地図に立てるピン一覧: 食事処 + 宿。カテゴリで色分けし、AccessMap 側で
 // 全ピンが収まるよう自動フィットする。
 export const mapPlaces: MapPlace[] = [
-  ...restaurants.map(
-    (r): MapPlace => ({
-      name: r.name,
-      lat: r.lat,
-      lng: r.lng,
-      address: `${r.area}（食事処）`,
-      query: r.map,
-      category: 'food',
-    }),
-  ),
-  ...stays.map(
-    (s): MapPlace => ({
-      name: s.name,
-      lat: s.lat,
-      lng: s.lng,
-      address: `${s.area}（宿）`,
-      query: s.map,
-      category: 'stay',
-    }),
-  ),
+  ...restaurants.map((r): MapPlace => ({
+    name: r.name,
+    lat: r.lat,
+    lng: r.lng,
+    address: `${r.area}（食事処）`,
+    query: r.map,
+    category: 'food',
+  })),
+  ...stays.map((s): MapPlace => ({
+    name: s.name,
+    lat: s.lat,
+    lng: s.lng,
+    address: `${s.area}（宿）`,
+    query: s.map,
+    category: 'stay',
+  })),
 ]
