@@ -59,12 +59,16 @@ const exchangeAspects = [
 >
   <Container size="wide" class="py-12 md:py-16">
     <!-- ページ種別はバッジだけで示し、ヒーロータイトルは置かない
-      (見出し階層を保つため、バッジ自体を h1 とする) -->
+      (見出し階層を保つため、バッジ自体を h1 とする)。
+      バッジの下にはページの説明文だけを置く。 -->
     <h1
-      class="mb-10 flex w-fit items-center rounded-full bg-primary-deep px-4 py-1 font-serif text-sm tracking-wide text-white"
+      class="mb-4 flex w-fit items-center rounded-full bg-primary-deep px-4 py-1 font-serif text-sm tracking-wide text-white"
     >
       活動成果
     </h1>
+    <p class="mb-10 max-w-3xl leading-loose text-body">
+      当会の継続的な活動が影響・貢献していると考えられる出来事を、活動成果としてご紹介します。
+    </p>
 
     <!-- 遊休農地の活用と景観の維持 -->
     <section class="mb-16">
