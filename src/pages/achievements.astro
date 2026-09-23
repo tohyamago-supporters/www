@@ -50,8 +50,20 @@ const ACTIVO_URL = 'https://activo.jp/s/a/119414'
       <SectionHeading as="h2" align="left" class="mb-4"
         >遊休農地の活用と景観の維持</SectionHeading
       >
+      <!-- モバイルでは写真を本文の上に置く (節をまたいで写真が連続しないよう、
+        デスクトップでだけ order で左右に振り分ける) -->
       <div class="grid gap-8 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
-        <div class="max-w-3xl space-y-4 leading-loose text-body">
+        <BlurImage
+          src={mountsImage}
+          alt="遠山郷の山並みと里の風景"
+          loading="eager"
+          fetchpriority="high"
+          fade={false}
+          sizes="(min-width: 1024px) 448px, 100vw"
+          class="aspect-[2/1] w-full overflow-hidden rounded-3xl shadow-sm ring-1 ring-primary/10 sm:aspect-[16/9] lg:order-2 lg:aspect-auto lg:h-full"
+          imgClass="h-full! w-full object-cover"
+        />
+        <div class="max-w-3xl space-y-4 leading-loose text-body lg:order-1">
           <p>
             下栗 (上村の集落)
             は、東向き斜面の山麓〜尾根に位置するため日当たりが良く、標高
@@ -70,16 +82,6 @@ const ACTIVO_URL = 'https://activo.jp/s/a/119414'
             <Button href="/news" variant="outline">活動記録を読む</Button>
           </div>
         </div>
-        <BlurImage
-          src={mountsImage}
-          alt="遠山郷の山並みと里の風景"
-          loading="eager"
-          fetchpriority="high"
-          fade={false}
-          sizes="(min-width: 1024px) 448px, 100vw"
-          class="aspect-[4/3] w-full overflow-hidden rounded-3xl shadow-sm ring-1 ring-primary/10 lg:aspect-auto lg:h-full"
-          imgClass="h-full! w-full object-cover"
-        />
       </div>
     </section>
 
@@ -88,13 +90,13 @@ const ACTIVO_URL = 'https://activo.jp/s/a/119414'
       <SectionHeading as="h2" align="left" class="mb-4"
         >地域に対する関心と交流機会の創出</SectionHeading
       >
-      {/* 写真は前節と左右を入れ替えて、続き読みのリズムをつくる */}
+      <!-- 写真はデスクトップでのみ前節と左右を入れ替える (モバイルは常に本文の上) -->
       <div class="grid gap-8 lg:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">
         <BlurImage
           src={walkImage}
           alt="集落の坂道を並んで歩く活動の参加者"
           sizes="(min-width: 1024px) 448px, 100vw"
-          class="aspect-[4/3] w-full overflow-hidden rounded-3xl shadow-sm ring-1 ring-primary/10 lg:aspect-auto lg:h-full"
+          class="aspect-[2/1] w-full overflow-hidden rounded-3xl shadow-sm ring-1 ring-primary/10 sm:aspect-[16/9] lg:aspect-auto lg:h-full"
           imgClass="h-full! w-full object-cover"
         />
         <div class="max-w-3xl space-y-4 leading-loose text-body">
