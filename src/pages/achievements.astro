@@ -11,7 +11,7 @@
  * **具体的な数値 (回数・参加人数・面積・売上など) はこのページに載せない**。
  * 年度ごとに変わる値であり、正確な実績は事業報告書が持つ。
  * 前置き (ヒーロー画像・リード文・概要・附記) は置かず、ページ種別のバッジと
- * 二つの柱を言い切るヒーロータイトル (h1) の直後から本題に入る。章番号も振らない。
+ * 活動の継続が成果を生んでいることを示すヒーロータイトル (h1) の直後から本題に入る。章番号も振らない。
  */
 import BaseLayout from '~/layouts/BaseLayout.astro'
 import BlurImage from '~/components/BlurImage.astro'
@@ -33,9 +33,9 @@ const ACTIVO_URL = 'https://activo.jp/s/a/119414'
   imageAlt="遠山郷の畑と山並み"
 >
   <Container size="wide" class="py-12 md:py-16">
-    <!-- ヘッダー: バッジでページ種別を示し、ヒーロータイトルで二つの柱
-      (景観の維持 / 交流の広がり) を一行に言い切る。タイトルだけで主旨が
-      伝わるため説明文は置かず、すぐ本題に入る。 -->
+    <!-- ヘッダー: バッジでページ種別を示し、ヒーロータイトルで「成果は
+      地道な継続の積み重ねから生まれている」という主旨を言い切る。
+      タイトルだけで伝わるため説明文は置かず、すぐ本題に入る。 -->
     <header class="mb-12 text-center md:mb-16">
       <span
         class="mx-auto mb-4 flex w-fit items-center rounded-full bg-primary-deep px-4 py-1 font-serif text-sm tracking-wide text-white"
@@ -45,8 +45,8 @@ const ACTIVO_URL = 'https://activo.jp/s/a/119414'
       <h1
         class="font-serif text-3xl font-medium leading-snug text-primary md:text-4xl"
       >
-        <span class="inline-block">通い続けて残る景色と</span><span
-          class="inline-block">広がるつながり</span
+        <span class="inline-block">地道な継続が</span><span class="inline-block"
+          >もたらすもの</span
         >
       </h1>
     </header>
