@@ -3,7 +3,7 @@
  * SiteHeader — グローバルナビ (ジャーナリー導線ヘッダー)。
  *
  * 団体組織図ではなく「来訪者のやりたいこと」で章立てする (CLAUDE.md / README ロードマップ Phase 2)。
- * - ドロップダウン: 活動を知る / 参加する(主) / 活動成果 / 支える
+ * - ドロップダウン: 活動を知る / 参加する(主) / 成果品 / 支える
  * - 常時表示 CTA: 参加する・寄付 (どのページからもゴール導線へ届く)
  * - ゴール優先度の高い「参加する」を最も目立たせる。
  *
@@ -29,6 +29,7 @@ const groups: NavGroup[] = [
     label: '活動を知る',
     items: [
       { path: '/purpose', title: '活動方針' },
+      { path: '/achievements', title: '活動の影響' },
       { path: '/story', title: '遠山郷との始まり' },
       { path: '/news', title: '活動記録' },
     ],
@@ -44,10 +45,8 @@ const groups: NavGroup[] = [
     ],
   },
   {
-    // 法人全体への影響 (景観維持・交流・商品開発) を主とし、成果品とショップはその一部として下に置く
-    label: '活動成果',
+    label: '成果品',
     items: [
-      { path: '/achievements', title: '活動の影響' },
       { path: '/products', title: '成果品紹介' },
       {
         path: 'https://shop.tohyamago.org',
