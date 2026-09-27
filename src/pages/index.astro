@@ -205,14 +205,15 @@ const intensityLabel: Record<Intensity, string> = {
     </section>
 
     <!-- 近況ダイジェスト: 最新数件のみを載せ、続きは近況アーカイブ /news へ誘導する。
-         件数は sm 以上の 2 列グリッドが欠けずに埋まるよう偶数 (4 件) にする。
+         件数は sm 以上の 2 列グリッドが欠けずに埋まるよう偶数 (4 件) にし、
+         縦に長くなる 1 列のモバイルでは 3 件に抑える。
          id="feed" は旧 /#feed ブックマーク互換のためのアンカー。 -->
     <section id="feed" class="scroll-mt-24">
       <SectionHeading as="h2" class="mb-2">近頃の活動状況</SectionHeading>
       <p class="mb-8 text-center text-sm leading-relaxed text-body/80">
         活動の様子を随時お届けしています。
       </p>
-      <Posts limit={4} />
+      <Posts limit={4} mobileLimit={3} />
       <div class="mt-8 flex justify-center">
         <Button href="/news" variant="outline"
           >これまでの活動をもっと見る</Button
