@@ -133,7 +133,7 @@ tohyamago/
 
 ### 活動記録 (/news) の描画
 
-- 一覧は `Posts.astro`（`PostCard` のグリッド）で全記事をダイジェスト（抜粋 + サムネイル 1 枚）表示。トップ（`index.astro`）は `<Posts limit={3} />` の最新数件のみ。カードのタップで記事個別ページ `/news/[slug]` へ。
+- 一覧は `Posts.astro`（`PostCard` のグリッド）で全記事をダイジェスト（抜粋 + サムネイル 1 枚）表示。トップ（`index.astro`）は `<Posts limit={4} mobileLimit={3} />` の最新 4 件のみ（sm 以上の 2 列グリッドが欠けないよう偶数にし、1 列のモバイルでは縦に長くならないよう 3 件に抑える。4 件目は `max-sm:hidden`）。カードのタップで記事個別ページ `/news/[slug]` へ。
 - 全記事一覧は縦に長いため `<Posts ctaEvery={12} />` で一定間隔に `NewsCta`（compact）を挿入する。挿入位置は `postCtaLayout.ts`（`ctaPositions`）が決定し、最終記事直後は末尾の本 CTA（`NewsCta` full）と重複しないよう除外する。
 - `/news/[slug].astro` は `getCollection('posts')` を新しい順に並べ `getStaticPaths` で全件生成。本文・全写真・`sourceUrl`・前後記事導線・末尾 `NewsCta`（full）・`#タグ` を表示。
 - `/news/archive.astro` は公開年で章立て（`postArchive.ts` の `groupPostsByYear`）＋季節フィルタ。季節判定は `postSeason.ts`（`getSeason`。境界は春 3/1–6/20・夏 6/21–9/15・秋 9/16–12/5・冬 12/6–翌 2 月末）。フィルタの DOM 操作は `newsArchiveFilter.ts`（`applySeasonFilter`）に分離。JS 無効時は全件表示のプログレッシブエンハンスメント。
