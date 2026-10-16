@@ -4,9 +4,12 @@ name: CI
 # 本来は pull_request で回すが、リポジトリ移管後に一部 PR で pull_request イベントが
 # ワークフローを起動しない事象があったため、push でも走らせて確実に検証する。
 # build ジョブだけは従来どおりフォーク由来 PR のときのみ実行する (下記 if。二重ビルド回避)。
+# マージキューを使うため merge_group でも走らせる。これが無いとキュー上の一時ブランチ
+# (gh-readonly-queue/*) に必須チェックが報告されず、マージが進まなくなるおそれがある。
 on:
   push:
   pull_request:
+  merge_group:
 
 # concurrency グループはイベント種別ごとに分ける。同一コミットで push と pull_request が
 # 同時に起動しても相互にキャンセルされず、両方 green で完走する (片方が cancelled になって
