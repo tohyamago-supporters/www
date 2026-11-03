@@ -7,7 +7,7 @@
 
 ## ホスティング
 
-Cloudflare Pages にデプロイする静的サイト。デプロイは **Cloudflare ダッシュボードの GitHub 連携 (Workers Builds)** を使用し、`main` への push や PR の作成で自動的にビルド・公開される。GitHub Actions (`ci.yml`) は品質チェック (Lint / Format / 型チェック / テスト) を行う CI として動作し、デプロイは行わない。フルビルド検証は通常 Cloudflare のプレビュー/本番ビルドが担うため、`ci.yml` の `build` ジョブは **Cloudflare が自動ビルドしないフォーク由来の PR のときだけ**実行する（二重ビルド回避）。品質チェック系ジョブは **`pull_request` と `push` の両方**で走らせる（リポジトリ移管後に一部 PR で `pull_request` イベントがワークフローを起動しない事象があったため、`push` を保険にする）。`concurrency` グループは **イベント種別ごとに分ける**（`ci-<event>-<branch>`）。こうすると同一コミットで `push` と `pull_request` が同時起動しても相互キャンセルされず、両方 green で完走する（片方が `cancelled` になって必須チェック扱いでマージがブロックされるのを防ぐ）。同一イベントの連続 push では進行中の古い実行だけをキャンセルして無駄を省く。
+Cloudflare Pages にデプロイする静的サイト。デプロイは **Cloudflare ダッシュボードの GitHub 連携 (Workers Builds)** を使用し、`main` への push や PR の作成で自動的にビルド・公開される。GitHub Actions (`ci.yml`) は品質チェック (Lint / Format / 型チェック / テスト) を行う CI として動作し、デプロイは行わない。フルビルド検証は通常 Cloudflare のプレビュー/本番ビルドが担うため、`ci.yml` の `build` ジョブは **Cloudflare が自動ビルドしないフォーク由来の PR のときだけ**実行する（二重ビルド回避）。品質チェック系ジョブは **`pull_request`・`push`（`main` のみ）・`merge_group`（マージキュー）**で走らせる（リポジトリ移管後に一部 PR で `pull_request` イベントがワークフローを起動しない事象があったため、`main` への `push` を保険にする。マージキュー用ブランチ `gh-readonly-queue/*` は `merge_group` が担当するので `push` は `main` に絞り二重実行を避ける）。`concurrency` グループは **イベント種別ごとに分ける**（`ci-<event>-<branch>`）。こうすると同一コミットで `push` と `pull_request` が同時起動しても相互キャンセルされず、両方 green で完走する（片方が `cancelled` になって必須チェック扱いでマージがブロックされるのを防ぐ）。同一イベントの連続 push では進行中の古い実行だけをキャンセルして無駄を省く。
 
 ### 環境変数の本番 / プレビュー切り分け (ビルド時にブランチ判定)
 
@@ -133,7 +133,7 @@ tohyamago/
 
 ### 活動記録 (/news) の描画
 
-- 一覧は `Posts.astro`（`PostCard` のグリッド）で全記事をダイジェスト（抜粋 + サムネイル 1 枚）表示。トップ（`index.astro`）は `<Posts limit={3} />` の最新数件のみ。カードのタップで記事個別ページ `/news/[slug]` へ。
+- 一覧は `Posts.astro`（`PostCard` のグリッド）で全記事をダイジェスト（抜粋 + サムネイル 1 枚）表示。トップ（`index.astro`）は `<Posts limit={4} mobileLimit={3} />` の最新 4 件のみ（sm 以上の 2 列グリッドが欠けないよう偶数にし、1 列のモバイルでは縦に長くならないよう 3 件に抑える。4 件目は `max-sm:hidden`）。カードのタップで記事個別ページ `/news/[slug]` へ。
 - 全記事一覧は縦に長いため `<Posts ctaEvery={12} />` で一定間隔に `NewsCta`（compact）を挿入する。挿入位置は `postCtaLayout.ts`（`ctaPositions`）が決定し、最終記事直後は末尾の本 CTA（`NewsCta` full）と重複しないよう除外する。
 - `/news/[slug].astro` は `getCollection('posts')` を新しい順に並べ `getStaticPaths` で全件生成。本文・全写真・`sourceUrl`・前後記事導線・末尾 `NewsCta`（full）・`#タグ` を表示。
 - `/news/archive.astro` は公開年で章立て（`postArchive.ts` の `groupPostsByYear`）＋季節フィルタ。季節判定は `postSeason.ts`（`getSeason`。境界は春 3/1–6/20・夏 6/21–9/15・秋 9/16–12/5・冬 12/6–翌 2 月末）。フィルタの DOM 操作は `newsArchiveFilter.ts`（`applySeasonFilter`）に分離。JS 無効時は全件表示のプログレッシブエンハンスメント。
@@ -201,7 +201,7 @@ note: 国指定重要無形民俗文化財。# 任意
 
 - **具体的な数値（実施回数・参加人数・耕作面積・販売点数・売上高など）はこのページに載せない**。年度ごとに変わる値であり、正確な実績は総会に提出する事業報告書が持つ。附記でその旨を案内する。
 - そのため専用のデータコレクション（旧 `fields` / `activities` / `reports`）と集計モジュール（旧 `achievementStats.ts`）は持たない。作物名・絵文字・基調色は `crops` コレクションを単一の情報源として参照する。
-- **前置きを置かない**。ヒーロー画像・ヒーロータイトル・概要・附記は設けず、ページ種別を示すバッジ（`h1`）＋ページの説明文一文のあと、すぐ本題（二つの柱）に入る。
+- **前置きを置かない**。ヒーロー画像・リード文・概要・附記は設けず、ページ種別を示すバッジ＋活動の継続が成果を生んでいることを示すヒーロータイトル（`h1`「地道な継続がもたらすもの」）のあと、すぐ本題（二つの柱）に入る。
 - **章番号は振らない**。見出しに読点を使わない。
 - **法人化前（任意団体「下栗応援サークル」）の活動はこのページで扱わない**。法人化前の歩みは `/story`、一日ごとの様子は `/news`、作物ごとの年間の流れは `/calendar` が担当する。
 - 成果品のショーケース文面は `productShowcase.ts`（`PRODUCT_SHOWCASE` / `resolveProducts`）に置き、`/products` が参照する。ID の不整合はビルド時に即エラーにする。
