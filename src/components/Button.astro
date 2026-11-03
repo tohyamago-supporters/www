@@ -41,20 +41,16 @@ const variants = {
 <a
   href={href}
   class:list={[base, variants[variant], className]}
-  {...external ? { target: '_blank', rel: 'noopener noreferrer' } : {}}
+  {...(external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
 >
   <slot />
-  {
-    buttonArrow === 'internal' && (
-      <ArrowIcon class="h-[1.2em] w-[1.2em] transition-transform motion-safe:group-hover:translate-x-0.5" />
-    )
-  }
-  {
-    buttonArrow === 'external' && (
-      <ArrowIcon
-        external
-        class="h-[1.05em] w-[1.05em] transition-transform motion-safe:group-hover:-translate-y-0.5 motion-safe:group-hover:translate-x-0.5"
-      />
-    )
-  }
+  {buttonArrow === 'internal' && (
+    <ArrowIcon class="h-[1.2em] w-[1.2em] transition-transform motion-safe:group-hover:translate-x-0.5" />
+  )}
+  {buttonArrow === 'external' && (
+    <ArrowIcon
+      external
+      class="h-[1.05em] w-[1.05em] transition-transform motion-safe:group-hover:-translate-y-0.5 motion-safe:group-hover:translate-x-0.5"
+    />
+  )}
 </a>

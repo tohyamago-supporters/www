@@ -35,28 +35,25 @@ const products = resolveProducts(PRODUCT_SHOWCASE, crops)
   imageAlt="遠山郷の畑と成果品"
 >
   <!-- ヒーロー: 「畑に通った結果の実り」というこのページの主旨を簡潔に伝える -->
-  <section
-    class="relative overflow-hidden bg-gradient-to-b from-sunlight-soft/50 via-base to-base px-4 pt-12 pb-10 text-center sm:pt-16"
-  >
+  <section class="relative overflow-hidden bg-gradient-to-b from-sunlight-soft/50 via-base to-base px-4 pt-12 pb-10 text-center sm:pt-16">
     <span
       class="mx-auto mb-4 flex w-fit items-center gap-2 rounded-full bg-sunlight-soft px-4 py-1 font-serif text-sm tracking-wide text-primary-deep
              before:text-xs before:text-accent-strong before:content-['▲']"
     >
       成果品紹介
     </span>
-    <h1
-      class="font-serif text-3xl font-medium leading-snug text-primary md:text-4xl"
-    >
+    <h1 class="font-serif text-3xl font-medium leading-snug text-primary md:text-4xl">
       遠山郷に通ってできたもの
     </h1>
-    <p
-      class="mx-auto mt-5 max-w-2xl text-left leading-loose text-body sm:text-center"
-    >
-      皆で畑に通い、季節の作業を重ねるうちに実った、下栗芋・蕎麦・大豆・お茶。耕作地を守り、地域の行事に加わってきた<a
+    <p class="mx-auto mt-5 max-w-2xl text-left leading-loose text-body sm:text-center">
+      皆で畑に通い、季節の作業を重ねるうちに実った、下栗芋・蕎麦・大豆・お茶。耕作地を守り、地域の行事に加わってきた
+      <a
         href="/achievements"
         class="font-medium text-primary underline underline-offset-4 hover:opacity-80 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
-        >活動の影響</a
-      >のうち、畑からのおすそわけをご紹介します。気に入ったものは、オンラインショップでお求めいただけます。
+      >
+        活動の影響
+      </a>
+      のうち、畑からのおすそわけをご紹介します。気に入ったものは、オンラインショップでお求めいただけます。
     </p>
     <div class="mx-auto mt-8 w-full max-w-3xl">
       <BlurImage
@@ -72,16 +69,16 @@ const products = resolveProducts(PRODUCT_SHOWCASE, crops)
     </div>
     <div class="mt-8 flex flex-wrap justify-center gap-3">
       <Button href={SHOP_URL}>オンラインショップを見る</Button>
-      <Button href="/achievements" variant="outline">活動の影響を見る</Button>
+      <Button href="/achievements" variant="outline">
+        活動の影響を見る
+      </Button>
     </div>
   </section>
 
   <Container size="wide" class="py-12 md:py-16">
     <!-- 活動が主・作物は副産物であることの位置づけ -->
     <section class="mb-14">
-      <Card
-        class="border-t-4 border-t-sunlight px-6 py-8 leading-loose text-body md:px-10"
-      >
+      <Card class="border-t-4 border-t-sunlight px-6 py-8 leading-loose text-body md:px-10">
         <p class="indent-4">
           私たちが大切にしているのは、遠山郷の美しい景観と農地を守り、暮らしや文化を次の世代へ受け継いでいくこと。作物を売るために畑を耕しているわけではなく、皆で集まり、土に触れ、季節の作業に汗を流す——その時間そのものが活動の中心です。
         </p>
@@ -89,34 +86,35 @@ const products = resolveProducts(PRODUCT_SHOWCASE, crops)
           とはいえ畑仕事を続ければ、実りもついてきます。量は多くありませんが、どれもこの土地ならではの味わい。採れたぶんをお分けすることが、畑を守り、活動を続けていく力にもなります。
         </p>
         <p class="mt-4 indent-4">
-          このページで紹介する成果品は、景観の維持や地域との交流とあわせた<a
+          このページで紹介する成果品は、景観の維持や地域との交流とあわせた
+          <a
             href="/achievements"
             class="font-medium text-primary underline underline-offset-4 hover:opacity-80 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
-            >法人全体の活動の影響</a
-          >の一部です。
+          >
+            法人全体の活動の影響
+          </a>
+          の一部です。
         </p>
       </Card>
     </section>
 
     <!-- 成果品ショーケース -->
     <section class="mb-16">
-      <SectionHeading as="h2" align="left" class="mb-6"
-        >畑からうまれたもの</SectionHeading
-      >
+      <SectionHeading as="h2" align="left" class="mb-6">
+        畑からうまれたもの
+      </SectionHeading>
       <div class="grid gap-6 md:grid-cols-2">
-        {
-          products.map((p) => (
-            <ProductCard
-              name={p.name}
-              emoji={p.emoji}
-              color={p.color}
-              tagline={p.tagline}
-              story={p.story}
-              makes={p.makes}
-              season={p.season}
-            />
-          ))
-        }
+        {products.map((p) => (
+          <ProductCard
+            name={p.name}
+            emoji={p.emoji}
+            color={p.color}
+            tagline={p.tagline}
+            story={p.story}
+            makes={p.makes}
+            season={p.season}
+          />
+        ))}
       </div>
       <p class="mt-6 text-sm leading-relaxed text-body/80">
         ※
@@ -127,32 +125,34 @@ const products = resolveProducts(PRODUCT_SHOWCASE, crops)
     <!-- 一緒に畑へ、の導線 (コミュニティ拡大を最優先する方針) -->
     <section class="mb-16">
       <Card class="border-l-4 border-l-primary-soft px-6 py-8 md:px-10">
-        <SectionHeading as="h2" level="sub" align="left" class="mb-4"
-          >一緒に畑に立ちませんか</SectionHeading
-        >
+        <SectionHeading as="h2" level="sub" align="left" class="mb-4">
+          一緒に畑に立ちませんか
+        </SectionHeading>
         <p class="leading-loose text-body">
           これらの作物は、特別な誰かではなく、畑に集まったいろいろな人と過ごす時間の中で実ったものです。植え付けや草取り、お茶摘みは、初めての方も大歓迎。景観を守りながら土に触れるひとときを、ぜひ一度味わってみませんか。気づけば、来年のおすそわけもそこから生まれています。
         </p>
         <div class="mt-6 flex flex-wrap gap-3">
           <Button href="/join">はじめての方へ</Button>
-          <Button href="/calendar" variant="outline">農作業カレンダー</Button>
+          <Button href="/calendar" variant="outline">
+            農作業カレンダー
+          </Button>
         </div>
       </Card>
     </section>
 
     <!-- ショップへの送客 CTA -->
-    <section
-      class="rounded-3xl border border-primary/10 bg-gradient-to-br from-sunlight-soft/60 to-surface px-6 py-10 text-center md:px-12"
-    >
-      <SectionHeading as="h2" align="center" class="mb-4"
-        >遠山郷の味を、おうちで</SectionHeading
-      >
+    <section class="rounded-3xl border border-primary/10 bg-gradient-to-br from-sunlight-soft/60 to-surface px-6 py-10 text-center md:px-12">
+      <SectionHeading as="h2" align="center" class="mb-4">
+        遠山郷の味を、おうちで
+      </SectionHeading>
       <p class="mx-auto max-w-xl leading-loose text-body">
         その時々に採れた旬のものを、オンラインショップでお分けしています。お求めいただくことが、遠山郷の景観と畑を守る活動を続ける力になります。
       </p>
       <div class="mt-8 flex flex-wrap justify-center gap-3">
         <Button href={SHOP_URL}>オンラインショップへ</Button>
-        <Button href="/support" variant="outline">活動を寄付で支える</Button>
+        <Button href="/support" variant="outline">
+          活動を寄付で支える
+        </Button>
       </div>
     </section>
   </Container>

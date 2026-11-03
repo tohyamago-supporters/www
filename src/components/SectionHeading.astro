@@ -44,21 +44,17 @@ const barWidth = level === 'sub' ? 'w-10' : 'w-16'
 ---
 
 <div class:list={['flex', justify, className]}>
-  {
-    /* リーディングアイコン (三つの実) を左に置き、文字列＋装飾線の縦並びを右に置く横並び。
+  {/* リーディングアイコン (三つの実) を左に置き、文字列＋装飾線の縦並びを右に置く横並び。
       アイコンの高さは文字列とおおよそ揃い、下端が装飾線の上あたりに収まるよう
       em 基準で少し小さめに固定する (見出しの font-size を行コンテナへ載せて
       em の基準にする)。self-stretch で行高に追従させる方式は、幅がアスペクト比から
       文字列の折返し → 行高 → 幅… と循環して暴走するため採らない。
       装飾線はアイコンの下へは伸ばさず、文字列の左端 (self-start) に固定するため、
-      タイトルが中央揃えでも装飾線だけは左寄せになる。 */
-  }
+      タイトルが中央揃えでも装飾線だけは左寄せになる。 */}
   <div class:list={['flex items-center gap-3', textSize]}>
-    {
-      /* 三つの実: 深緑 → 陽光 → コーラルの上昇するひし形 (実り・広がり)。
+    {/* 三つの実: 深緑 → 陽光 → コーラルの上昇するひし形 (実り・広がり)。
         サイズに強弱 (中→小→大) と微回転をつけて動きを出し、各辺を
-        二次ベジェで僅かに凹面 (内側へ反らせ先端を尖らせる) にしてきらめきを与える。 */
-    }
+        二次ベジェで僅かに凹面 (内側へ反らせ先端を尖らせる) にしてきらめきを与える。 */}
     <svg
       class="aspect-[18/17] h-[1.5em] w-auto shrink-0"
       viewBox="3 2.5 18 17"
@@ -85,17 +81,15 @@ const barWidth = level === 'sub' ? 'w-10' : 'w-16'
       <Tag class:list={['font-serif font-medium text-primary', textSize]}>
         <slot />
       </Tag>
-      {
-        bar && (
-          <span
-            class:list={[
-              'block h-1 self-start rounded-full bg-sunlight',
-              barWidth,
-            ]}
-            aria-hidden="true"
-          />
-        )
-      }
+      {bar && (
+        <span
+          class:list={[
+            'block h-1 self-start rounded-full bg-sunlight',
+            barWidth,
+          ]}
+          aria-hidden="true"
+        />
+      )}
     </div>
   </div>
 </div>

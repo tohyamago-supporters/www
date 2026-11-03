@@ -86,9 +86,7 @@ const ctaVariants = {
 }
 ---
 
-<header
-  class="sticky top-0 z-40 flex max-h-[100dvh] shrink-0 flex-col border-b border-primary/10 bg-base/95 shadow-sm backdrop-blur"
->
+<header class="sticky top-0 z-40 flex max-h-[100dvh] shrink-0 flex-col border-b border-primary/10 bg-base/95 shadow-sm backdrop-blur">
   <Container size="wide" class="flex items-center justify-between gap-4 py-3">
     <!-- ロゴ (遠山郷の重なる稜線 + 陽光 + コーラルの頂) -->
     <a
@@ -105,69 +103,62 @@ const ctaVariants = {
       class="hidden items-center gap-1 lg:flex"
     >
       <ul class="flex items-center gap-1">
-        {
-          groups.map((g) => (
-            <li class="group relative">
-              <button
-                type="button"
-                aria-haspopup="true"
-                aria-expanded="false"
-                data-dropdown-trigger
-                class:list={[
-                  'flex items-center gap-1.5 rounded-full px-4 py-2 text-sm transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary',
-                  g.primary
-                    ? 'font-medium text-accent-strong hover:bg-accent-soft/20'
-                    : 'text-body hover:text-primary',
-                  isGroupActive(g) && !g.primary && 'font-medium text-primary',
-                ]}
-              >
-                {g.label}
-                <span
-                  aria-hidden="true"
-                  class="h-0 w-0 border-x-[0.22rem] border-t-[0.28rem] border-x-transparent border-t-current transition-transform duration-200 group-hover:rotate-180 group-data-[open]:rotate-180"
-                />
-              </button>
-              <ul class="invisible absolute left-0 top-full z-10 min-w-44 -translate-y-1 rounded-2xl border border-primary/10 bg-surface p-2 opacity-0 shadow-xl transition-all duration-150 group-hover:visible group-hover:translate-y-0 group-hover:opacity-100 group-data-[open]:visible group-data-[open]:translate-y-0 group-data-[open]:opacity-100">
-                {g.items.map((i) => (
-                  <li>
-                    <a
-                      href={i.path}
-                      aria-current={isActivePath(i.path) ? 'page' : undefined}
-                      {...(i.external
-                        ? { target: '_blank', rel: 'noopener noreferrer' }
-                        : {})}
-                      class:list={[
-                        'flex items-center gap-2 whitespace-nowrap rounded-xl px-4 py-2 text-sm transition-colors hover:bg-primary/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary',
-                        isActivePath(i.path)
-                          ? 'font-medium text-primary'
-                          : 'text-body',
-                      ]}
-                    >
-                      {i.title}
-                      {i.external && (
-                        <ArrowIcon
-                          external
-                          class="h-3.5 w-3.5 text-primary/50"
-                        />
-                      )}
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </li>
-          ))
-        }
+        {groups.map((g) => (
+          <li class="group relative">
+            <button
+              type="button"
+              aria-haspopup="true"
+              aria-expanded="false"
+              data-dropdown-trigger
+              class:list={[
+                'flex items-center gap-1.5 rounded-full px-4 py-2 text-sm transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary',
+                g.primary
+                  ? 'font-medium text-accent-strong hover:bg-accent-soft/20'
+                  : 'text-body hover:text-primary',
+                isGroupActive(g) && !g.primary && 'font-medium text-primary',
+              ]}
+            >
+              {g.label}
+              <span
+                aria-hidden="true"
+                class="h-0 w-0 border-x-[0.22rem] border-t-[0.28rem] border-x-transparent border-t-current transition-transform duration-200 group-hover:rotate-180 group-data-[open]:rotate-180"
+              />
+            </button>
+            <ul class="invisible absolute left-0 top-full z-10 min-w-44 -translate-y-1 rounded-2xl border border-primary/10 bg-surface p-2 opacity-0 shadow-xl transition-all duration-150 group-hover:visible group-hover:translate-y-0 group-hover:opacity-100 group-data-[open]:visible group-data-[open]:translate-y-0 group-data-[open]:opacity-100">
+              {g.items.map((i) => (
+                <li>
+                  <a
+                    href={i.path}
+                    aria-current={isActivePath(i.path) ? 'page' : undefined}
+                    {...(i.external
+                      ? { target: '_blank', rel: 'noopener noreferrer' }
+                      : {})}
+                    class:list={[
+                      'flex items-center gap-2 whitespace-nowrap rounded-xl px-4 py-2 text-sm transition-colors hover:bg-primary/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary',
+                      isActivePath(i.path)
+                        ? 'font-medium text-primary'
+                        : 'text-body',
+                    ]}
+                  >
+                    {i.title}
+                    {i.external && (
+                      <ArrowIcon external class="h-3.5 w-3.5 text-primary/50" />
+                    )}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </li>
+        ))}
       </ul>
 
       <!-- 常時表示 CTA -->
       <div class="ml-2 flex items-center gap-2">
-        {
-          ctas.map((c) => (
-            <a href={c.path} class:list={[ctaBase, ctaVariants[c.variant]]}>
-              {c.title}
-            </a>
-          ))
-        }
+        {ctas.map((c) => (
+          <a href={c.path} class:list={[ctaBase, ctaVariants[c.variant]]}>
+            {c.title}
+          </a>
+        ))}
       </div>
     </nav>
 
@@ -199,62 +190,58 @@ const ctaVariants = {
     <Container size="wide" class="py-4">
       <!-- CTA (最優先導線を上部に) -->
       <div class="flex flex-col gap-2 pb-4">
-        {
-          ctas.map((c) => (
-            <a
-              href={c.path}
-              class:list={[ctaBase, 'w-full', ctaVariants[c.variant]]}
-            >
-              {c.title}
-            </a>
-          ))
-        }
+        {ctas.map((c) => (
+          <a
+            href={c.path}
+            class:list={[ctaBase, 'w-full', ctaVariants[c.variant]]}
+          >
+            {c.title}
+          </a>
+        ))}
       </div>
 
       <nav aria-label="モバイルナビゲーション">
         <ul class="divide-y divide-primary/10">
-          {
-            groups.map((g) => (
-              <li class="py-3">
-                <p
-                  class:list={[
-                    'flex items-center gap-2 px-1 pb-1 font-serif text-sm font-medium',
-                    g.primary ? 'text-accent-strong' : 'text-primary',
-                    "before:text-xs before:content-['▲']",
-                  ]}
-                >
-                  {g.label}
-                </p>
-                <ul class="flex flex-col">
-                  {g.items.map((i) => (
-                    <li>
-                      <a
-                        href={i.path}
-                        aria-current={isActivePath(i.path) ? 'page' : undefined}
-                        {...(i.external
-                          ? { target: '_blank', rel: 'noopener noreferrer' }
-                          : {})}
-                        class:list={[
-                          'flex items-center gap-2 rounded-xl px-3 py-2 transition-colors hover:bg-primary/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary',
-                          isActivePath(i.path)
-                            ? 'font-medium text-primary'
-                            : 'text-body',
-                        ]}
-                      >
-                        {i.title}
-                        {i.external && (
-                          <ArrowIcon
-                            external
-                            class="h-3.5 w-3.5 text-primary/50"
-                          />
-                        )}
-                      </a>
-                    </li>
-                  ))}
-                </ul>
-              </li>
-            ))
-          }
+          {groups.map((g) => (
+            <li class="py-3">
+              <p
+                class:list={[
+                  'flex items-center gap-2 px-1 pb-1 font-serif text-sm font-medium',
+                  g.primary ? 'text-accent-strong' : 'text-primary',
+                  "before:text-xs before:content-['▲']",
+                ]}
+              >
+                {g.label}
+              </p>
+              <ul class="flex flex-col">
+                {g.items.map((i) => (
+                  <li>
+                    <a
+                      href={i.path}
+                      aria-current={isActivePath(i.path) ? 'page' : undefined}
+                      {...(i.external
+                        ? { target: '_blank', rel: 'noopener noreferrer' }
+                        : {})}
+                      class:list={[
+                        'flex items-center gap-2 rounded-xl px-3 py-2 transition-colors hover:bg-primary/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary',
+                        isActivePath(i.path)
+                          ? 'font-medium text-primary'
+                          : 'text-body',
+                      ]}
+                    >
+                      {i.title}
+                      {i.external && (
+                        <ArrowIcon
+                          external
+                          class="h-3.5 w-3.5 text-primary/50"
+                        />
+                      )}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </li>
+          ))}
         </ul>
       </nav>
     </Container>

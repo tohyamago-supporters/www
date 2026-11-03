@@ -29,17 +29,15 @@ const { name, emoji, color, tagline, story, makes, season } = Astro.props
     class="flex items-center gap-4 px-6 py-5"
     style={`background: linear-gradient(135deg, color-mix(in srgb, ${color} 14%, transparent), transparent)`}
   >
-    {
-      emoji && (
-        <span
-          class="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl text-3xl shadow-sm"
-          style={`background-color: color-mix(in srgb, ${color} 15%, transparent)`}
-          aria-hidden="true"
-        >
-          {emoji}
-        </span>
-      )
-    }
+    {emoji && (
+      <span
+        class="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl text-3xl shadow-sm"
+        style={`background-color: color-mix(in srgb, ${color} 15%, transparent)`}
+        aria-hidden="true"
+      >
+        {emoji}
+      </span>
+    )}
     <div>
       <h2 class="font-serif text-xl font-medium text-primary">{name}</h2>
       <p class="mt-1 text-sm leading-relaxed text-body/80">{tagline}</p>
@@ -48,40 +46,36 @@ const { name, emoji, color, tagline, story, makes, season } = Astro.props
 
   <div class="flex grow flex-col gap-5 px-6 py-6">
     <div class="space-y-3 leading-loose text-body">
-      {story.map((paragraph) => <p>{paragraph}</p>)}
+      {story.map((paragraph) => (
+        <p>{paragraph}</p>
+      ))}
     </div>
 
     <div class="mt-auto">
-      <p
-        class="mb-3 flex items-center gap-2 font-serif text-sm font-medium text-primary-deep"
-      >
-        <span aria-hidden="true" style={`color:${color}`}>▲</span>
+      <p class="mb-3 flex items-center gap-2 font-serif text-sm font-medium text-primary-deep">
+        <span aria-hidden="true" style={`color:${color}`}>
+          ▲
+        </span>
         こんなふうに味わえます
       </p>
       <ul class="space-y-2">
-        {
-          makes.map((m) => (
-            <li class="flex gap-2.5 leading-relaxed text-body">
-              <span
-                class="mt-2 h-0 w-0 shrink-0 border-x-[0.3rem] border-b-[0.5rem] border-x-transparent"
-                style={`border-bottom-color:${color}`}
-                aria-hidden="true"
-              />
-              <span>
-                <span class="font-medium text-primary-deep">{m.label}</span>
-                {m.note && (
-                  <span class="text-sm text-body/80"> — {m.note}</span>
-                )}
-              </span>
-            </li>
-          ))
-        }
+        {makes.map((m) => (
+          <li class="flex gap-2.5 leading-relaxed text-body">
+            <span
+              class="mt-2 h-0 w-0 shrink-0 border-x-[0.3rem] border-b-[0.5rem] border-x-transparent"
+              style={`border-bottom-color:${color}`}
+              aria-hidden="true"
+            />
+            <span>
+              <span class="font-medium text-primary-deep">{m.label}</span>
+              {m.note && <span class="text-sm text-body/80"> — {m.note}</span>}
+            </span>
+          </li>
+        ))}
       </ul>
     </div>
 
-    <p
-      class="rounded-xl bg-sunlight-soft/40 px-3 py-2 text-sm text-primary-deep"
-    >
+    <p class="rounded-xl bg-sunlight-soft/40 px-3 py-2 text-sm text-primary-deep">
       <span class="font-medium">旬</span> — {season}
     </p>
   </div>

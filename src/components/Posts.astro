@@ -9,9 +9,14 @@ interface Props {
   limit?: number
   /** 記事 ctaEvery 件ごとに「次は、あなたの番です」CTA を差し込む (近況アーカイブ用)。0/未指定で無効。 */
   ctaEvery?: number
+  /**
+   * sm 未満 (1 列) で表示する件数の上限。超えた分は sm 以上 (2 列) でのみ表示する。
+   * 1 列では縦に長くなりやすく、2 列では偶数件でないと列が欠けるため、トップで両立させる。
+   */
+  mobileLimit?: number
 }
 
-const { limit, ctaEvery = 0 } = Astro.props
+const { limit, ctaEvery = 0, mobileLimit } = Astro.props
 
 const sorted = (await getCollection('posts')).sort(
   (a, b) => b.data.date.getTime() - a.data.date.getTime(),
@@ -24,15 +29,18 @@ const posts = limit === undefined ? sorted : sorted.slice(0, limit)
 const ctaAfter = ctaPositions(posts.length, ctaEvery)
 ---
 
-<section
-  class="mx-auto grid w-full max-w-3xl grid-cols-1 gap-5 px-4 sm:grid-cols-2 sm:px-6"
->
-  {
-    posts.map((post, index) => (
-      <Fragment>
-        <PostCard post={post} />
-        {ctaAfter.has(index) && <NewsCta compact class="sm:col-span-2" />}
-      </Fragment>
-    ))
-  }
+<section class="mx-auto grid w-full max-w-3xl grid-cols-1 gap-5 px-4 sm:grid-cols-2 sm:px-6">
+  {posts.map((post, index) => (
+    <Fragment>
+      <PostCard
+        post={post}
+        class={
+          mobileLimit !== undefined && index >= mobileLimit
+            ? 'max-sm:hidden'
+            : ''
+        }
+      />
+      {ctaAfter.has(index) && <NewsCta compact class="sm:col-span-2" />}
+    </Fragment>
+  ))}
 </section>

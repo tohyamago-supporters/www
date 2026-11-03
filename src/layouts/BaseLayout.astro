@@ -132,16 +132,14 @@ gtag('config', '${gaMeasurementId}');`}
         </Fragment>
       )
     }
-    {
-      /* タイポグラフィ: 見出し Noto Serif JP / 本文 Noto Sans JP (light 基調)。
+    {/* タイポグラフィ: 見出し Noto Serif JP / 本文 Noto Sans JP (light 基調)。
         日本語 Web フォントは巨大 (ウェイトごとに ~100 個の unicode-range 分割) で、
         フォント CSS を render-blocking で読むと FCP/LCP が CSS ダウンロード完了まで
         待たされる (低速 4G で数秒)。そこで CSS を非ブロッキングに読み込む:
         まず media="print" で適用対象外として取得し、onload で media を all に戻す。
         display=swap によりまず system フォント (Hiragino/Yu 系) を即描画し、Web フォントは
         遅れて差し替える。JS 無効時は noscript の通常 stylesheet でフォールバックする。
-        未使用ウェイト (Serif 600 = font-semibold は不使用) は要求しない。 */
-    }
+        未使用ウェイト (Serif 600 = font-semibold は不使用) は要求しない。 */}
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="preload" as="style" href={fontsHref} />
@@ -157,22 +155,20 @@ gtag('config', '${gaMeasurementId}');`}
   </head>
   <body class={fullscreen ? 'is-fullscreen' : undefined}>
     <SiteHeader currentPath={currentPath} />
-    {
-      fullscreen ? (
-        /* 確定高さの body 内で grow + min-h-0。子の h-full が高さを解決できる */
-        <main class="min-h-0 grow overflow-hidden">
+    {fullscreen ? (
+      /* 確定高さの body 内で grow + min-h-0。子の h-full が高さを解決できる */
+      <main class="min-h-0 grow overflow-hidden">
+        <slot />
+      </main>
+    ) : (
+      /* main を grow させると、短いページでも SiteFooter が下端に収まる */
+      <Fragment>
+        <main class="grow">
           <slot />
         </main>
-      ) : (
-        /* main を grow させると、短いページでも SiteFooter が下端に収まる */
-        <Fragment>
-          <main class="grow">
-            <slot />
-          </main>
-          <SiteFooter currentPath={currentPath} />
-        </Fragment>
-      )
-    }
+        <SiteFooter currentPath={currentPath} />
+      </Fragment>
+    )}
     <script>
       import { initImageFadeIn } from '~/components/image-fade-in'
       initImageFadeIn()

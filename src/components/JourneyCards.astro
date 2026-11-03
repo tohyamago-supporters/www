@@ -71,61 +71,54 @@ const tints = {
 ---
 
 <ul class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-  {
-    journeys.map((j) => {
-      const t = tints[j.tint as keyof typeof tints]
-      return (
-        <li
-          class:list={['sm:flex', j.featured && 'sm:col-span-2 lg:col-span-1']}
+  {journeys.map((j) => {
+    const t = tints[j.tint as keyof typeof tints]
+    return (
+      <li class:list={['sm:flex', j.featured && 'sm:col-span-2 lg:col-span-1']}>
+        <Card
+          as="div"
+          hover
+          class:list={['group flex w-full flex-col', j.featured && t.ring]}
         >
-          <Card
-            as="div"
-            hover
-            class:list={['group flex w-full flex-col', j.featured && t.ring]}
+          <a
+            href={j.href}
+            {...(j.external
+              ? { target: '_blank', rel: 'noopener noreferrer' }
+              : {})}
+            class="flex h-full flex-col gap-3 p-6 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
           >
-            <a
-              href={j.href}
-              {...(j.external
-                ? { target: '_blank', rel: 'noopener noreferrer' }
-                : {})}
-              class="flex h-full flex-col gap-3 p-6 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
-            >
-              <div class="flex items-center gap-3">
-                <span
-                  aria-hidden="true"
-                  class:list={[
-                    'flex h-12 w-12 shrink-0 items-center justify-center rounded-full transition-transform motion-safe:group-hover:-translate-y-0.5',
-                    t.icon,
-                  ]}
-                >
-                  <JourneyIcon name={j.icon} class="h-6 w-6" />
-                </span>
-                <h3 class="font-serif text-xl font-medium text-primary">
-                  {j.title}
-                </h3>
-                {j.featured && (
-                  <span class="inline-flex shrink-0 rounded-full bg-accent-strong px-2.5 py-0.5 text-[0.65rem] font-medium tracking-wide text-white">
-                    なかま募集中
-                  </span>
-                )}
-              </div>
-              <p class="grow text-sm leading-relaxed text-body">{j.desc}</p>
+            <div class="flex items-center gap-3">
               <span
+                aria-hidden="true"
                 class:list={[
-                  'mt-1 inline-flex items-center gap-1.5 text-sm font-medium transition-transform motion-safe:group-hover:translate-x-0.5',
-                  t.cta,
+                  'flex h-12 w-12 shrink-0 items-center justify-center rounded-full transition-transform motion-safe:group-hover:-translate-y-0.5',
+                  t.icon,
                 ]}
               >
-                {j.cta}
-                <ArrowIcon
-                  external={j.external}
-                  class="h-[1.15em] w-[1.15em]"
-                />
+                <JourneyIcon name={j.icon} class="h-6 w-6" />
               </span>
-            </a>
-          </Card>
-        </li>
-      )
-    })
-  }
+              <h3 class="font-serif text-xl font-medium text-primary">
+                {j.title}
+              </h3>
+              {j.featured && (
+                <span class="inline-flex shrink-0 rounded-full bg-accent-strong px-2.5 py-0.5 text-[0.65rem] font-medium tracking-wide text-white">
+                  なかま募集中
+                </span>
+              )}
+            </div>
+            <p class="grow text-sm leading-relaxed text-body">{j.desc}</p>
+            <span
+              class:list={[
+                'mt-1 inline-flex items-center gap-1.5 text-sm font-medium transition-transform motion-safe:group-hover:translate-x-0.5',
+                t.cta,
+              ]}
+            >
+              {j.cta}
+              <ArrowIcon external={j.external} class="h-[1.15em] w-[1.15em]" />
+            </span>
+          </a>
+        </Card>
+      </li>
+    )
+  })}
 </ul>

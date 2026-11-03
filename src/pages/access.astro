@@ -161,22 +161,14 @@ const routes = [
   imageAlt="遠山郷の山並み"
 >
   <!-- ヒーロー -->
-  <section
-    class="relative overflow-hidden bg-gradient-to-b from-sky-soft via-base to-base px-4 pt-12 pb-10 text-center sm:pt-16"
-  >
-    <span
-      class="mx-auto mb-4 flex w-fit items-center rounded-full bg-primary-deep px-4 py-1 font-serif text-sm tracking-wide text-white"
-    >
+  <section class="relative overflow-hidden bg-gradient-to-b from-sky-soft via-base to-base px-4 pt-12 pb-10 text-center sm:pt-16">
+    <span class="mx-auto mb-4 flex w-fit items-center rounded-full bg-primary-deep px-4 py-1 font-serif text-sm tracking-wide text-white">
       交通案内
     </span>
-    <h1
-      class="font-serif text-3xl font-medium leading-snug text-primary md:text-4xl"
-    >
+    <h1 class="font-serif text-3xl font-medium leading-snug text-primary md:text-4xl">
       秘境への、行き方ガイド
     </h1>
-    <p
-      class="mx-auto mt-5 max-w-xl text-left leading-loose text-body sm:text-center"
-    >
+    <p class="mx-auto mt-5 max-w-xl text-left leading-loose text-body sm:text-center">
       遠山郷は、新幹線の駅も高速道路の出口も遠い、山あいの里。たどり着くまでの道のりも、この土地らしさのひとつです。はじめての方が迷わないよう、主な行き方と周辺の地図をまとめました。
     </p>
     <div class="mx-auto mt-8 w-full max-w-3xl">
@@ -193,7 +185,9 @@ const routes = [
     </div>
     <div class="mt-8 flex flex-wrap justify-center gap-3">
       <Button href="#routes">行き方を見る</Button>
-      <Button href="/eat-stay" variant="outline">食べる・泊まる</Button>
+      <Button href="/eat-stay" variant="outline">
+        食べる・泊まる
+      </Button>
     </div>
   </section>
 
@@ -203,114 +197,114 @@ const routes = [
       <Card class="border-l-4 border-l-sky px-6 py-6 md:px-8">
         <div class="space-y-4 leading-loose text-body">
           <p class="indent-4">
-            活動は <span class="font-medium text-primary-deep"
-              >長野県飯田市の遠山郷</span
-            >
+            活動は{' '}
+            <span class="font-medium text-primary-deep">
+              長野県飯田市の遠山郷
+            </span>
             を中心に行っています。現在は「日本のチロル」とも呼ばれる
             <span class="font-medium text-primary-deep">下栗の里</span>
-            での農作業が中心ですが、活動場所は時期や内容によって変わります。<span
-              class="font-medium text-primary-deep"
-              >当日の集合場所は、応募後にご案内します。</span
-            >このページは、まず遠山郷・下栗までたどり着くための一般的な行き方としてご覧ください。
+            での農作業が中心ですが、活動場所は時期や内容によって変わります。
+            <span class="font-medium text-primary-deep">
+              当日の集合場所は、応募後にご案内します。
+            </span>
+            このページは、まず遠山郷・下栗までたどり着くための一般的な行き方としてご覧ください。
           </p>
           <p class="indent-4">
-            山あいのため公共交通の便は限られ、<span
-              class="font-medium text-primary-deep">お車が便利な地域</span
-            >です。現地までの移動は、レンタカーやタクシーでご自身で向かっていただくのが基本となります。どうしても手段が見つからない場合に限り当会でご相談に応じますが、送迎をお約束できるものではありません。
+            山あいのため公共交通の便は限られ、
+            <span class="font-medium text-primary-deep">お車が便利な地域</span>
+            です。現地までの移動は、レンタカーやタクシーでご自身で向かっていただくのが基本となります。どうしても手段が見つからない場合に限り当会でご相談に応じますが、送迎をお約束できるものではありません。
           </p>
         </div>
         <div class="mt-6 flex flex-wrap gap-3">
-          <Button href={mapUrl('長野県飯田市下栗1296')} variant="outline"
-            >主な活動エリアの地図</Button
-          >
+          <Button href={mapUrl('長野県飯田市下栗1296')} variant="outline">
+            主な活動エリアの地図
+          </Button>
         </div>
       </Card>
     </section>
 
     <!-- 行き方を選ぶ -->
     <section id="routes" class="mb-16 scroll-mt-24">
-      <SectionHeading as="h2" align="left" class="mb-4"
-        >行き方を選ぶ</SectionHeading
-      >
+      <SectionHeading as="h2" align="left" class="mb-4">
+        行き方を選ぶ
+      </SectionHeading>
       <p class="mb-6 leading-loose text-body">
         目的に合う行き方をお選びください。各カードに、主要な出発地（名古屋・東京）からの所要時間の目安と、参考になる時刻表リンクをまとめています。所要時間・時刻は時期や便で変わるため、おおよその目安としてご覧のうえ、出発前に各社の最新情報をご確認ください。
       </p>
       <div class="grid gap-6 md:grid-cols-2">
-        {
-          routes.map((route) => (
-            <Card class="flex h-full flex-col border-t-4 border-t-primary-soft px-6 py-6 md:px-8">
-              <div class="flex flex-wrap items-center gap-2">
-                <span class="rounded-full bg-primary-deep px-3 py-0.5 text-[0.7rem] font-medium tracking-wide text-white">
-                  {route.badge}
+        {routes.map((route) => (
+          <Card class="flex h-full flex-col border-t-4 border-t-primary-soft px-6 py-6 md:px-8">
+            <div class="flex flex-wrap items-center gap-2">
+              <span class="rounded-full bg-primary-deep px-3 py-0.5 text-[0.7rem] font-medium tracking-wide text-white">
+                {route.badge}
+              </span>
+              {route.recommend && (
+                <span class="rounded-full bg-accent-strong px-2.5 py-0.5 text-[0.65rem] font-medium tracking-wide text-white">
+                  おすすめ
                 </span>
-                {route.recommend && (
-                  <span class="rounded-full bg-accent-strong px-2.5 py-0.5 text-[0.65rem] font-medium tracking-wide text-white">
-                    おすすめ
+              )}
+            </div>
+            <h3 class="mt-3 font-serif text-lg font-medium text-primary">
+              {route.title}
+            </h3>
+            <p class="mt-2 leading-relaxed text-body">{route.summary}</p>
+            <ol class="mt-4 space-y-3">
+              {route.steps.map((step, i) => (
+                <li class="flex gap-3 leading-relaxed text-body">
+                  <span
+                    class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary-soft/30 text-sm font-medium text-primary-deep"
+                    aria-hidden="true"
+                  >
+                    {i + 1}
                   </span>
-                )}
+                  <span>{step}</span>
+                </li>
+              ))}
+            </ol>
+            {route.origins.length > 0 && (
+              <div class="mt-5 rounded-xl bg-primary-soft/10 px-4 py-3">
+                <p class="text-xs font-medium tracking-wide text-primary-deep">
+                  起点別の目安
+                </p>
+                <dl class="mt-2 space-y-2 text-sm leading-relaxed text-body">
+                  {route.origins.map((o) => (
+                    <div class="flex gap-3">
+                      <dt class="w-16 shrink-0 font-medium text-primary-deep">
+                        {o.from}
+                      </dt>
+                      <dd>{o.time}</dd>
+                    </div>
+                  ))}
+                </dl>
               </div>
-              <h3 class="mt-3 font-serif text-lg font-medium text-primary">
-                {route.title}
-              </h3>
-              <p class="mt-2 leading-relaxed text-body">{route.summary}</p>
-              <ol class="mt-4 space-y-3">
-                {route.steps.map((step, i) => (
-                  <li class="flex gap-3 leading-relaxed text-body">
-                    <span
-                      class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary-soft/30 text-sm font-medium text-primary-deep"
-                      aria-hidden="true"
-                    >
-                      {i + 1}
-                    </span>
-                    <span>{step}</span>
-                  </li>
-                ))}
-              </ol>
-              {route.origins.length > 0 && (
-                <div class="mt-5 rounded-xl bg-primary-soft/10 px-4 py-3">
-                  <p class="text-xs font-medium tracking-wide text-primary-deep">
-                    起点別の目安
-                  </p>
-                  <dl class="mt-2 space-y-2 text-sm leading-relaxed text-body">
-                    {route.origins.map((o) => (
-                      <div class="flex gap-3">
-                        <dt class="w-16 shrink-0 font-medium text-primary-deep">
-                          {o.from}
-                        </dt>
-                        <dd>{o.time}</dd>
-                      </div>
-                    ))}
-                  </dl>
-                </div>
-              )}
-              {route.timetables.length > 0 && (
-                <div class="mt-4">
-                  <p class="text-xs font-medium tracking-wide text-primary-deep">
-                    時刻表（参考）
-                  </p>
-                  <ul class="mt-2 space-y-2">
-                    {route.timetables.map((t) => (
-                      <li class="leading-relaxed">
-                        <a
-                          href={t.href}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          class="text-sm font-medium text-accent-strong underline decoration-accent/40 underline-offset-4 hover:decoration-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
-                        >
-                          {t.label}
-                        </a>
-                        <span class="block text-xs text-body/80">{t.note}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-              <p class="mt-4 rounded-xl bg-sunlight-soft/40 px-4 py-3 text-sm leading-relaxed text-body/90">
-                {route.note}
-              </p>
-            </Card>
-          ))
-        }
+            )}
+            {route.timetables.length > 0 && (
+              <div class="mt-4">
+                <p class="text-xs font-medium tracking-wide text-primary-deep">
+                  時刻表（参考）
+                </p>
+                <ul class="mt-2 space-y-2">
+                  {route.timetables.map((t) => (
+                    <li class="leading-relaxed">
+                      <a
+                        href={t.href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="text-sm font-medium text-accent-strong underline decoration-accent/40 underline-offset-4 hover:decoration-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+                      >
+                        {t.label}
+                      </a>
+                      <span class="block text-xs text-body/80">{t.note}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            <p class="mt-4 rounded-xl bg-sunlight-soft/40 px-4 py-3 text-sm leading-relaxed text-body/90">
+              {route.note}
+            </p>
+          </Card>
+        ))}
       </div>
     </section>
 
@@ -320,18 +314,18 @@ const routes = [
     </section>
 
     <!-- CTA -->
-    <section
-      class="rounded-3xl border border-primary/10 bg-gradient-to-br from-sunlight-soft/60 to-surface px-6 py-10 text-center md:px-12"
-    >
-      <SectionHeading as="h2" align="center" class="mb-4"
-        >道のりも、旅のうち</SectionHeading
-      >
+    <section class="rounded-3xl border border-primary/10 bg-gradient-to-br from-sunlight-soft/60 to-surface px-6 py-10 text-center md:px-12">
+      <SectionHeading as="h2" align="center" class="mb-4">
+        道のりも、旅のうち
+      </SectionHeading>
       <p class="mx-auto max-w-xl leading-loose text-body">
         遠いぶんだけ、たどり着いたときの景色は格別です。ルートや時刻表でご不明な点があれば、お問い合わせください。あなたのお越しを、遠山郷でお待ちしています。
       </p>
       <div class="mt-8 flex flex-wrap justify-center gap-3">
         <Button href={ACTIVO_URL}>ボランティア募集を見る</Button>
-        <Button href="/eat-stay" variant="outline">食べる・泊まる</Button>
+        <Button href="/eat-stay" variant="outline">
+          食べる・泊まる
+        </Button>
       </div>
     </section>
   </Container>
