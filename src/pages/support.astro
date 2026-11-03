@@ -54,22 +54,14 @@ const otherWays = [
   imageAlt="遠山郷の山並み"
 >
   <!-- ヒーロー: 「支える」という行動に焦点を当てる (場所・モノを強調しすぎない) -->
-  <section
-    class="relative overflow-hidden bg-gradient-to-b from-sunlight-soft/40 via-base to-base px-4 pt-12 pb-10 text-center sm:pt-16"
-  >
-    <span
-      class="mx-auto mb-4 flex w-fit items-center rounded-full bg-primary-deep px-4 py-1 font-serif text-sm tracking-wide text-white"
-    >
+  <section class="relative overflow-hidden bg-gradient-to-b from-sunlight-soft/40 via-base to-base px-4 pt-12 pb-10 text-center sm:pt-16">
+    <span class="mx-auto mb-4 flex w-fit items-center rounded-full bg-primary-deep px-4 py-1 font-serif text-sm tracking-wide text-white">
       ご寄付のお願い
     </span>
-    <h1
-      class="font-serif text-3xl font-medium leading-snug text-primary md:text-4xl"
-    >
+    <h1 class="font-serif text-3xl font-medium leading-snug text-primary md:text-4xl">
       活動を、寄付で支える
     </h1>
-    <p
-      class="mx-auto mt-5 max-w-xl text-left leading-loose text-body sm:text-center"
-    >
+    <p class="mx-auto mt-5 max-w-xl text-left leading-loose text-body sm:text-center">
       遠山郷の景観・暮らし・文化を守り継ぐ活動は、応援してくださる皆さまに支えられております。少額でも、一度限りでも、継続でも構いません。現在は口座振込により寄付を受け付けております。
     </p>
     <div class="mx-auto mt-8 w-full max-w-3xl">
@@ -85,17 +77,21 @@ const otherWays = [
       />
     </div>
     <div class="mt-8 flex flex-wrap justify-center gap-3">
-      <Button href="#bank" arrow={false}>寄付の振込先を見る</Button>
-      <Button href="/purpose" variant="outline">活動方針を知る</Button>
+      <Button href="#bank" arrow={false}>
+        寄付の振込先を見る
+      </Button>
+      <Button href="/purpose" variant="outline">
+        活動方針を知る
+      </Button>
     </div>
   </section>
 
   <Container class="py-12 md:py-16">
     <!-- 口座振込による寄付 (主導線) -->
     <section id="bank" class="mb-16 scroll-mt-24">
-      <SectionHeading as="h2" align="left" class="mb-6"
-        >口座振込による寄付</SectionHeading
-      >
+      <SectionHeading as="h2" align="left" class="mb-6">
+        口座振込による寄付
+      </SectionHeading>
       <p class="mb-4 indent-4 leading-loose text-body">
         現在は、下記の口座へのお振込みにより寄付を受け付けております。単発・継続のいずれも歓迎いたします。金額の定めはございません。お気持ちに応じてお決めください。
       </p>
@@ -105,23 +101,21 @@ const otherWays = [
 
       <Card class="border-t-4 border-t-accent px-6 py-2 md:px-10">
         <dl class="divide-y divide-primary/10">
-          {
-            bankDetails.map((row) => (
-              <div class="grid gap-1 py-4 sm:grid-cols-[8rem_1fr]">
-                <dt class="font-medium text-primary-deep">{row.label}</dt>
-                <dd class="text-body">
-                  <span class="font-mono text-lg font-medium text-primary-deep">
-                    {row.value}
+          {bankDetails.map((row) => (
+            <div class="grid gap-1 py-4 sm:grid-cols-[8rem_1fr]">
+              <dt class="font-medium text-primary-deep">{row.label}</dt>
+              <dd class="text-body">
+                <span class="font-mono text-lg font-medium text-primary-deep">
+                  {row.value}
+                </span>
+                {row.code && (
+                  <span class="mt-0.5 block text-sm text-body/80">
+                    {row.code}
                   </span>
-                  {row.code && (
-                    <span class="mt-0.5 block text-sm text-body/80">
-                      {row.code}
-                    </span>
-                  )}
-                </dd>
-              </div>
-            ))
-          }
+                )}
+              </dd>
+            </div>
+          ))}
         </dl>
       </Card>
 
@@ -129,57 +123,59 @@ const otherWays = [
         <li class="flex gap-2">
           <span
             class="mt-2 h-0 w-0 shrink-0 border-x-[0.3rem] border-b-[0.5rem] border-x-transparent border-b-accent"
-            aria-hidden="true"></span>
-          <span
-            >お振込み名義（ご依頼人名）は、領収書の発行および照会の際の確認に使用いたします。</span
-          >
+            aria-hidden="true"
+          ></span>
+          <span>
+            お振込み名義（ご依頼人名）は、領収書の発行および照会の際の確認に使用いたします。
+          </span>
         </li>
       </ul>
     </section>
 
     <!-- 寄付に際して (領収書・使途・税制・返金。誤認を避ける) -->
     <section class="mb-16">
-      <SectionHeading as="h2" align="left" class="mb-6"
-        >寄付に際して</SectionHeading
-      >
+      <SectionHeading as="h2" align="left" class="mb-6">
+        寄付に際して
+      </SectionHeading>
       <div class="grid gap-6">
         <Card class="border-l-4 border-l-primary-soft px-6 py-6 md:px-8">
-          <SectionHeading as="h3" level="sub" align="left" class="mb-3"
-            >寄付の使途</SectionHeading
-          >
+          <SectionHeading as="h3" level="sub" align="left" class="mb-3">
+            寄付の使途
+          </SectionHeading>
           <p class="indent-4 leading-loose text-body">
             お寄せいただいた寄付は、当会の運営に、大切に活用いたします。
           </p>
         </Card>
 
         <Card class="border-l-4 border-l-sunlight px-6 py-6 md:px-8">
-          <SectionHeading as="h3" level="sub" align="left" class="mb-3"
-            >領収書の発行について</SectionHeading
-          >
+          <SectionHeading as="h3" level="sub" align="left" class="mb-3">
+            領収書の発行について
+          </SectionHeading>
           <p class="indent-4 leading-loose text-body">
             領収書をご希望の方は、お振込み後に
             <a
               href={`mailto:${CONTACT_EMAIL}`}
               class="font-mono text-accent-strong underline underline-offset-2 hover:opacity-80"
-              >{CONTACT_EMAIL}</a
             >
+              {CONTACT_EMAIL}
+            </a>
             宛に、お名前・領収書の送付先メールアドレス・お振込日・金額をご連絡ください。確認のうえ、領収書は原則としてメールにて送付いたします。お知らせいただいた個人情報は、領収書の発行および連絡の目的にのみ使用いたします。
           </p>
         </Card>
 
         <Card class="border-l-4 border-l-sky px-6 py-6 md:px-8">
-          <SectionHeading as="h3" level="sub" align="left" class="mb-3"
-            >税制上の取扱い</SectionHeading
-          >
+          <SectionHeading as="h3" level="sub" align="left" class="mb-3">
+            税制上の取扱い
+          </SectionHeading>
           <div class="space-y-3 leading-loose text-body">
             <p class="indent-4">
-              当会は認定NPO法人・公益社団法人等には該当しないため、<span
-                class="font-medium text-primary-deep">個人の方</span
-              >の寄付は、所得税の寄付金控除（寄附金控除）の対象とはなりません。
+              当会は認定NPO法人・公益社団法人等には該当しないため、
+              <span class="font-medium text-primary-deep">個人の方</span>
+              の寄付は、所得税の寄付金控除（寄附金控除）の対象とはなりません。
             </p>
             <p class="indent-4">
-              <span class="font-medium text-primary-deep">法人の方</span
-              >の寄付は、法人税法上「一般の寄付金」として、損金算入限度額内の部分のみ損金算入の対象となります（全額損金算入、および特定公益増進法人に対する寄付金の特別枠の対象ではありません）。
+              <span class="font-medium text-primary-deep">法人の方</span>
+              の寄付は、法人税法上「一般の寄付金」として、損金算入限度額内の部分のみ損金算入の対象となります（全額損金算入、および特定公益増進法人に対する寄付金の特別枠の対象ではありません）。
             </p>
             <p class="text-sm text-body/80">
               税務上の取扱いは個別の状況により異なります。詳細は所轄の税務署または税理士にご確認ください。
@@ -188,9 +184,9 @@ const otherWays = [
         </Card>
 
         <Card class="border-l-4 border-l-accent px-6 py-6 md:px-8">
-          <SectionHeading as="h3" level="sub" align="left" class="mb-3"
-            >返金について</SectionHeading
-          >
+          <SectionHeading as="h3" level="sub" align="left" class="mb-3">
+            返金について
+          </SectionHeading>
           <p class="indent-4 leading-loose text-body">
             一度お振込みいただいた寄付は、原則として返還いたしかねます。
           </p>
@@ -200,48 +196,46 @@ const otherWays = [
 
     <!-- 寄付以外の支援の方法 (issue #207: 主要 CTA の先で必ず行動できるようにする) -->
     <section class="mb-16">
-      <SectionHeading as="h2" align="left" class="mb-6"
-        >その他のご支援方法</SectionHeading
-      >
+      <SectionHeading as="h2" align="left" class="mb-6">
+        その他のご支援方法
+      </SectionHeading>
       <p class="mb-6 indent-4 leading-loose text-body">
         寄付のほかにも、活動を支えていただける方法がございます。ご自身に合った方法で、ご支援いただけますと幸いです。
       </p>
       <div class="grid gap-6 md:grid-cols-2">
-        {
-          otherWays.map((way) => (
-            <Card
-              class={`flex h-full flex-col border-l-4 px-6 py-6 ${way.accent}`}
-            >
-              <h3 class="font-serif text-lg font-medium text-primary">
-                {way.title}
-              </h3>
-              <p class="mt-3 grow leading-loose text-body">{way.body}</p>
-              <div class="mt-5">
-                <Button href={way.href} variant="outline">
-                  {way.cta}
-                </Button>
-              </div>
-            </Card>
-          ))
-        }
+        {otherWays.map((way) => (
+          <Card
+            class={`flex h-full flex-col border-l-4 px-6 py-6 ${way.accent}`}
+          >
+            <h3 class="font-serif text-lg font-medium text-primary">
+              {way.title}
+            </h3>
+            <p class="mt-3 grow leading-loose text-body">{way.body}</p>
+            <div class="mt-5">
+              <Button href={way.href} variant="outline">
+                {way.cta}
+              </Button>
+            </div>
+          </Card>
+        ))}
       </div>
     </section>
 
     <!-- お問い合わせ / 末尾 CTA -->
-    <section
-      class="rounded-3xl border border-primary/10 bg-gradient-to-br from-sunlight-soft/60 to-surface px-6 py-10 text-center md:px-12"
-    >
-      <SectionHeading as="h2" align="center" class="mb-4"
-        >お問い合わせ</SectionHeading
-      >
+    <section class="rounded-3xl border border-primary/10 bg-gradient-to-br from-sunlight-soft/60 to-surface px-6 py-10 text-center md:px-12">
+      <SectionHeading as="h2" align="center" class="mb-4">
+        お問い合わせ
+      </SectionHeading>
       <p class="mx-auto max-w-xl leading-loose text-body">
         寄付の方法や領収書、活動内容などについてご不明な点がございましたら、お問い合わせください。皆さまのご支援が、遠山郷の明日を支えております。
       </p>
       <div class="mt-8 flex flex-wrap justify-center gap-3">
-        <Button href={`mailto:${CONTACT_EMAIL}`} arrow={false}
-          >メールで問い合わせる</Button
-        >
-        <Button href="/products" variant="outline">成果品で応援する</Button>
+        <Button href={`mailto:${CONTACT_EMAIL}`} arrow={false}>
+          メールで問い合わせる
+        </Button>
+        <Button href="/products" variant="outline">
+          成果品で応援する
+        </Button>
       </div>
     </section>
   </Container>

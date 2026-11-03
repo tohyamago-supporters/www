@@ -127,9 +127,7 @@ const pages: StoryPage[] = [
        - スマホ (~md): アートを「切れない」バナーとして上に置き、文は下のクリーム地へ。
        - md 以上: アートを全面背景にし、ダークグリーンのスクリム上に白文字で重ねる。 -->
   <section class="relative isolate overflow-hidden">
-    <div
-      class="relative aspect-[16/9] w-full overflow-hidden md:absolute md:inset-0 md:-z-10 md:aspect-auto md:h-full"
-    >
+    <div class="relative aspect-[16/9] w-full overflow-hidden md:absolute md:inset-0 md:-z-10 md:aspect-auto md:h-full">
       <StoryArt
         scene="hero"
         title="陽光のさす谷あいの段々畑を見上げる、ひとりの人影"
@@ -139,31 +137,26 @@ const pages: StoryPage[] = [
       <div
         aria-hidden="true"
         class="absolute inset-0 md:bg-gradient-to-t md:from-primary-deep/92 md:via-primary-deep/42 md:to-transparent"
-      >
-      </div>
+      ></div>
     </div>
     <Container
       size="wide"
       class="flex flex-col items-center gap-4 px-4 py-6 text-center md:min-h-[clamp(22rem,60svh,34rem)] md:justify-end md:gap-5 md:py-0 md:pb-12 md:pt-24"
     >
-      <span
-        class="flex w-fit items-center gap-2 rounded-full bg-primary-deep px-4 py-1 font-serif text-sm tracking-wide text-white ring-1 ring-white/25 [text-shadow:0_1px_3px_rgba(15,46,33,0.6)]"
-      >
+      <span class="flex w-fit items-center gap-2 rounded-full bg-primary-deep px-4 py-1 font-serif text-sm tracking-wide text-white ring-1 ring-white/25 [text-shadow:0_1px_3px_rgba(15,46,33,0.6)]">
         AIライトノベル
       </span>
-      <h1
-        class="font-serif text-3xl font-medium leading-snug text-primary md:text-5xl md:text-white md:[text-shadow:0_2px_8px_rgba(15,46,33,0.55)]"
-      >
+      <h1 class="font-serif text-3xl font-medium leading-snug text-primary md:text-5xl md:text-white md:[text-shadow:0_2px_8px_rgba(15,46,33,0.55)]">
         遠山郷との始まり
       </h1>
-      <p
-        class="mx-auto max-w-xl text-justify leading-relaxed text-body md:leading-loose md:text-white md:[text-shadow:0_1px_4px_rgba(15,46,33,0.75)]"
-      >
+      <p class="mx-auto max-w-xl text-justify leading-relaxed text-body md:leading-loose md:text-white md:[text-shadow:0_1px_4px_rgba(15,46,33,0.75)]">
         一枚の貼り紙から始まった、ある秘境通いの記録。ひとりの若者がその谷とどう出会い、なぜ何年もかよい続けることになったのか――。まだ何も知らなかった頃から、物語ははじまる。
       </p>
       <div class="mt-2 flex flex-wrap justify-center gap-3">
         <Button href="#p1">物語を読む</Button>
-        <Button href="/join" variant="outline">活動に参加する</Button>
+        <Button href="/join" variant="outline">
+          活動に参加する
+        </Button>
       </div>
     </Container>
   </section>

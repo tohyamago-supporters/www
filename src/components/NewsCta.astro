@@ -17,51 +17,49 @@ interface Props {
 const { compact = false, class: className = '' } = Astro.props
 ---
 
-{
-  compact ? (
-    <Card
-      as="aside"
-      class:list={[
-        'bg-gradient-to-br from-sunlight-soft/50 to-surface px-6 py-7 text-center',
-        className,
-      ]}
-    >
-      <p
-        class="flex items-center justify-center gap-2 font-serif text-lg font-medium text-primary
+{compact ? (
+  <Card
+    as="aside"
+    class:list={[
+      'bg-gradient-to-br from-sunlight-soft/50 to-surface px-6 py-7 text-center',
+      className,
+    ]}
+  >
+    <p
+      class="flex items-center justify-center gap-2 font-serif text-lg font-medium text-primary
                before:text-xs before:text-accent-strong before:content-['▲']"
-      >
-        次は、あなたの番です
-      </p>
-      <p class="mx-auto mt-2 max-w-md text-sm leading-relaxed text-body">
-        気になる活動があれば、ぜひ現地へ。初めての方も大歓迎です。
-      </p>
-      <div class="mt-5 flex flex-wrap justify-center gap-3">
-        <Button href="/join">活動に参加する</Button>
-        <Button href="/support" variant="outline">
-          活動を支える
-        </Button>
-      </div>
-    </Card>
-  ) : (
-    <Card
-      as="section"
-      class:list={[
-        'bg-gradient-to-br from-sunlight-soft/60 to-surface px-6 py-10 text-center md:px-12',
-        className,
-      ]}
     >
-      <SectionHeading as="h2" align="center" class="mb-4">
-        次は、あなたの番です
-      </SectionHeading>
-      <p class="mx-auto max-w-xl leading-loose text-body">
-        記事の一場面に「いいな」と思ったら、ぜひ現地へ。初めての方も大歓迎です。あなたの参加が、この物語の続きになります。
-      </p>
-      <div class="mt-8 flex flex-wrap justify-center gap-3">
-        <Button href="/join">活動に参加する</Button>
-        <Button href="/support" variant="outline">
-          活動を支える
-        </Button>
-      </div>
-    </Card>
-  )
-}
+      次は、あなたの番です
+    </p>
+    <p class="mx-auto mt-2 max-w-md text-sm leading-relaxed text-body">
+      気になる活動があれば、ぜひ現地へ。初めての方も大歓迎です。
+    </p>
+    <div class="mt-5 flex flex-wrap justify-center gap-3">
+      <Button href="/join">活動に参加する</Button>
+      <Button href="/support" variant="outline">
+        活動を支える
+      </Button>
+    </div>
+  </Card>
+) : (
+  <Card
+    as="section"
+    class:list={[
+      'bg-gradient-to-br from-sunlight-soft/60 to-surface px-6 py-10 text-center md:px-12',
+      className,
+    ]}
+  >
+    <SectionHeading as="h2" align="center" class="mb-4">
+      次は、あなたの番です
+    </SectionHeading>
+    <p class="mx-auto max-w-xl leading-loose text-body">
+      記事の一場面に「いいな」と思ったら、ぜひ現地へ。初めての方も大歓迎です。あなたの参加が、この物語の続きになります。
+    </p>
+    <div class="mt-8 flex flex-wrap justify-center gap-3">
+      <Button href="/join">活動に参加する</Button>
+      <Button href="/support" variant="outline">
+        活動を支える
+      </Button>
+    </div>
+  </Card>
+)}

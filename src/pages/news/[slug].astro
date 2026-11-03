@@ -101,9 +101,7 @@ const structuredData = [
         {formatPostDate(post.data.date)}
       </time>
 
-      <h1
-        class="mt-2 font-serif text-2xl leading-snug font-medium text-primary md:text-3xl"
-      >
+      <h1 class="mt-2 font-serif text-2xl leading-snug font-medium text-primary md:text-3xl">
         {post.data.title}
       </h1>
 
@@ -111,48 +109,42 @@ const structuredData = [
         <Content />
       </div>
 
-      {
-        post.data.images.length > 0 && (
-          <div class="mt-8 grid gap-4">
-            {post.data.images.map((img) => (
-              <BlurImage
-                src={img}
-                alt=""
-                sizes="(min-width: 768px) 720px, 100vw"
-                class="w-full overflow-hidden rounded-2xl border border-primary/10"
-                imgClass="w-full object-cover saturate-[0.9]"
-              />
-            ))}
-          </div>
-        )
-      }
+      {post.data.images.length > 0 && (
+        <div class="mt-8 grid gap-4">
+          {post.data.images.map((img) => (
+            <BlurImage
+              src={img}
+              alt=""
+              sizes="(min-width: 768px) 720px, 100vw"
+              class="w-full overflow-hidden rounded-2xl border border-primary/10"
+              imgClass="w-full object-cover saturate-[0.9]"
+            />
+          ))}
+        </div>
+      )}
 
-      {
-        post.data.sourceUrl && (
-          <p class="mt-6 text-sm text-body/70">
-            <a
-              href={post.data.sourceUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              class="text-accent-strong hover:underline"
-            >
-              元の投稿を見る
-            </a>
-          </p>
-        )
-      }
+      {post.data.sourceUrl && (
+        <p class="mt-6 text-sm text-body/70">
+          <a
+            href={post.data.sourceUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="text-accent-strong hover:underline"
+          >
+            元の投稿を見る
+          </a>
+        </p>
+      )}
 
-      {
-        post.data.tags.length > 0 && (
-          <ul class="mt-8 flex flex-wrap gap-2" aria-label="タグ">
-            {post.data.tags.map((tag) => (
-              <li class="rounded-full bg-primary/5 px-3 py-1 text-sm text-accent-strong">
-                #{tag}
-              </li>
-            ))}
-          </ul>
-        )
-      }
+      {post.data.tags.length > 0 && (
+        <ul class="mt-8 flex flex-wrap gap-2" aria-label="タグ">
+          {post.data.tags.map((tag) => (
+            <li class="rounded-full bg-primary/5 px-3 py-1 text-sm text-accent-strong">
+              #{tag}
+            </li>
+          ))}
+        </ul>
+      )}
     </article>
 
     <!-- 前後の記事への導線 (新しい / 古い) -->
@@ -160,45 +152,45 @@ const structuredData = [
       class="mt-12 grid gap-3 border-t border-primary/10 pt-8 sm:grid-cols-2"
       aria-label="前後の記事"
     >
-      {
-        newer ? (
-          <a
-            href={`/news/${newer.id}`}
-            class="group rounded-2xl border border-primary/10 bg-surface px-5 py-4 transition-shadow hover:shadow-md"
-          >
-            <span class="flex items-center gap-1 text-xs text-body/60">
-              <ArrowIcon class="h-[1.1em] w-[1.1em] -scale-x-100 transition-transform motion-safe:group-hover:-translate-x-0.5" />
-              新しい記事
-            </span>
-            <span class="mt-1 block leading-relaxed text-primary">
-              {newer.data.title}
-            </span>
-          </a>
-        ) : (
-          <span class="hidden sm:block" />
-        )
-      }
-      {
-        older && (
-          <a
-            href={`/news/${older.id}`}
-            class="group rounded-2xl border border-primary/10 bg-surface px-5 py-4 text-right transition-shadow hover:shadow-md"
-          >
-            <span class="flex items-center justify-end gap-1 text-xs text-body/60">
-              古い記事
-              <ArrowIcon class="h-[1.1em] w-[1.1em] transition-transform motion-safe:group-hover:translate-x-0.5" />
-            </span>
-            <span class="mt-1 block leading-relaxed text-primary">
-              {older.data.title}
-            </span>
-          </a>
-        )
-      }
+      {newer ? (
+        <a
+          href={`/news/${newer.id}`}
+          class="group rounded-2xl border border-primary/10 bg-surface px-5 py-4 transition-shadow hover:shadow-md"
+        >
+          <span class="flex items-center gap-1 text-xs text-body/60">
+            <ArrowIcon class="h-[1.1em] w-[1.1em] -scale-x-100 transition-transform motion-safe:group-hover:-translate-x-0.5" />
+            新しい記事
+          </span>
+          <span class="mt-1 block leading-relaxed text-primary">
+            {newer.data.title}
+          </span>
+        </a>
+      ) : (
+        <span class="hidden sm:block" />
+      )}
+      {older && (
+        <a
+          href={`/news/${older.id}`}
+          class="group rounded-2xl border border-primary/10 bg-surface px-5 py-4 text-right transition-shadow hover:shadow-md"
+        >
+          <span class="flex items-center justify-end gap-1 text-xs text-body/60">
+            古い記事
+            <ArrowIcon class="h-[1.1em] w-[1.1em] transition-transform motion-safe:group-hover:translate-x-0.5" />
+          </span>
+          <span class="mt-1 block leading-relaxed text-primary">
+            {older.data.title}
+          </span>
+        </a>
+      )}
     </nav>
 
     <div class="mt-10 flex flex-wrap justify-center gap-3">
-      <Button href="/news" variant="outline">近況一覧</Button>
-      <Button href="/news/archive" variant="outline">年・季節でたどる</Button>
+      <Button href="/news" variant="outline">
+        近況一覧
+      </Button>
+      <Button href="/news/archive" variant="outline">
+        年・季節でたどる
+      </Button>
     </div>
 
     <NewsCta class="mt-12" />

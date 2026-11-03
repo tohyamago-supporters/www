@@ -37,25 +37,20 @@ const ACTIVO_URL = 'https://activo.jp/s/a/119414'
       地道な継続の積み重ねから生まれている」という主旨を言い切る。
       タイトルだけで伝わるため説明文は置かず、すぐ本題に入る。 -->
     <header class="mb-12 text-center md:mb-16">
-      <span
-        class="mx-auto mb-4 flex w-fit items-center rounded-full bg-primary-deep px-4 py-1 font-serif text-sm tracking-wide text-white"
-      >
+      <span class="mx-auto mb-4 flex w-fit items-center rounded-full bg-primary-deep px-4 py-1 font-serif text-sm tracking-wide text-white">
         活動の影響
       </span>
-      <h1
-        class="font-serif text-3xl font-medium leading-snug text-primary md:text-4xl"
-      >
-        <span class="inline-block">地道な継続が</span><span class="inline-block"
-          >もたらすもの</span
-        >
+      <h1 class="font-serif text-3xl font-medium leading-snug text-primary md:text-4xl">
+        <span class="inline-block">地道な継続が</span>
+        <span class="inline-block">もたらすもの</span>
       </h1>
     </header>
 
     <!-- 遊休農地の活用と景観の維持 -->
     <section class="mb-16">
-      <SectionHeading as="h2" align="left" class="mb-4"
-        >遊休農地の活用と景観の維持</SectionHeading
-      >
+      <SectionHeading as="h2" align="left" class="mb-4">
+        遊休農地の活用と景観の維持
+      </SectionHeading>
       <!-- モバイルでは写真を本文の上に置く (節をまたいで写真が連続しないよう、
         デスクトップでだけ order で左右に振り分ける) -->
       <div class="grid gap-8 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
@@ -85,7 +80,9 @@ const ACTIVO_URL = 'https://activo.jp/s/a/119414'
             傾斜地特有の性質や課題を学びながら経験と工夫を重ねた結果、今では自立的に管理や作業を行うことができるようになっています。
           </p>
           <div class="flex flex-wrap gap-3 pt-2">
-            <Button href="/news" variant="outline">活動記録を読む</Button>
+            <Button href="/news" variant="outline">
+              活動記録を読む
+            </Button>
           </div>
         </div>
       </div>
@@ -93,9 +90,9 @@ const ACTIVO_URL = 'https://activo.jp/s/a/119414'
 
     <!-- 地域に対する関心と交流機会の創出 -->
     <section class="mb-16">
-      <SectionHeading as="h2" align="left" class="mb-4"
-        >地域に対する関心と交流機会の創出</SectionHeading
-      >
+      <SectionHeading as="h2" align="left" class="mb-4">
+        地域に対する関心と交流機会の創出
+      </SectionHeading>
       <!-- 写真はデスクトップでのみ前節と左右を入れ替える (モバイルは常に本文の上) -->
       <div class="grid gap-8 lg:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">
         <BlurImage
@@ -114,9 +111,9 @@ const ACTIVO_URL = 'https://activo.jp/s/a/119414'
           </p>
           <div class="flex flex-wrap gap-3 pt-2">
             <Button href="/join">はじめての方へ</Button>
-            <Button href={ACTIVO_URL} variant="outline"
-              >ボランティア募集を見る</Button
-            >
+            <Button href={ACTIVO_URL} variant="outline">
+              ボランティア募集を見る
+            </Button>
           </div>
         </div>
       </div>
@@ -124,9 +121,9 @@ const ACTIVO_URL = 'https://activo.jp/s/a/119414'
 
     <!-- 農産物の商品開発: 経済的な自立に向けた取り組みとして置く -->
     <section class="mb-16">
-      <SectionHeading as="h2" align="left" class="mb-4"
-        >農産物の商品開発</SectionHeading
-      >
+      <SectionHeading as="h2" align="left" class="mb-4">
+        農産物の商品開発
+      </SectionHeading>
       <div class="mb-6 max-w-3xl space-y-4 leading-loose text-body">
         <p>
           ボランティアによる農耕作業や景観維持は、いつまでも期待するべきものではありません。里山の資産を世代を超えて残していくためには、これらの作業を魅力ある産業に育て上げ、経済的な自立を目指す必要があります。
@@ -140,25 +137,25 @@ const ACTIVO_URL = 'https://activo.jp/s/a/119414'
       </div>
       <div class="flex flex-wrap gap-3">
         <Button href="/products">成果品を詳しく見る</Button>
-        <Button href={SHOP_URL} variant="outline">オンラインショップ</Button>
+        <Button href={SHOP_URL} variant="outline">
+          オンラインショップ
+        </Button>
       </div>
     </section>
 
     <!-- 次の一歩: いずれの成果も継続が前提であることを述べて締める -->
-    <section
-      class="rounded-3xl border border-primary/10 bg-gradient-to-br from-sunlight-soft/60 to-surface px-6 py-10 text-center md:px-12"
-    >
-      <SectionHeading as="h2" align="center" class="mb-4"
-        >これからの活動に向けて</SectionHeading
-      >
-      <p
-        class="mx-auto max-w-2xl text-left leading-loose text-body sm:text-center"
-      >
+    <section class="rounded-3xl border border-primary/10 bg-gradient-to-br from-sunlight-soft/60 to-surface px-6 py-10 text-center md:px-12">
+      <SectionHeading as="h2" align="center" class="mb-4">
+        これからの活動に向けて
+      </SectionHeading>
+      <p class="mx-auto max-w-2xl text-left leading-loose text-body sm:text-center">
         ここに挙げた成果は、いずれも活動を続けてきたことで少しずつ形になったものです。景観の維持も、関心層の広がりも、商品開発も、続けられなければそこで止まってしまいます。活動に加わっていただくこと、寄付によって支えていただくことが、次の一年を続ける力になります。
       </p>
       <div class="mt-8 flex flex-wrap justify-center gap-3">
         <Button href="/join">はじめての方へ</Button>
-        <Button href="/support" variant="outline">活動を寄付で支える</Button>
+        <Button href="/support" variant="outline">
+          活動を寄付で支える
+        </Button>
       </div>
     </section>
   </Container>

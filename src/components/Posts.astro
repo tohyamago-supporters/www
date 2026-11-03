@@ -29,22 +29,18 @@ const posts = limit === undefined ? sorted : sorted.slice(0, limit)
 const ctaAfter = ctaPositions(posts.length, ctaEvery)
 ---
 
-<section
-  class="mx-auto grid w-full max-w-3xl grid-cols-1 gap-5 px-4 sm:grid-cols-2 sm:px-6"
->
-  {
-    posts.map((post, index) => (
-      <Fragment>
-        <PostCard
-          post={post}
-          class={
-            mobileLimit !== undefined && index >= mobileLimit
-              ? 'max-sm:hidden'
-              : ''
-          }
-        />
-        {ctaAfter.has(index) && <NewsCta compact class="sm:col-span-2" />}
-      </Fragment>
-    ))
-  }
+<section class="mx-auto grid w-full max-w-3xl grid-cols-1 gap-5 px-4 sm:grid-cols-2 sm:px-6">
+  {posts.map((post, index) => (
+    <Fragment>
+      <PostCard
+        post={post}
+        class={
+          mobileLimit !== undefined && index >= mobileLimit
+            ? 'max-sm:hidden'
+            : ''
+        }
+      />
+      {ctaAfter.has(index) && <NewsCta compact class="sm:col-span-2" />}
+    </Fragment>
+  ))}
 </section>

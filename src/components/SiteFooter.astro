@@ -59,13 +59,19 @@ const inlineLinkClass =
           一般社団法人遠山郷応援会
         </a>
         <p class="mt-3 text-sm leading-relaxed text-white/70">
-          長野県・遠山郷の里山と暮らしを、<a
-            href="/join"
-            class={inlineLinkClass}>参加</a
-          >・<a href="/products" class={inlineLinkClass}>購入</a>・<a
-            href="/support"
-            class={inlineLinkClass}>寄付</a
-          >を通じてみんなで応援しています。
+          長野県・遠山郷の里山と暮らしを、
+          <a href="/join" class={inlineLinkClass}>
+            参加
+          </a>
+          ・
+          <a href="/products" class={inlineLinkClass}>
+            購入
+          </a>
+          ・
+          <a href="/support" class={inlineLinkClass}>
+            寄付
+          </a>
+          を通じてみんなで応援しています。
         </p>
       </div>
 
@@ -75,37 +81,35 @@ const inlineLinkClass =
           法令・規約
         </h2>
         <ul class="flex flex-col text-sm">
-          {
-            legalLinks.map((link) => {
-              const active = isActivePath(link.path)
-              return (
-                <li>
-                  <a
-                    href={link.path}
-                    aria-current={active ? 'page' : undefined}
-                    class={linkClass(active)}
+          {legalLinks.map((link) => {
+            const active = isActivePath(link.path)
+            return (
+              <li>
+                <a
+                  href={link.path}
+                  aria-current={active ? 'page' : undefined}
+                  class={linkClass(active)}
+                >
+                  {/* 二重の山アイコン (奥=ティール / 手前=陽光・現在ページはコーラル) */}
+                  <svg
+                    class="h-3.5 w-[1.04rem] shrink-0"
+                    viewBox="0 0 19 16"
+                    aria-hidden="true"
+                    xmlns="http://www.w3.org/2000/svg"
                   >
-                    {/* 二重の山アイコン (奥=ティール / 手前=陽光・現在ページはコーラル) */}
-                    <svg
-                      class="h-3.5 w-[1.04rem] shrink-0"
-                      viewBox="0 0 19 16"
-                      aria-hidden="true"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path d="M1 15L7 1.5L13 15Z" fill="#44b08c" />
-                      <path
-                        d="M9 15L13.5 9.5L18 15Z"
-                        fill={active ? '#f06b4b' : '#ffc24b'}
-                      />
-                    </svg>
-                    <span class="underline decoration-dotted decoration-1 underline-offset-4">
-                      {link.title}
-                    </span>
-                  </a>
-                </li>
-              )
-            })
-          }
+                    <path d="M1 15L7 1.5L13 15Z" fill="#44b08c" />
+                    <path
+                      d="M9 15L13.5 9.5L18 15Z"
+                      fill={active ? '#f06b4b' : '#ffc24b'}
+                    />
+                  </svg>
+                  <span class="underline decoration-dotted decoration-1 underline-offset-4">
+                    {link.title}
+                  </span>
+                </a>
+              </li>
+            )
+          })}
         </ul>
       </nav>
 
@@ -115,7 +119,8 @@ const inlineLinkClass =
           主たる事務所の所在地
         </h2>
         <address class="not-italic leading-relaxed">
-          〒399-1311<br />
+          〒399-1311
+          <br />
           長野県飯田市南信濃和田1239番地
         </address>
         <p class="mt-3">

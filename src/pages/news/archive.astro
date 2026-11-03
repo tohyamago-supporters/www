@@ -29,25 +29,24 @@ const seasonFilters = [
   title="近況アーカイブ"
   description="遠山郷応援会の近況アーカイブ。これまでの活動を公開年と季節からたどれる索引です。"
 >
-  <section
-    class="bg-gradient-to-b from-sky-soft via-base to-base px-4 pt-12 pb-8 text-center sm:pt-16"
-  >
+  <section class="bg-gradient-to-b from-sky-soft via-base to-base px-4 pt-12 pb-8 text-center sm:pt-16">
     <span
       class="mx-auto mb-4 flex w-fit items-center gap-2 rounded-full bg-sunlight-soft px-4 py-1 font-serif text-sm tracking-wide text-primary-deep
              before:text-xs before:text-accent-strong before:content-['▲']"
     >
       近況アーカイブ
     </span>
-    <h1
-      class="font-serif text-3xl font-medium leading-snug text-primary md:text-4xl"
-    >
+    <h1 class="font-serif text-3xl font-medium leading-snug text-primary md:text-4xl">
       年と季節でたどる、これまでの歩み
     </h1>
     <p class="mx-auto mt-5 max-w-2xl leading-loose text-body">
-      {total} 件の記録を、年ごとにまとめました。季節で絞り込めば、年をまたいで「その季節の活動」をたどれます。
+      {total}{' '}
+      件の記録を、年ごとにまとめました。季節で絞り込めば、年をまたいで「その季節の活動」をたどれます。
     </p>
     <div class="mt-6 flex justify-center">
-      <Button href="/news" variant="outline">最新の近況を見る</Button>
+      <Button href="/news" variant="outline">
+        最新の近況を見る
+      </Button>
     </div>
   </section>
 
@@ -61,86 +60,78 @@ const seasonFilters = [
           role="group"
           aria-label="季節でしぼり込む"
         >
-          {
-            seasonFilters.map((f) => (
-              <button
-                type="button"
-                data-season-filter={f.id}
-                aria-pressed={f.id === 'all' ? 'true' : 'false'}
-                class="rounded-full border border-primary/15 bg-surface px-4 py-1.5 text-sm text-primary transition-colors hover:border-accent-strong hover:text-accent-strong aria-pressed:border-accent-strong aria-pressed:bg-accent-strong aria-pressed:text-white"
-              >
-                {f.label}
-              </button>
-            ))
-          }
+          {seasonFilters.map((f) => (
+            <button
+              type="button"
+              data-season-filter={f.id}
+              aria-pressed={f.id === 'all' ? 'true' : 'false'}
+              class="rounded-full border border-primary/15 bg-surface px-4 py-1.5 text-sm text-primary transition-colors hover:border-accent-strong hover:text-accent-strong aria-pressed:border-accent-strong aria-pressed:bg-accent-strong aria-pressed:text-white"
+            >
+              {f.label}
+            </button>
+          ))}
         </div>
       </div>
 
       <!-- 年へのジャンプナビ -->
       <nav class="mb-12" aria-label="年で絞り込む">
         <ul class="flex flex-wrap justify-center gap-2">
-          {
-            groups.map((group) => (
-              <li data-year-nav={group.year}>
-                <a
-                  href={`#y${group.year}`}
-                  class="inline-flex items-center gap-1 rounded-full border border-primary/15 bg-surface px-4 py-1.5 text-sm text-primary transition-colors hover:border-accent-strong hover:text-accent-strong"
-                >
-                  {group.year}
-                  <span class="text-xs text-body/60">
-                    ({group.posts.length})
-                  </span>
-                </a>
-              </li>
-            ))
-          }
+          {groups.map((group) => (
+            <li data-year-nav={group.year}>
+              <a
+                href={`#y${group.year}`}
+                class="inline-flex items-center gap-1 rounded-full border border-primary/15 bg-surface px-4 py-1.5 text-sm text-primary transition-colors hover:border-accent-strong hover:text-accent-strong"
+              >
+                {group.year}
+                <span class="text-xs text-body/60">({group.posts.length})</span>
+              </a>
+            </li>
+          ))}
         </ul>
       </nav>
 
       <div class="space-y-14">
-        {
-          groups.map((group) => (
-            <section
-              id={`y${group.year}`}
-              data-year-section
-              data-year={group.year}
-              class="scroll-mt-24"
-            >
-              <SectionHeading as="h2" align="left" class="mb-5">
-                {group.year}年
-                <span class="ml-2 align-middle text-base font-normal text-body/60">
-                  <span data-count>{group.posts.length}</span> 件
-                </span>
-              </SectionHeading>
-              <ul class="divide-y divide-primary/10 overflow-hidden rounded-2xl border border-primary/10 bg-surface">
-                {group.posts.map((post) => {
-                  const season = getSeason(post.data.date)
-                  return (
-                    <li data-season={season}>
-                      <a
-                        href={`/news/${post.id}`}
-                        class="flex flex-col gap-1 px-5 py-4 transition-colors hover:bg-sunlight-soft/30 focus:outline-none focus-visible:bg-sunlight-soft/40 sm:flex-row sm:items-baseline sm:gap-4"
+        {groups.map((group) => (
+          <section
+            id={`y${group.year}`}
+            data-year-section
+            data-year={group.year}
+            class="scroll-mt-24"
+          >
+            <SectionHeading as="h2" align="left" class="mb-5">
+              {group.year}年
+              <span class="ml-2 align-middle text-base font-normal text-body/60">
+                <span data-count>{group.posts.length}</span> 件
+              </span>
+            </SectionHeading>
+            <ul class="divide-y divide-primary/10 overflow-hidden rounded-2xl border border-primary/10 bg-surface">
+              {group.posts.map((post) => {
+                const season = getSeason(post.data.date)
+                return (
+                  <li data-season={season}>
+                    <a
+                      href={`/news/${post.id}`}
+                      class="flex flex-col gap-1 px-5 py-4 transition-colors hover:bg-sunlight-soft/30 focus:outline-none focus-visible:bg-sunlight-soft/40 sm:flex-row sm:items-baseline sm:gap-4"
+                    >
+                      <time
+                        class="shrink-0 font-mono text-xs font-medium text-accent-strong sm:w-36"
+                        datetime={post.data.date.toISOString()}
                       >
-                        <time
-                          class="shrink-0 font-mono text-xs font-medium text-accent-strong sm:w-36"
-                          datetime={post.data.date.toISOString()}
-                        >
-                          {formatPostDate(post.data.date)}
-                        </time>
-                        <span class="min-w-0 flex-1 truncate leading-relaxed text-body">
-                          {post.data.title}
-                        </span>
-                        <span class="shrink-0 self-start rounded-full bg-primary/5 px-2 py-0.5 text-xs text-body/60 sm:self-auto">
-                          {seasonLabel(season)}
-                        </span>
-                      </a>
-                    </li>
-                  )
-                })}
-              </ul>
-            </section>
-          ))
-        }
+                        {formatPostDate(post.data.date)}
+                      </time>
+                      <span class="min-w-0 flex-1 truncate leading-relaxed text-body">
+                        {post.data.title}
+                      </span>
+                      <span class="shrink-0 self-start rounded-full bg-primary/5 px-2 py-0.5 text-xs text-body/60 sm:self-auto">
+                        {seasonLabel(season)}
+                      </span>
+                    </a>
+                  </li>
+                )
+              })}
+            </ul>
+          </section>
+        ))}
       </div>
     </div>
 
